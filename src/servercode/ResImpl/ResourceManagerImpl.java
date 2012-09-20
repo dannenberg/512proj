@@ -42,7 +42,7 @@ public class ResourceManagerImpl
 		 
 		 // Bind the remote object's stub in the registry
 		 Registry registry = LocateRegistry.getRegistry();
-		 registry.rebind("MyGroupResourceManager", rm);
+		 registry.rebind("Group13ResourceManager", rm);
 		 
 		 System.err.println("Server ready");
 	     } 
@@ -56,6 +56,7 @@ public class ResourceManagerImpl
          if (System.getSecurityManager() == null) {
 	     System.setSecurityManager(new RMISecurityManager());
          }
+    }
 	 
 	 
 	 public ResourceManagerImpl() throws RemoteException {
