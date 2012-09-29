@@ -42,7 +42,7 @@ public class client
         try 
         {
             // get a reference to the rmiregistry
-            Registry registry = LocateRegistry.getRegistry(server, 9899);
+            Registry registry = LocateRegistry.getRegistry(server, 9988);
             // get the proxy and the remote reference by rmiregistry lookup
             rm = (Middleware) registry.lookup("Group13Middleware");
             if(rm!=null)

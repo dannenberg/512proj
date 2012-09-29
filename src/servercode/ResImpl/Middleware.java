@@ -20,9 +20,9 @@ implements ResourceManager {
     
     protected RMHashtable m_itemHT = new RMHashtable();
 
-    static ResourceManagerCar rmc = null;
-    static ResourceManagerPlane rmp = null;
-    static ResourceManagerHotel rmh = null;
+    static ResourceManager rmc = null;
+    static ResourceManager rmp = null;
+    static ResourceManager rmh = null;
 
 
     public static void main(String args[]) {
@@ -36,25 +36,7 @@ implements ResourceManager {
             System.out.println("Usage: java ResImpl.Middleware [port]");
             System.exit(1);
         }
-
-        try 
-        {
-            // create a new Server object
-            Middleware obj = new Middleware();
-            // dynamically generate the stub (client proxy)
-            Middleware rm = (Middleware) UnicastRemoteObject.exportObject(obj, 0);
-
-            // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry(9900);
-            registry.rebind("Group13Middleware", rm);
-
-            System.err.println("Server ready");
-        } 
-        catch (Exception e) 
-        {
-            System.err.println("Server exception: " + e.toString());
-            e.printStackTrace();
-        }
+        /*
 
         try 
         {
@@ -78,7 +60,6 @@ implements ResourceManager {
             System.err.println("Middleware exception: " + e.toString());
             e.printStackTrace();
         }
-
 
         try 
         {
@@ -126,7 +107,26 @@ implements ResourceManager {
             System.err.println("Middleware exception: " + e.toString());
             e.printStackTrace();
         }
+        */
 
+        try 
+        {
+            // create a new Server object
+            Middleware obj = new Middleware();
+            // dynamically generate the stub (client proxy)
+            ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
+
+            // Bind the remote object's stub in the registry
+            Registry registry = LocateRegistry.getRegistry(9988);
+            registry.rebind("Group13Middleware", rm);
+
+            System.err.println("Server ready");
+        } 
+        catch (Exception e) 
+        {
+            System.err.println("Server exception: " + e.toString());
+            e.printStackTrace();
+        }
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new RMISecurityManager());
@@ -250,7 +250,7 @@ implements ResourceManager {
             if( curObj == null ) {
                 // doesn't exist...add it
                 Flight newObj = new Flight( flightNum, flightSeats, flightPrice );
-                rm.writeData( id, newObj.getKey(), newObj );
+                writeData( id, newObj.getKey(), newObj );
                 Trace.info("RM::addFlight(" + id + ") created new flight " + flightNum + ", seats=" +
                         flightSeats + ", price=$" + flightPrice );
             } else {
@@ -259,7 +259,7 @@ implements ResourceManager {
                 if( flightPrice > 0 ) {
                     curObj.setPrice( flightPrice );
                 } // if
-                rm.writeData( id, curObj.getKey(), curObj );
+                writeData( id, curObj.getKey(), curObj );
                 Trace.info("RM::addFlight(" + id + ") modified existing flight " + flightNum + ", seats=" + curObj.getCount() + ", price=$" + flightPrice );
             } // else
             return(true);
