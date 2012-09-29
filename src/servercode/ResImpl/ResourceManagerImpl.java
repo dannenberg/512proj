@@ -41,7 +41,7 @@ public class ResourceManagerImpl
 		 ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
 		 
 		 // Bind the remote object's stub in the registry
-		 Registry registry = LocateRegistry.getRegistry();
+		 Registry registry = LocateRegistry.getRegistry(9898);
 		 registry.rebind("Group13ResourceManager", rm);
 		 
 		 System.err.println("Server ready");

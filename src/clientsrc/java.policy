@@ -1,4 +1,4 @@
-grant codeBase "file:PUT-THE-RIGHT-PATH-HERE" {
+grant codeBase "file:/home/2009/mdanne1/512proj/src/clientsrc" {
     permission java.security.AllPermission;
 };
 
