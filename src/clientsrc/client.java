@@ -10,7 +10,7 @@ import java.io.*;
 public class client
 {
     static String message = "blank";
-    static Middleware rm = null;
+    static ResourceManager rm = null;
 
     public static void main(String args[])
     {
@@ -44,7 +44,7 @@ public class client
             // get a reference to the rmiregistry
             Registry registry = LocateRegistry.getRegistry(server, 9988);
             // get the proxy and the remote reference by rmiregistry lookup
-            rm = (Middleware) registry.lookup("Group13Middleware");
+            rm = (ResourceManager) registry.lookup("Group13Middleware");
             if(rm!=null)
             {
                 System.out.println("Successful");

@@ -36,7 +36,6 @@ implements ResourceManager {
             System.out.println("Usage: java ResImpl.Middleware [port]");
             System.exit(1);
         }
-        /*
 
         try 
         {
@@ -107,7 +106,6 @@ implements ResourceManager {
             System.err.println("Middleware exception: " + e.toString());
             e.printStackTrace();
         }
-        */
 
         try 
         {
