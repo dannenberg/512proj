@@ -134,6 +134,12 @@ implements ResourceManager {
         return value;		
     }
 
+    public void decrementCar(int id, String key) {
+        ReservableItem curObj = (ReservableItem) readData(id, key);
+        curObj.setCount(curObj.getCount() - 1);
+        curObj.setReserved(curObj.getReserved() + 1);
+    }
+
     // reserve an item
     protected boolean reserveItem(int id, int customerID, String key, String location){
         Trace.info("RM::reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );		
