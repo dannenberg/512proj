@@ -38,95 +38,45 @@ implements ResourceManager {
             System.exit(1);
         }
 
-        // TODO make all these try excepts just one and one with good error messages
         try 
         {
-            // get a reference to the rmiregistry
+            // connect to car registry
             Registry registry = LocateRegistry.getRegistry(server, 9897);
-            // get the proxy and the remote reference by rmiregistry lookup
             rmc = (ResourceManager) registry.lookup("Group13ResourceManagerCar");
-            if(rmc!=null)
-            {
-                System.out.println("Successful");
-                System.out.println("Connected to RMCar.  Vroom vroom!");
+            if (rmc != null) {
+                System.out.println("Connected to RMCar!");
+            } else {
+                System.out.println("Failed to connect to RMCar");
             }
-            else
-            {
-                System.out.println("Unsuccessful. Put put put.");
-            }
-            // make call on remote method
-        } 
-        catch (Exception e) 
-        {    
-            System.err.println("Middleware exception: " + e.toString());
-            e.printStackTrace();
-        }
-
-        try 
-        {
-            // get a reference to the rmiregistry
-            Registry registry = LocateRegistry.getRegistry(server, 9898);
-            // get the proxy and the remote reference by rmiregistry lookup
+            // connect to plane registry
+            registry = LocateRegistry.getRegistry(server, 9898);
             rmp = (ResourceManager) registry.lookup("Group13ResourceManagerPlane");
-            if(rmp!=null)
-            {
-                System.out.println("Successful");
-                System.out.println("Connected to RMPlane. Whoooshhhhhh");
+            if(rmp != null) {
+                System.out.println("Connected to RMPlane!");
+            } else {
+                System.out.println("Failed to connect to RMPlane");
             }
-            else
-            {
-                System.out.println("Unsuccessful. NyyeeeeeeeeKAPOW");
-            }
-            // make call on remote method
-        } 
-        catch (Exception e) 
-        {    
-            System.err.println("Middleware exception: " + e.toString());
-            e.printStackTrace();
-        }
-
-
-        try 
-        {
-            // get a reference to the rmiregistry
-            Registry registry = LocateRegistry.getRegistry(server, 9899);
-            // get the proxy and the remote reference by rmiregistry lookup
+            // connect to hotel registry
+            registry = LocateRegistry.getRegistry(server, 9899);
             rmh = (ResourceManager) registry.lookup("Group13ResourceManagerHotel");
-            if(rmh!=null)
-            {
-                System.out.println("Successful");
-                System.out.println("Connected to RMHotel.  Malinga malinga!");
+            if (rmh != null) {
+                System.out.println("Connected to RMHotel!");
+            } else {
+                System.out.println("Failed to connect to RMHotel");
             }
-            else
-            {
-                System.out.println("Unsuccessful. Zambowi!");
-            }
-            // make call on remote method
-        } 
-        catch (Exception e) 
-        {    
-            System.err.println("Middleware exception: " + e.toString());
-            e.printStackTrace();
-        }
-
-        try 
-        {
-            // create a new Server object
+            // set up port for client connections
             Middleware obj = new Middleware();
-            // dynamically generate the stub (client proxy)
             ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
-
-            // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry(9988);
+            registry = LocateRegistry.getRegistry(9988);
             registry.rebind("Group13Middleware", rm);
-
             System.err.println("Server ready");
         } 
         catch (Exception e) 
-        {
-            System.err.println("Server exception: " + e.toString());
+        {    
+            System.err.println("Middleware exception: " + e.toString());
             e.printStackTrace();
         }
+
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new RMISecurityManager());
