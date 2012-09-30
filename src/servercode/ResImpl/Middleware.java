@@ -29,6 +29,7 @@ implements ResourceManager {
         // Figure out where server is running
         String server = "localhost";
 
+        // TODO either start using args or remove this
         if (args.length == 1) {
             server = server + ":" + args[0];
         } else if (args.length != 0 &&  args.length != 1) {
@@ -37,6 +38,7 @@ implements ResourceManager {
             System.exit(1);
         }
 
+        // TODO make all these try excepts just one and one with good error messages
         try 
         {
             // get a reference to the rmiregistry
@@ -135,6 +137,9 @@ implements ResourceManager {
     public Middleware() throws RemoteException {
     }
 
+
+    // TODO remove these methods as they will not be called here
+    // where these are all the private and many of the protected methods
 
     // Reads a data item
     private RMItem readData( int id, String key )
@@ -243,6 +248,8 @@ implements ResourceManager {
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
         throws RemoteException
         {
+            return rmp.addFlight(id, flightNum, flightSeats, flightPrice);
+            /*
             Trace.info("RM::addFlight(" + id + ", " + flightNum + ", $" + flightPrice + ", " + flightSeats + ") called" );
             Flight curObj = (Flight) readData( id, Flight.getKey(flightNum) );
             if( curObj == null ) {
@@ -261,6 +268,7 @@ implements ResourceManager {
                 Trace.info("RM::addFlight(" + id + ") modified existing flight " + flightNum + ", seats=" + curObj.getCount() + ", price=$" + flightPrice );
             } // else
             return(true);
+            */
         }
 
 
@@ -268,7 +276,7 @@ implements ResourceManager {
     public boolean deleteFlight(int id, int flightNum)
         throws RemoteException
         {
-            return deleteItem(id, Flight.getKey(flightNum));
+            return rmp.deleteFlight(id, flightNum);
         }
 
 
@@ -278,6 +286,8 @@ implements ResourceManager {
     public boolean addRooms(int id, String location, int count, int price)
         throws RemoteException
         {
+            return rmh.addRooms(id, location, count, price);
+            /*
             Trace.info("RM::addRooms(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
             Hotel curObj = (Hotel) readData( id, Hotel.getKey(location) );
             if( curObj == null ) {
@@ -295,13 +305,14 @@ implements ResourceManager {
                 Trace.info("RM::addRooms(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
             } // else
             return(true);
+            */
         }
 
     // Delete rooms from a location
     public boolean deleteRooms(int id, String location)
         throws RemoteException
         {
-            return deleteItem(id, Hotel.getKey(location));
+            return rmh.deleteRooms(id, location);
 
         }
 
@@ -310,6 +321,8 @@ implements ResourceManager {
     public boolean addCars(int id, String location, int count, int price)
         throws RemoteException
         {
+            return rmc.addCars(id, location, count, price);
+            /*
             Trace.info("RM::addCars(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
             Car curObj = (Car) readData( id, Car.getKey(location) );
             if( curObj == null ) {
@@ -327,6 +340,7 @@ implements ResourceManager {
                 Trace.info("RM::addCars(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
             } // else
             return(true);
+            */
         }
 
 
@@ -334,7 +348,7 @@ implements ResourceManager {
     public boolean deleteCars(int id, String location)
         throws RemoteException
         {
-            return deleteItem(id, Car.getKey(location));
+            return rmc.deleteCars(id, location);
         }
 
 
@@ -343,7 +357,7 @@ implements ResourceManager {
     public int queryFlight(int id, int flightNum)
         throws RemoteException
         {
-            return queryNum(id, Flight.getKey(flightNum));
+            return rmp.queryFlight(id, flightNum);
         }
 
     // Returns the number of reservations for this flight. 
@@ -364,7 +378,7 @@ implements ResourceManager {
     public int queryFlightPrice(int id, int flightNum )
         throws RemoteException
         {
-            return queryPrice(id, Flight.getKey(flightNum));
+            return rmp.queryFlightPrice(id, flightNum);
         }
 
 
@@ -372,7 +386,7 @@ implements ResourceManager {
     public int queryRooms(int id, String location)
         throws RemoteException
         {
-            return queryNum(id, Hotel.getKey(location));
+            return rmh.queryRooms(id, location);
         }
 
 
@@ -382,7 +396,7 @@ implements ResourceManager {
     public int queryRoomsPrice(int id, String location)
         throws RemoteException
         {
-            return queryPrice(id, Hotel.getKey(location));
+            return rmh.queryRoomsPrice(id, location);
         }
 
 
@@ -390,7 +404,7 @@ implements ResourceManager {
     public int queryCars(int id, String location)
         throws RemoteException
         {
-            return queryNum(id, Car.getKey(location));
+            return rmc.queryCars(id, location);
         }
 
 
@@ -398,7 +412,7 @@ implements ResourceManager {
     public int queryCarsPrice(int id, String location)
         throws RemoteException
         {
-            return queryPrice(id, Car.getKey(location));
+            return rmc.queryCarsPrice(id, location);
         }
 
     // Returns data structure containing customer reservation info. Returns null if the
