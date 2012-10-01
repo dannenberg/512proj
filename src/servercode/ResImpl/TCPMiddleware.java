@@ -750,8 +750,18 @@ class Connection extends Thread {
                         out.writeUTF("FALSE");
 
                 else if(splat[0].equals("RESITI"))
-                    ;  // TODO: stupid
-
+                {
+                    int veclen = splat.length - 6;
+                    Vector sendme = new Vector();
+                    for(int i=0; i<veclen; i++)
+                        sendme.add(veclen[i + 3]);
+                    if(master.itinerary(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
+                            sendme, splat[splat.length - 3], Boolean.getBoolean(splat[splat.length - 2]),
+                            Boolean.getBoolean(splat[splat.length - 1])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+                }
                 else if(splat[0].equals("QUICLI"))
                     break;
 
