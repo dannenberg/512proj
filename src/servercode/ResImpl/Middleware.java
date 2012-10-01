@@ -405,15 +405,14 @@ implements ResourceManager {
                 Trace.warn("RM::queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
                 return "";   // NOTE: don't change this--WC counts on this value indicating a customer does not exist...
             } else {
-                String s = "Bill for customer " + m_nID + "\n";
-                Object key = null;
+                String s = "Bill for customer " + customerID + "\n";
+                String key = null;
                 RMHashtable m_Reservations = cust.getReservations();
                 ResourceManager whom;
                 for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
-                    key = e.nextElement();
+                    key = (String) e.nextElement();
                     whom = sendToWhom(key);
-                    ReservedItem item = (ReservedItem) m_Reservations.get( key );
-                    s += whom.getNum(id, key) + " " + key + " $" + whom.getPrice(id, key) + "\n";
+                    s += whom.queryNum(id, key) + " " + key + " $" + whom.queryPrice(id, key) + "\n";
                 }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
                 System.out.println( s );
