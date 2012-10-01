@@ -111,6 +111,14 @@ public interface ResourceManager extends Remote
     public int queryCarsPrice(int id, String location) 
 	throws RemoteException; 
 
+    /* return the num */
+    public int queryNum(int id, String location) 
+	throws RemoteException; 
+
+    /* return the price  */
+    public int queryPrice(int id, String location) 
+	throws RemoteException; 
+
     /* return the price of a room at a location */
     public int queryRoomsPrice(int id, String location) 
 	throws RemoteException; 
@@ -127,6 +135,8 @@ public interface ResourceManager extends Remote
     public boolean reserveRoom(int id, int customer, String locationd) 
 	throws RemoteException; 
 
+    public void decrementItem(int id, String key) 
+    throws RemoteException;
 
     /* reserve an itinerary */
     public boolean itinerary(int id,int customer,Vector flightNumbers,String location, boolean Car, boolean Room)

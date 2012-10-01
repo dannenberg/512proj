@@ -111,7 +111,7 @@ implements ResourceManager {
 
 
     // query the number of available seats/rooms/cars
-    protected int queryNum(int id, String key) {
+    public int queryNum(int id, String key) {
         Trace.info("RM::queryNum(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0;  
@@ -123,7 +123,7 @@ implements ResourceManager {
     }	
 
     // query the price of an item
-    protected int queryPrice(int id, String key){
+    public int queryPrice(int id, String key){
         Trace.info("RM::queryCarsPrice(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0; 
@@ -134,7 +134,7 @@ implements ResourceManager {
         return value;		
     }
 
-    public void decrementCar(int id, String key) {
+    public void decrementItem(int id, String key) {
         ReservableItem curObj = (ReservableItem) readData(id, key);
         curObj.setCount(curObj.getCount() - 1);
         curObj.setReserved(curObj.getReserved() + 1);

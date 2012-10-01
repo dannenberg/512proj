@@ -85,6 +85,8 @@ public class client
             command=command.trim();
             arguments=obj.parse(command);
 
+            if (arguments.isEmpty())
+                continue;
             //decide which of the commands this was
             switch(obj.findChoice((String)arguments.elementAt(0))){
                 case 1: //help section

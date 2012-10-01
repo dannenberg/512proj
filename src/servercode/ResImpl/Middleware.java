@@ -139,7 +139,7 @@ implements ResourceManager {
 
 
     // query the number of available seats/rooms/cars
-    protected int queryNum(int id, String key) {
+    public int queryNum(int id, String key) {
         Trace.info("RM::queryNum(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0;  
@@ -151,7 +151,7 @@ implements ResourceManager {
     }    
 
     // query the price of an item
-    protected int queryPrice(int id, String key){
+    public int queryPrice(int id, String key){
         Trace.info("RM::queryCarsPrice(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0; 
@@ -160,6 +160,12 @@ implements ResourceManager {
         } // else
         Trace.info("RM::queryCarsPrice(" + id + ", " + key + ") returns cost=$" + value );
         return value;        
+    }
+
+    public void decrementItem(int id, String key) {
+        ReservableItem curObj = (ReservableItem) readData(id, key);
+        curObj.setCount(curObj.getCount() - 1);
+        curObj.setReserved(curObj.getReserved() + 1);
     }
 
     // reserve an item
@@ -488,7 +494,29 @@ implements ResourceManager {
     public boolean reserveCar(int id, int customerID, String location)
         throws RemoteException
         {
-            return reserveItem(id, customerID, Car.getKey(location), location);
+        String key = Car.getKey(location);
+        Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
+        // Read customer object if it exists (and read lock it)
+        Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
+        if( cust == null ) {
+            Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
+            return false;
+        } 
+
+        // MAKE THE CAR SERVER DO THE THINGS
+        int num = rmc.queryNum(id, key);
+        if (num == 0) {
+            Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
+            return false;
+        } else {            
+            cust.reserve( key, location, rmc.queryPrice(id, key));        
+            writeData( id, cust.getKey(), cust );
+
+            rmc.decrementItem(id, key);
+
+            Trace.info("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
+            return true;
+        }        
         }
 
 
@@ -496,13 +524,58 @@ implements ResourceManager {
     public boolean reserveRoom(int id, int customerID, String location)
         throws RemoteException
         {
-            return reserveItem(id, customerID, Hotel.getKey(location), location);
+        String key = Hotel.getKey(location);
+        Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
+        // Read customer object if it exists (and read lock it)
+        Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
+        if( cust == null ) {
+            Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
+            return false;
+        } 
+
+        // MAKE THE HOTEL SERVER DO THE THINGS
+        int num = rmh.queryNum(id, key);
+        if (num == 0) {
+            Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
+            return false;
+        } else {            
+            cust.reserve( key, location, rmc.queryPrice(id, key));        
+            writeData( id, cust.getKey(), cust );
+
+            rmh.decrementItem(id, key);
+
+            Trace.info("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
+            return true;
+        }        
         }
+
     // Adds flight reservation to this customer.  
     public boolean reserveFlight(int id, int customerID, int flightNum)
         throws RemoteException
         {
-            return reserveItem(id, customerID, Flight.getKey(flightNum), String.valueOf(flightNum));
+        String key = Flight.getKey(flightNum);
+        Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );        
+        // Read customer object if it exists (and read lock it)
+        Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
+        if( cust == null ) {
+            Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", "+flightNum+")  failed--customer doesn't exist" );
+            return false;
+        } 
+
+        // MAKE THE PLANE SERVER DO THE THINGS
+        int num = rmp.queryNum(id, key);
+        if (num == 0) {
+            Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
+            return false;
+        } else {            
+            cust.reserve( key, String.valueOf(flightNum), rmc.queryPrice(id, key));        
+            writeData( id, cust.getKey(), cust );
+
+            rmp.decrementItem(id, key);
+
+            Trace.info("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", " +flightNum+") succeeded" );
+            return true;
+        }        
         }
 
     /* reserve an itinerary */
