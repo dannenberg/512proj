@@ -643,17 +643,124 @@ class Connection extends Thread {
     }
     public void run(){
         try {
-            // an echo server
-            String data = in.readUTF();
-            String[] splat = data.split(",");
-            if(splat[0].equals("NEWFLI"))
+            while(true)
             {
-                boolean worked = master.addFlight(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
-                    Integer.parseInt(splat[3]), Integer.parseInt(splat[4]));
-                if (worked)
-                    out.writeUTF("TRUE");
-                else
-                    out.writeUTF("FALSE");
+                String data = in.readUTF();
+                String[] splat = data.split(",");
+                
+                if(splat[0].equals("NEWFLI"))
+                    if (master.addFlight(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
+                            Integer.parseInt(splat[3]), Integer.parseInt(splat[4])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("NEWCAR"))
+                    if (master.addCar(Integer.parseInt(splat[1]), splat[2],
+                            Integer.parseInt(splat[3]), Integer.parseInt(splat[4])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("NEWROO"))
+                    if (master.addRoom(Integer.parseInt(splat[1]), splat[2],
+                            Integer.parseInt(splat[3]), Integer.parseInt(splat[4])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("NEWCUS"))
+                    out.writeUTF("" + master.newCustomer(Integer.parseInt(splat[1])));
+
+                else if(splat[0].equals("DELFLI"))
+                    if(master.deleteFlight(Integer.parseInt(splat[1]),
+                            Integer.parseInt(splat[2])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("DELCAR"))
+                    if(master.deleteCar(Integer.parseInt(splat[1]),
+                            splat[2]))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("DELROO"))
+                    if(master.deleteRoom(Integer.parseInt(splat[1]),
+                            splat[2]))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("DELCUS"))
+                    if(master.deleteCustomer(Integer.parseInt(splat[1]),
+                            Integer.parseInt(splat[2])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("QUEFLI"))
+                    out.writeUTF("" + master.queryFlight(Integer.parseInt(splat[1]),
+                        Integer.parseInt(splat[2])));
+
+                else if(splat[0].equals("QUECAR"))
+                    out.writeUTF("" + master.queryCars(Integer.parseInt(splat[1]),
+                        splat[2]);
+
+                else if(splat[0].equals("QUEROO"))
+                    out.writeUTF("" + master.queryRooms(Integer.parseInt(splat[1]),
+                        splat[2]);
+
+                else if(splat[0].equals("QUECUS"))
+                    out.writeUTF(master.queryCustomerInfo(Integer.parseInt(splat[1]),
+                        splat[2]));
+
+                else if(splat[0].equals("PRIFLI"))
+                    out.writeUTF("" + master.queryFlightPrice(Integer.parseInt(splat[1]),
+                        Integer.parseInt(splat[2])));
+
+                else if(splat[0].equals("PRICAR"))
+                    out.writeUTF("" + master.queryCarsPrice(Integer.parseInt(splat[1]),
+                        splat[2]));
+
+                else if(splat[0].equals("PRIROO"))
+                    out.writeUTF("" + master.queryRoomsPrice(Integer.parseInt(splat[1]),
+                        splat[2]));
+
+                else if(splat[0].equals("RESFLI"))
+                    if(master.reserveFlight(Integer.parseInt(splat[1]),
+                            Integer.parseInt(splat[2]), Integer.parseInt(splat[3])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("RESCAR"))
+                    if(master.reserveCar(Integer.parseInt(splat[1]),
+                            Integer.parseInt(splat[2]), splat[3]))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("RESROO"))
+                    if(master.reserveRoom(Integer.parseInt(splat[1]),
+                            Integer.parseInt(splat[2]), splat[3]))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
+
+                else if(splat[0].equals("RESITI"))
+                    ;  // TODO: stupid
+
+                else if(splat[0].equals("QUICLI"))
+                    break;
+
+                else if(splat[0].equals("NEWCU2"))
+                    if(master.newCustomer(Integer.parseInt(splat[1]),
+                            Integer.parseInt(splat[2])))
+                        out.writeUTF("TRUE");
+                    else
+                        out.writeUTF("FALSE");
             }
             //out.writeUTF(data);
         } catch(EOFException e) {System.out.println("EOF:"+e.getMessage());
