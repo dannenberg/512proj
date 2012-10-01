@@ -519,12 +519,18 @@ public class TCPClient
                             Vector flightNumbers = new Vector();
                             for(int i=0;i<arguments.size()-6;i++)
                                 flightNumbers.addElement(arguments.elementAt(3+i));
+                            // build vector into string
+                            String flights = new String();
+                            ListIterator itr = flightNumbers.listIterator();
+                            while (itr.hasNext()) {
+                                flights += itr.next() + ",";
+                            }
+
                             location = obj.getString(arguments.elementAt(arguments.size()-3));
                             Car = obj.getBoolean(arguments.elementAt(arguments.size()-2));
                             Room = obj.getBoolean(arguments.elementAt(arguments.size()-1));
 
-                            //TODO ensure the vector string/destring works
-                            out.writeUTF("RESITI,"+Id+","+customer+","+flightNumbers+","+location+","+Car+","+Room);
+                            out.writeUTF("RESITI,"+Id+","+customer+","+flights+location+","+Car+","+Room);
                             String response = in.readUTF();
                             if (response.equals("TRUE"))
                                 System.out.println("Itinerary Reserved");
