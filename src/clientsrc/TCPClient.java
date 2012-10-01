@@ -10,7 +10,7 @@ public class TCPClient
 
     public static void main(String args[])
     {
-        client obj = new client();
+        TCPClient obj = new TCPClient();
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String command = "";
         Vector arguments  = new Vector();
@@ -92,7 +92,7 @@ public class TCPClient
                             flightPrice = obj.getInt(arguments.elementAt(4));
                             out.writeUTF("NEWFLI,"+Id+","+flightNum+","+flightSeats+","+flightPrice);
                             String response = in.readUTF();
-                            if (response == "TRUE")
+                            if (response.equals("TRUE"))
                                 System.out.println("Flight successfully added");
                             else
                                 System.out.println("Flight could not be added");

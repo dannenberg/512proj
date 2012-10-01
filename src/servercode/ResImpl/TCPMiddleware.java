@@ -70,9 +70,10 @@ implements ResourceManager {
             int serverport =9988; //TODO make dynamic?
             ServerSocket listenSocket = new ServerSocket(9988);
             System.err.println("Server ready");
+            TCPMiddleware customerServer = new TCPMiddleware();
             while (true) {
                 Socket clientSocket = listenSocket.accept();
-                Connection c = new Connection(clientSocket);
+                Connection c = new Connection(clientSocket, customerServer);
             }
 
         } 
@@ -647,8 +648,12 @@ class Connection extends Thread {
             String[] splat = data.split(",");
             if(splat[0].equals("NEWFLI"))
             {
-                master.addFlight(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
+                boolean worked = master.addFlight(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
                     Integer.parseInt(splat[3]), Integer.parseInt(splat[4]));
+                if (worked)
+                    out.writeUTF("TRUE");
+                else
+                    out.writeUTF("FALSE");
             }
             //out.writeUTF(data);
         } catch(EOFException e) {System.out.println("EOF:"+e.getMessage());
