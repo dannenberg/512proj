@@ -630,7 +630,9 @@ class Connection extends Thread {
     DataInputStream in;
     DataOutputStream out;
     Socket clientSocket;
-    public Connection (Socket aClientSocket) {
+    TCPMiddleware master;
+    public Connection (Socket aClientSocket, TCPMiddleware mast) {
+        master = mast;
         try {
             clientSocket = aClientSocket;
             in = new DataInputStream( clientSocket.getInputStream());
@@ -642,7 +644,13 @@ class Connection extends Thread {
         try {
             // an echo server
             String data = in.readUTF();
-            out.writeUTF(data);
+            String[] splat = data.split(",");
+            if(splat[0].equals("NEWFLI"))
+            {
+                master.addFlight(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
+                    Integer.parseInt(splat[3]), Integer.parseInt(splat[4]));
+            }
+            //out.writeUTF(data);
         } catch(EOFException e) {System.out.println("EOF:"+e.getMessage());
         } catch(IOException e) {System.out.println("IO:"+e.getMessage());
         } finally { try {clientSocket.close();}catch (IOException e){/*close failed*/}}
