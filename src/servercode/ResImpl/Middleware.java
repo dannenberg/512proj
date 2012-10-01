@@ -168,6 +168,14 @@ implements ResourceManager {
         curObj.setReserved(curObj.getReserved() + 1);
     }
 
+    public void incrementItem(int id, String key, int change) {
+        ReservableItem curObj = (ReservableItem) readData(id, key);
+        curObj.setCount(curObj.getCount() + change);
+        curObj.setReserved(curObj.getReserved() - change);
+    }   
+
+
+
     // reserve an item
     protected boolean reserveItem(int id, int customerID, String key, String location){
         Trace.info("RM::reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        

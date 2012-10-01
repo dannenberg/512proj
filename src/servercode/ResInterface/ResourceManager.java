@@ -135,6 +135,9 @@ public interface ResourceManager extends Remote
     public boolean reserveRoom(int id, int customer, String locationd) 
 	throws RemoteException; 
 
+    public void incrementItem(int id, String key, int change) 
+    throws RemoteException;
+
     public void decrementItem(int id, String key) 
     throws RemoteException;
 
