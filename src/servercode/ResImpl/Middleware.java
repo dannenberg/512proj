@@ -464,14 +464,14 @@ implements ResourceManager {
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
 
-                    ResourceManager sendto;
+                    ResourceManager sendto = null;
                     if(reservedkey.startsWith("car-"))
                         sendto = rmc;
                     else if(reservedkey.startsWith("flight-"))
-                        sendto = rmf;
+                        sendto = rmp;
                     else if(reservedkey.startsWith("room-"))
                         sendto = rmh;
-                    sendto.incrementItem(id, keyname, reserveditem.getCount());
+                    sendto.incrementItem(id, reservedkey, reserveditem.getCount());
                     // TODO: the trace is bad now
                     //Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + "which is reserved" +  item.getReserved() +  " times and is still available " + item.getCount() + " times"  );
                 }
