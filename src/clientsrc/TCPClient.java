@@ -103,7 +103,6 @@ public class TCPClient
                             e.printStackTrace();
                         }
                         break;
-/* TODO rework all other commands
 
                     case 3:  //new Car
                         if(arguments.size()!=5){
@@ -119,10 +118,12 @@ public class TCPClient
                             location = obj.getString(arguments.elementAt(2));
                             numCars = obj.getInt(arguments.elementAt(3));
                             price = obj.getInt(arguments.elementAt(4));
-                            if(rm.addCars(Id,location,numCars,price))
-                                System.out.println("Cars added");
+                            out.writeUTF("NEWCAR,"+Id+","+location+","+numCars+","+price);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
+                                System.out.println("Car successfully added");
                             else
-                                System.out.println("Cars could not be added");
+                                System.out.println("Car could not be added");
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -145,8 +146,10 @@ public class TCPClient
                             location = obj.getString(arguments.elementAt(2));
                             numRooms = obj.getInt(arguments.elementAt(3));
                             price = obj.getInt(arguments.elementAt(4));
-                            if(rm.addRooms(Id,location,numRooms,price))
-                                System.out.println("Rooms added");
+                            out.writeUTF("NEWROO,"+Id+","+location+","+numRooms+","+price);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
+                                System.out.println("Rooms successfully added");
                             else
                                 System.out.println("Rooms could not be added");
                         }
@@ -165,8 +168,9 @@ public class TCPClient
                         System.out.println("Adding a new Customer using id:"+arguments.elementAt(1));
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
-                            int customer=rm.newCustomer(Id);
-                            System.out.println("new customer id:"+customer);
+                            out.writeUTF("NEWCUS,"+Id);
+                            String response = in.readUTF();
+                            System.out.println("new customer id:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -185,7 +189,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             flightNum = obj.getInt(arguments.elementAt(2));
-                            if(rm.deleteFlight(Id,flightNum))
+                            out.writeUTF("DELFLI,"+Id+","+flightNum);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Flight Deleted");
                             else
                                 System.out.println("Flight could not be deleted");
@@ -207,8 +213,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             location = obj.getString(arguments.elementAt(2));
-
-                            if(rm.deleteCars(Id,location))
+                            out.writeUTF("DELCAR,"+Id+","+location);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Cars Deleted");
                             else
                                 System.out.println("Cars could not be deleted");
@@ -230,7 +237,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             location = obj.getString(arguments.elementAt(2));
-                            if(rm.deleteRooms(Id,location))
+                            out.writeUTF("DELROO,"+Id+","+location);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Rooms Deleted");
                             else
                                 System.out.println("Rooms could not be deleted");
@@ -252,7 +261,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             int customer = obj.getInt(arguments.elementAt(2));
-                            if(rm.deleteCustomer(Id,customer))
+                            out.writeUTF("DELCUS,"+Id+","+customer);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Customer Deleted");
                             else
                                 System.out.println("Customer could not be deleted");
@@ -274,8 +285,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             flightNum = obj.getInt(arguments.elementAt(2));
-                            int seats=rm.queryFlight(Id,flightNum);
-                            System.out.println("Number of seats available:"+seats);
+                            out.writeUTF("QUEFLI,"+Id+","+flightNum);
+                            String response = in.readUTF();
+                            System.out.println("Number of seats available:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -294,8 +306,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             location = obj.getString(arguments.elementAt(2));
-                            numCars=rm.queryCars(Id,location);
-                            System.out.println("number of Cars at this location:"+numCars);
+                            out.writeUTF("QUECAR,"+Id+","+location);
+                            String response = in.readUTF();
+                            System.out.println("number of Cars at this location:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -314,8 +327,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             location = obj.getString(arguments.elementAt(2));
-                            numRooms=rm.queryRooms(Id,location);
-                            System.out.println("number of Rooms at this location:"+numRooms);
+                            out.writeUTF("QUEROO,"+Id+","+location);
+                            String response = in.readUTF();
+                            System.out.println("number of Rooms at this location:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -334,8 +348,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             int customer = obj.getInt(arguments.elementAt(2));
-                            String bill=rm.queryCustomerInfo(Id,customer);
-                            System.out.println("Customer info:"+bill);
+                            out.writeUTF("QUECUS,"+Id+","+customer);
+                            String response = in.readUTF();
+                            System.out.println("Customer info:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -354,8 +369,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             flightNum = obj.getInt(arguments.elementAt(2));
-                            price=rm.queryFlightPrice(Id,flightNum);
-                            System.out.println("Price of a seat:"+price);
+                            out.writeUTF("PRIFLI,"+Id+","+flightNum);
+                            String response = in.readUTF();
+                            System.out.println("Price of a seat:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -374,8 +390,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             location = obj.getString(arguments.elementAt(2));
-                            price=rm.queryCarsPrice(Id,location);
-                            System.out.println("Price of a car at this location:"+price);
+                            out.writeUTF("PRICAR,"+Id+","+location);
+                            String response = in.readUTF();
+                            System.out.println("Price of a car at this location:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -394,8 +411,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             location = obj.getString(arguments.elementAt(2));
-                            price=rm.queryRoomsPrice(Id,location);
-                            System.out.println("Price of Rooms at this location:"+price);
+                            out.writeUTF("PRIROO,"+Id+","+location);
+                            String response = in.readUTF();
+                            System.out.println("Price of Rooms at this location:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -416,7 +434,9 @@ public class TCPClient
                             Id = obj.getInt(arguments.elementAt(1));
                             int customer = obj.getInt(arguments.elementAt(2));
                             flightNum = obj.getInt(arguments.elementAt(3));
-                            if(rm.reserveFlight(Id,customer,flightNum))
+                            out.writeUTF("RESFLI,"+Id+","+customer+","+flightNum);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Flight Reserved");
                             else
                                 System.out.println("Flight could not be reserved.");
@@ -441,8 +461,9 @@ public class TCPClient
                             Id = obj.getInt(arguments.elementAt(1));
                             int customer = obj.getInt(arguments.elementAt(2));
                             location = obj.getString(arguments.elementAt(3));
-
-                            if(rm.reserveCar(Id,customer,location))
+                            out.writeUTF("RESCAR,"+Id+","+customer+","+location);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Car Reserved");
                             else
                                 System.out.println("Car could not be reserved.");
@@ -466,8 +487,9 @@ public class TCPClient
                             Id = obj.getInt(arguments.elementAt(1));
                             int customer = obj.getInt(arguments.elementAt(2));
                             location = obj.getString(arguments.elementAt(3));
-
-                            if(rm.reserveRoom(Id,customer,location))
+                            out.writeUTF("RESROO,"+Id+","+customer+","+location);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Room Reserved");
                             else
                                 System.out.println("Room could not be reserved.");
@@ -501,7 +523,10 @@ public class TCPClient
                             Car = obj.getBoolean(arguments.elementAt(arguments.size()-2));
                             Room = obj.getBoolean(arguments.elementAt(arguments.size()-1));
 
-                            if(rm.itinerary(Id,customer,flightNumbers,location,Car,Room))
+                            //TODO ensure the vector string/destring works
+                            out.writeUTF("RESITI,"+Id+","+customer+","+flightNumbers+","+location+","+Car+","+Room);
+                            String response = in.readUTF();
+                            if (response.equals("TRUE"))
                                 System.out.println("Itinerary Reserved");
                             else
                                 System.out.println("Itinerary could not be reserved.");
@@ -518,6 +543,7 @@ public class TCPClient
                             obj.wrongNumber();
                             break;
                         }
+                        out.writeUTF("QUICLI");
                         System.out.println("Quitting client.");
                         System.exit(1);
 
@@ -531,8 +557,9 @@ public class TCPClient
                         try{
                             Id = obj.getInt(arguments.elementAt(1));
                             Cid = obj.getInt(arguments.elementAt(2));
-                            boolean customer=rm.newCustomer(Id,Cid);
-                            System.out.println("new customer id:"+Cid);
+                            out.writeUTF("NEWCU2,"+Id+","+Cid);
+                            String response = in.readUTF();
+                            System.out.println("new customer id:"+Integer.parseInt(response));
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
@@ -540,7 +567,6 @@ public class TCPClient
                             e.printStackTrace();
                         }
                         break;
-*/
 
                     default:
                         System.out.println("The interface does not support this command.");
