@@ -656,14 +656,14 @@ class Connection extends Thread {
                         out.writeUTF("FALSE");
 
                 else if(splat[0].equals("NEWCAR"))
-                    if (master.addCar(Integer.parseInt(splat[1]), splat[2],
+                    if (master.addCars(Integer.parseInt(splat[1]), splat[2],
                             Integer.parseInt(splat[3]), Integer.parseInt(splat[4])))
                         out.writeUTF("TRUE");
                     else
                         out.writeUTF("FALSE");
 
                 else if(splat[0].equals("NEWROO"))
-                    if (master.addRoom(Integer.parseInt(splat[1]), splat[2],
+                    if (master.addRooms(Integer.parseInt(splat[1]), splat[2],
                             Integer.parseInt(splat[3]), Integer.parseInt(splat[4])))
                         out.writeUTF("TRUE");
                     else
@@ -680,14 +680,14 @@ class Connection extends Thread {
                         out.writeUTF("FALSE");
 
                 else if(splat[0].equals("DELCAR"))
-                    if(master.deleteCar(Integer.parseInt(splat[1]),
+                    if(master.deleteCars(Integer.parseInt(splat[1]),
                             splat[2]))
                         out.writeUTF("TRUE");
                     else
                         out.writeUTF("FALSE");
 
                 else if(splat[0].equals("DELROO"))
-                    if(master.deleteRoom(Integer.parseInt(splat[1]),
+                    if(master.deleteRooms(Integer.parseInt(splat[1]),
                             splat[2]))
                         out.writeUTF("TRUE");
                     else
@@ -706,15 +706,15 @@ class Connection extends Thread {
 
                 else if(splat[0].equals("QUECAR"))
                     out.writeUTF("" + master.queryCars(Integer.parseInt(splat[1]),
-                        splat[2]);
+                        splat[2]));
 
                 else if(splat[0].equals("QUEROO"))
                     out.writeUTF("" + master.queryRooms(Integer.parseInt(splat[1]),
-                        splat[2]);
+                        splat[2]));
 
                 else if(splat[0].equals("QUECUS"))
                     out.writeUTF(master.queryCustomerInfo(Integer.parseInt(splat[1]),
-                        splat[2]));
+                        Integer.parseInt(splat[2])));
 
                 else if(splat[0].equals("PRIFLI"))
                     out.writeUTF("" + master.queryFlightPrice(Integer.parseInt(splat[1]),

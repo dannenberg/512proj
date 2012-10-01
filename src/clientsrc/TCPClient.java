@@ -559,7 +559,10 @@ public class TCPClient
                             Cid = obj.getInt(arguments.elementAt(2));
                             out.writeUTF("NEWCU2,"+Id+","+Cid);
                             String response = in.readUTF();
-                            System.out.println("new customer id:"+Integer.parseInt(response));
+                            if (response.equals("TRUE"))
+                                System.out.println("new customer id:"+Cid);
+                            else
+                                System.out.println("failed to create new customer");
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
