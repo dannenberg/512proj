@@ -455,10 +455,17 @@ implements ResourceManager {
                     String reservedkey = (String) (e.nextElement());
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
-                    ReservableItem item  = (ReservableItem) readData(id, reserveditem.getKey());
-                    Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + "which is reserved" +  item.getReserved() +  " times and is still available " + item.getCount() + " times"  );
-                    item.setReserved(item.getReserved()-reserveditem.getCount());
-                    item.setCount(item.getCount()+reserveditem.getCount());
+
+                    ResourceManager sendto;
+                    if(reservedkey.startsWith("car-"))
+                        sendto = rmc;
+                    else if(reservedkey.startsWith("flight-"))
+                        sendto = rmf;
+                    else if(reservedkey.startsWith("room-"))
+                        sendto = rmh;
+                    sendto.incrementItem(id, keyname, reserveditem.getCount());
+                    // TODO: the trace is bad now
+                    //Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + "which is reserved" +  item.getReserved() +  " times and is still available " + item.getCount() + " times"  );
                 }
 
                 // remove the customer from the storage
