@@ -405,7 +405,16 @@ implements ResourceManager {
                 Trace.warn("RM::queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
                 return "";   // NOTE: don't change this--WC counts on this value indicating a customer does not exist...
             } else {
-                String s = cust.printBill();
+                String s = "Bill for customer " + m_nID + "\n";
+                Object key = null;
+                RMHashtable m_Reservations = cust.getReservations();
+                ResourceManager whom;
+                for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
+                    key = e.nextElement();
+                    whom = sendToWhom(key);
+                    ReservedItem item = (ReservedItem) m_Reservations.get( key );
+                    s += whom.getNum(id, key) + " " + key + " $" + whom.getPrice(id, key) + "\n";
+                }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
                 System.out.println( s );
                 return s;
@@ -464,13 +473,7 @@ implements ResourceManager {
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
 
-                    ResourceManager sendto = null;
-                    if(reservedkey.startsWith("car-"))
-                        sendto = rmc;
-                    else if(reservedkey.startsWith("flight-"))
-                        sendto = rmp;
-                    else if(reservedkey.startsWith("room-"))
-                        sendto = rmh;
+                    ResourceManager sendto = sendToWhom(reservedkey);
                     sendto.incrementItem(id, reservedkey, reserveditem.getCount());
                     // TODO: the trace is bad now
                     //Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + "which is reserved" +  item.getReserved() +  " times and is still available " + item.getCount() + " times"  );
@@ -485,6 +488,16 @@ implements ResourceManager {
         }
 
 
+    public ResourceManager sendToWhom(String key)
+    {
+        if(key.startsWith("car-"))
+            return rmc;
+        else if(key.startsWith("flight-"))
+            return rmp;
+        else if(key.startsWith("room-"))
+            return rmh;
+        return null;
+    }
 
 
     // Frees flight reservation record. Flight reservation records help us make sure we

@@ -40,6 +40,7 @@ public class Customer extends RMItem
             return reservedItem;
         }
 
+        /* You're wrong, William.
         public String printBill()
         {
             String s = "Bill for customer " + m_nID + "\n";
@@ -50,7 +51,7 @@ public class Customer extends RMItem
                 s = s + item.getCount() + " " + item.getReservableItemKey() + " $" + item.getPrice() + "\n";
             }
             return s;
-        }
+        }*/
 
         public String toString()
         { return "--- BEGIN CUSTOMER key='" + getKey() + "', id='" + getID() + "', reservations=>\n" +
