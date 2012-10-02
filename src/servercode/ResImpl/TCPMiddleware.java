@@ -615,7 +615,7 @@ implements ResourceManager {
         throws RemoteException {
             ListIterator itr = flightNumbers.listIterator();
             while (itr.hasNext()) {
-                reserveFlight(id, customer, (Integer)itr.next());
+                reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));
             }
             if (Car)
                 reserveCar(id, customer, location);
