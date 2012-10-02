@@ -7,15 +7,11 @@ package ResImpl;
 import ResInterface.*;
 
 import java.util.*;
-import java.rmi.*;
+import java.net.*;
+import java.io.*;
 
-import java.rmi.registry.Registry;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-
-//public class ResourceManagerHotel extends java.rmi.server.UnicastRemoteObject
-public class ResourceManagerHotel
+//public class TCPResourceManagerHotel extends java.rmi.server.UnicastRemoteObject
+public class TCPResourceManagerHotel
 implements ResourceManager {
 	
     protected RMHashtable m_itemHT = new RMHashtable();
@@ -29,37 +25,32 @@ implements ResourceManager {
             server = server + ":" + args[0];
         } else if (args.length != 0 &&  args.length != 1) {
             System.err.println ("Wrong usage");
-            System.out.println("Usage: java ResImpl.ResourceManagerHotel [port]");
+            System.out.println("Usage: java ResImpl.TCPResourceManagerHotel [port]");
             System.exit(1);
         }
 
         try 
         {
             // create a new Server object
-            ResourceManagerHotel obj = new ResourceManagerHotel();
-            // dynamically generate the stub (client proxy)
-            ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
-
-            // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry(9899);
-            registry.rebind("Group13ResourceManagerHotel", rm);
-
-            System.err.println("Server ready");
+            TCPResourceManagerHotel roomRM = new TCPResourceManagerHotel();
+            // set up port for client connections
+            int serverport = 9899; //TODO make dynamic
+            ServerSocket listenSocket = new ServerSocket(serverport);
+            System.err.println("RoomRM ready!");
+            while (true) {
+                Socket clientSocket = listenSocket.accept();
+                ConnectionRMH c = new ConnectionRMH(clientSocket, roomRM);
+            }
         } 
         catch (Exception e) 
         {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();
         }
-
-        // Create and install a security manager
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new RMISecurityManager());
-        }
     }
 
 
-    public ResourceManagerHotel() throws RemoteException {
+    public TCPResourceManagerHotel() {
     }
 
 
@@ -184,7 +175,6 @@ implements ResourceManager {
     // Create a new flight, or add seats to existing flight
     //  NOTE: if flightPrice <= 0 and the flight already exists, it maintains its current price
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
-        throws RemoteException
         {
             Trace.info("RM::addFlight(" + id + ", " + flightNum + ", $" + flightPrice + ", " + flightSeats + ") called" );
             Flight curObj = (Flight) readData( id, Flight.getKey(flightNum) );
@@ -209,7 +199,6 @@ implements ResourceManager {
 
 
     public boolean deleteFlight(int id, int flightNum)
-        throws RemoteException
         {
             return deleteItem(id, Flight.getKey(flightNum));
         }
@@ -219,7 +208,6 @@ implements ResourceManager {
     // Create a new room location or add rooms to an existing location
     //  NOTE: if price <= 0 and the room location already exists, it maintains its current price
     public boolean addRooms(int id, String location, int count, int price)
-        throws RemoteException
         {
             Trace.info("RM::addRooms(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
             Hotel curObj = (Hotel) readData( id, Hotel.getKey(location) );
@@ -242,7 +230,6 @@ implements ResourceManager {
 
     // Delete rooms from a location
     public boolean deleteRooms(int id, String location)
-        throws RemoteException
         {
             return deleteItem(id, Hotel.getKey(location));
 
@@ -251,7 +238,6 @@ implements ResourceManager {
     // Create a new car location or add cars to an existing location
     //  NOTE: if price <= 0 and the location already exists, it maintains its current price
     public boolean addCars(int id, String location, int count, int price)
-        throws RemoteException
         {
             Trace.info("RM::addCars(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
             Car curObj = (Car) readData( id, Car.getKey(location) );
@@ -275,7 +261,6 @@ implements ResourceManager {
 
     // Delete cars from a location
     public boolean deleteCars(int id, String location)
-        throws RemoteException
         {
             return deleteItem(id, Car.getKey(location));
         }
@@ -284,14 +269,12 @@ implements ResourceManager {
 
     // Returns the number of empty seats on this flight
     public int queryFlight(int id, int flightNum)
-        throws RemoteException
         {
             return queryNum(id, Flight.getKey(flightNum));
         }
 
     // Returns the number of reservations for this flight. 
     //	public int queryFlightReservations(int id, int flightNum)
-    //		throws RemoteException
     //	{
     //		Trace.info("RM::queryFlightReservations(" + id + ", #" + flightNum + ") called" );
     //		RMInteger numReservations = (RMInteger) readData( id, Flight.getNumReservationsKey(flightNum) );
@@ -305,7 +288,6 @@ implements ResourceManager {
 
     // Returns price of this flight
     public int queryFlightPrice(int id, int flightNum )
-        throws RemoteException
         {
             return queryPrice(id, Flight.getKey(flightNum));
         }
@@ -313,7 +295,6 @@ implements ResourceManager {
 
     // Returns the number of rooms available at a location
     public int queryRooms(int id, String location)
-        throws RemoteException
         {
             return queryNum(id, Hotel.getKey(location));
         }
@@ -323,7 +304,6 @@ implements ResourceManager {
 
     // Returns room price at this location
     public int queryRoomsPrice(int id, String location)
-        throws RemoteException
         {
             return queryPrice(id, Hotel.getKey(location));
         }
@@ -331,7 +311,6 @@ implements ResourceManager {
 
     // Returns the number of cars available at a location
     public int queryCars(int id, String location)
-        throws RemoteException
         {
             return queryNum(id, Car.getKey(location));
         }
@@ -339,7 +318,6 @@ implements ResourceManager {
 
     // Returns price of cars at this location
     public int queryCarsPrice(int id, String location)
-        throws RemoteException
         {
             return queryPrice(id, Car.getKey(location));
         }
@@ -348,7 +326,6 @@ implements ResourceManager {
     //  customer doesn't exist. Returns empty RMHashtable if customer exists but has no
     //  reservations.
     public RMHashtable getCustomerReservations(int id, int customerID)
-        throws RemoteException
         {
             Trace.info("RM::getCustomerReservations(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -362,7 +339,6 @@ implements ResourceManager {
 
     // return a bill
     public String queryCustomerInfo(int id, int customerID)
-        throws RemoteException
         {
             Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -381,7 +357,6 @@ implements ResourceManager {
     // new customer just returns a unique customer identifier
 
     public int newCustomer(int id)
-        throws RemoteException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ") called" );
             // Generate a globally unique ID for the new customer
@@ -396,7 +371,6 @@ implements ResourceManager {
 
     // I opted to pass in customerID instead. This makes testing easier
     public boolean newCustomer(int id, int customerID )
-        throws RemoteException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -414,7 +388,6 @@ implements ResourceManager {
 
     // Deletes customer from the database. 
     public boolean deleteCustomer(int id, int customerID)
-        throws RemoteException
         {
             Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -448,7 +421,6 @@ implements ResourceManager {
     // Frees flight reservation record. Flight reservation records help us make sure we
     //  don't delete a flight if one or more customers are holding reservations
     //	public boolean freeFlightReservation(int id, int flightNum)
-    //		throws RemoteException
     //	{
     //		Trace.info("RM::freeFlightReservations(" + id + ", " + flightNum + ") called" );
     //		RMInteger numReservations = (RMInteger) readData( id, Flight.getNumReservationsKey(flightNum) );
@@ -465,7 +437,6 @@ implements ResourceManager {
 
     // Adds car reservation to this customer. 
     public boolean reserveCar(int id, int customerID, String location)
-        throws RemoteException
         {
             return reserveItem(id, customerID, Car.getKey(location), location);
         }
@@ -473,38 +444,36 @@ implements ResourceManager {
 
     // Adds room reservation to this customer. 
     public boolean reserveRoom(int id, int customerID, String location)
-        throws RemoteException
         {
             return reserveItem(id, customerID, Hotel.getKey(location), location);
         }
     // Adds flight reservation to this customer.  
     public boolean reserveFlight(int id, int customerID, int flightNum)
-        throws RemoteException
         {
             return reserveItem(id, customerID, Flight.getKey(flightNum), String.valueOf(flightNum));
         }
 
     /* reserve an itinerary */
     public boolean itinerary(int id,int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
-        throws RemoteException {
+        {
             return false;
         }
 
 }
 
-class Connection extends Thread {
+class ConnectionRMH extends Thread {
     DataInputStream in;
     DataOutputStream out;
     Socket clientSocket;
-    TCPMiddleware master;
-    public Connection (Socket aClientSocket, TCPMiddleware mast) {
+    TCPResourceManagerHotel master;
+    public ConnectionRMH (Socket aClientSocket, TCPResourceManagerHotel mast) {
         master = mast;
         try {
             clientSocket = aClientSocket;
             in = new DataInputStream( clientSocket.getInputStream());
             out =new DataOutputStream( clientSocket.getOutputStream());
             this.start();
-        } catch(IOException e) {System.out.println("Connection:"+e.getMessage());}
+        } catch(IOException e) {System.out.println("ConnectionRMH:"+e.getMessage());}
     }
     public void run(){
         try {
