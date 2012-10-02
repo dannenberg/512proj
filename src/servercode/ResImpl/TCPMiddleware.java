@@ -631,8 +631,8 @@ class Connection extends Thread {
     DataInputStream in;
     DataOutputStream out;
     Socket clientSocket;
-    TCPMiddleware master;
-    public Connection (Socket aClientSocket, TCPMiddleware mast) {
+    ResourceManager master;
+    public Connection (Socket aClientSocket, ResourceManager mast) {
         master = mast;
         try {
             clientSocket = aClientSocket;
