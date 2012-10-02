@@ -1,0 +1,69 @@
+;; generic inits
+newflight,100,101,5,102
+newflight,110,111,2,112
+newflight,120,121,1,122
+newcar,200,Home,3,201
+newroom,300,Home,3,301
+newcustomer,1
+newcustomerid,2,400
+newcustomerid,3,403
+newcustomerid,4,404
+newcustomerid,5,405
+newcustomerid,6,406
+newcustomerid,7,407
+;; generic get
+queryflight,100,101
+querycar,200,Home
+queryroom,300,Home
+querycustomer,2,400
+;; also what if they never existed
+queryflight,999,999
+querycar,999,Space
+queryroom,999,Space
+querycustomer,999,999
+;; generic getprice
+queryflightprice,100,101
+querycarprice,200,Home
+queryroomprice,300,Home
+;; also what if they never existed
+queryflightprice,999,999
+querycarprice,999,Space
+queryroomprice,999,Space
+;; generic reserve
+reserveflight,100,400,101
+reservecar,200,400,Home
+reserveroom,300,400,Home
+;; Itinerary
+itinerary,6,406,101,Home,true,true
+itinerary,3,403,101,111,Home,true,false
+itinerary,4,404,101,111,Home,false,true
+itinerary,5,405,101,Home,false,false
+;; at this point almost all flights/cars should be full
+;; none of these should work
+reserveflight,100,407,101
+reservecar,200,407,Home
+reserveroom,300,407,Home
+itinerary,7,407,101,111,Home,true,true
+;; partial booking, should only take 121
+itinerary,7,407,101,111,121,Home,true,true
+;; generic gets just in case
+queryflight,100,101
+querycar,200,Home
+queryroom,300,Home
+querycustomer,2,400
+;; Removing a busy customer
+deletecustomer,2,400
+queryflight,100,101
+querycar,200,Home
+queryroom,300,Home
+;; Removing dudes with a bunch of dependencies
+deleteflight,100,101
+deletecar,200,201
+deleteroom,300,301
+;; getting the deleted dudes
+queryflight,100,101
+querycar,200,Home
+queryroom,300,Home
+querycustomer,2,400
+;; quitlol
+quit
