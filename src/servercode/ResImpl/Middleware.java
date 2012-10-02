@@ -27,9 +27,10 @@ implements ResourceManager {
 
     public static void main(String args[]) {
         // Figure out where server is running
-        String server = "localhost";
+        String server = "mimi.cs.mcgill.ca";
 
         // TODO either start using args or remove this
+        /*
         if (args.length == 1) {
             server = server + ":" + args[0];
         } else if (args.length != 0 &&  args.length != 1) {
@@ -37,6 +38,7 @@ implements ResourceManager {
             System.out.println("Usage: java ResImpl.Middleware [port]");
             System.exit(1);
         }
+        */
 
         try 
         {
@@ -610,7 +612,7 @@ implements ResourceManager {
         throws RemoteException {
             ListIterator itr = flightNumbers.listIterator();
             while (itr.hasNext()) {
-                reserveFlight(id, customer, (Integer)itr.next());
+                reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));
             }
             if (Car)
                 reserveCar(id, customer, location);
