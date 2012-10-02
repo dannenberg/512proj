@@ -12,7 +12,7 @@ import java.io.*;
 
 //public class TCPResourceManagerPlane extends java.rmi.server.UnicastRemoteObject
 public class TCPResourceManagerPlane
-implements ResourceManager {
+implements TCPResourceManager {
 	
     protected RMHashtable m_itemHT = new RMHashtable();
 

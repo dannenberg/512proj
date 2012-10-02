@@ -9,25 +9,26 @@ import ResInterface.*;
 import java.util.*;
 import java.net.*;
 import java.io.*;
+import java.io.IOException;
 
-public class TCPMiddleware implements ResourceManager
+public class TCPMiddleware implements TCPResourceManager
 {    
     protected RMHashtable m_itemHT = new RMHashtable();
 
-    Socket sock_c = null;
-    int portc = 9897;
-    DataInputStream in_c;
-    DataOutputStream out_c;
+    static Socket sock_c = null;
+    static int portc = 9897;
+    static DataInputStream in_c;
+    static DataOutputStream out_c;
 
-    Socket sock_p = null;
-    int portp = 9898;
-    DataInputStream in_p;
-    DataOutputStream out_p;
+    static Socket sock_p = null;
+    static int portp = 9898;
+    static DataInputStream in_p;
+    static DataOutputStream out_p;
 
-    Socket sock_h = null;
-    int porth = 9899;
-    DataInputStream in_h;
-    DataOutputStream out_h;
+    static Socket sock_h = null;
+    static int porth = 9899;
+    static DataInputStream in_h;
+    static DataOutputStream out_h;
 
 
     public static void main(String args[]) {
@@ -47,15 +48,15 @@ public class TCPMiddleware implements ResourceManager
         {
             sock_c = new Socket(server, portc);
             in_c = new DataInputStream(sock_c.getInputStream());
-            out_c = new DataInputStream(sock_c.getInputStream());
+            out_c = new DataOutputStream(sock_c.getOutputStream());
 
             sock_p = new Socket(server, portp);
             in_p = new DataInputStream(sock_p.getInputStream());
-            out_p = new DataInputStream(sock_p.getInputStream());
+            out_p = new DataOutputStream(sock_p.getOutputStream());
 
             sock_h = new Socket(server, porth);
             in_h = new DataInputStream(sock_h.getInputStream());
-            out_h = new DataInputStream(sock_h.getInputStream());
+            out_h = new DataOutputStream(sock_h.getOutputStream());
 
             // set up port for client connections
             int serverport =9988; //TODO make dynamic?
@@ -73,14 +74,9 @@ public class TCPMiddleware implements ResourceManager
             System.err.println("TCPMiddleware exception: " + e.toString());
             e.printStackTrace();
         }
-
-        // Create and install a security manager
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new RMISecurityManager());
-        }
     }
 
-    public TCPMiddleware() throws RemoteException {
+    public TCPMiddleware() {
     }
 
 
@@ -206,7 +202,7 @@ public class TCPMiddleware implements ResourceManager
     // Create a new flight, or add seats to existing flight
     //  NOTE: if flightPrice <= 0 and the flight already exists, it maintains its current price
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
-        throws RemoteException
+        throws IOException
         {
             out_p.writeUTF("NEWFLI,"+id+","+flightNum+","+flightSeats+","+flightPrice);
             return in_p.readUTF().equals("TRUE");
@@ -215,7 +211,7 @@ public class TCPMiddleware implements ResourceManager
 
 
     public boolean deleteFlight(int id, int flightNum)
-        throws RemoteException
+        throws IOException
         {
             out_p.writeUTF("DELFLI," + id + "," + flightNum);
             return in_p.readUTF().equals("TRUE");
@@ -226,15 +222,15 @@ public class TCPMiddleware implements ResourceManager
     // Create a new room location or add rooms to an existing location
     //  NOTE: if price <= 0 and the room location already exists, it maintains its current price
     public boolean addRooms(int id, String location, int count, int price)
-        throws RemoteException
+        throws IOException
         {
-            out_h.writeUTF("NEWROO,"+id+","+location+","+numRooms+","+price);
+            out_h.writeUTF("NEWROO,"+id+","+location+","+count+","+price);
             return in_h.readUTF().equals("TRUE");
         }
 
     // Delete rooms from a location
     public boolean deleteRooms(int id, String location)
-        throws RemoteException
+        throws IOException
         {
             out_h.writeUTF("DELROO,"+id+","+location);
             return in_h.readUTF().equals("TRUE");
@@ -243,16 +239,16 @@ public class TCPMiddleware implements ResourceManager
     // Create a new car location or add cars to an existing location
     //  NOTE: if price <= 0 and the location already exists, it maintains its current price
     public boolean addCars(int id, String location, int count, int price)
-        throws RemoteException
+        throws IOException
         {
-            out_c.writeUTF("NEWCAR,"+id+","+location+","+numCars+","+price);
+            out_c.writeUTF("NEWCAR,"+id+","+location+","+count+","+price);
             return in_c.readUTF().equals("TRUE");
         }
 
 
     // Delete cars from a location
     public boolean deleteCars(int id, String location)
-        throws RemoteException
+        throws IOException
         {
             out_c.writeUTF("DELCAR," + id + "," +location);
             return in_c.readUTF().equals("TRUE");
@@ -262,7 +258,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Returns the number of empty seats on this flight
     public int queryFlight(int id, int flightNum)
-        throws RemoteException
+        throws IOException
         {
             out_p.writeUTF("QUEFLI," + id + "," + flightNum);
             return Integer.parseInt(in_p.readUTF());
@@ -271,7 +267,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Returns price of this flight
     public int queryFlightPrice(int id, int flightNum )
-        throws RemoteException
+        throws IOException
         {
             out_p.writeUTF("PRIFLI," + id + "," + flightNum);
             return Integer.parseInt(in_p.readUTF());
@@ -280,7 +276,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Returns the number of rooms available at a location
     public int queryRooms(int id, String location)
-        throws RemoteException
+        throws IOException
         {
             out_h.writeUTF("QUEROO," + id + "," + location);
             return Integer.parseInt(in_h.readUTF());
@@ -291,7 +287,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Returns room price at this location
     public int queryRoomsPrice(int id, String location)
-        throws RemoteException
+        throws IOException
         {
             out_h.writeUTF("PRIROO," + id + "," + location);
             return Integer.parseInt(in_h.readUTF());
@@ -300,7 +296,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Returns the number of cars available at a location
     public int queryCars(int id, String location)
-        throws RemoteException
+        throws IOException
         {
             out_c.writeUTF("QUECAR," + id + "," + location);
             return Integer.parseInt(in_c.readUTF());
@@ -309,7 +305,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Returns price of cars at this location
     public int queryCarsPrice(int id, String location)
-        throws RemoteException
+        throws IOException
         {
             out_c.writeUTF("PRICAR," + id + "," + location);
             return Integer.parseInt(in_c.readUTF());
@@ -319,7 +315,6 @@ public class TCPMiddleware implements ResourceManager
     //  customer doesn't exist. Returns empty RMHashtable if customer exists but has no
     //  reservations.
     public RMHashtable getCustomerReservations(int id, int customerID)
-        throws RemoteException
         {
             Trace.info("RM::getCustomerReservations(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -333,7 +328,7 @@ public class TCPMiddleware implements ResourceManager
 
     // return a bill
     public String queryCustomerInfo(int id, int customerID)
-        throws RemoteException
+        throws IOException
         {
             Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -347,8 +342,12 @@ public class TCPMiddleware implements ResourceManager
                 DataOutputStream whom;
                 for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
                     key = (String) e.nextElement();
-                    whom = sendToWhom(key);
-                    s += whom.queryNum(id, key) + " " + key + " $" + whom.queryPrice(id, key) + "\n";
+                    if(key.startsWith("car-"))
+                        s += queryCars(id, key) + " " + key + " $" + queryCarsPrice(id, key) + "\n";
+                    else if(key.startsWith("flight-"))
+                        s += queryFlight(id, Integer.parseInt(key.substring(7))) + " " + key + " $" + queryFlightPrice(id, Integer.parseInt(key.substring(7))) + "\n";
+                    else if(key.startsWith("room-"))
+                        s += queryRooms(id, key) + " " + key + " $" + queryRoomsPrice(id, key) + "\n";
                 }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
                 System.out.println( s );
@@ -360,7 +359,7 @@ public class TCPMiddleware implements ResourceManager
     // new customer just returns a unique customer identifier
 
     public int newCustomer(int id)
-        throws RemoteException
+        throws IOException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ") called" );
             // Generate a globally unique ID for the new customer
@@ -375,7 +374,7 @@ public class TCPMiddleware implements ResourceManager
 
     // I opted to pass in customerID instead. This makes testing easier
     public boolean newCustomer(int id, int customerID )
-        throws RemoteException
+        throws IOException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -393,7 +392,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Deletes customer from the database. 
     public boolean deleteCustomer(int id, int customerID)
-        throws RemoteException
+        throws IOException
         {
             Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
@@ -448,7 +447,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Adds car reservation to this customer. 
     public boolean reserveCar(int id, int customerID, String location)
-        throws RemoteException
+        throws IOException
         {
         String key = Car.getKey(location);
         Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
@@ -465,7 +464,7 @@ public class TCPMiddleware implements ResourceManager
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, location, queryCarPrice(id, key));
+            cust.reserve( key, location, queryCarsPrice(id, key));
             writeData( id, cust.getKey(), cust );
 
             out_c.writeUTF("DECITE," + id + "," + key);
@@ -478,7 +477,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Adds room reservation to this customer. 
     public boolean reserveRoom(int id, int customerID, String location)
-        throws RemoteException
+        throws IOException
         {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
@@ -490,12 +489,12 @@ public class TCPMiddleware implements ResourceManager
         } 
 
         // MAKE THE HOTEL SERVER DO THE THINGS
-        int num = queryRoom(id, key);
+        int num = queryRooms(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, location, queryRoomPrice(id, key));        
+            cust.reserve( key, location, queryRoomsPrice(id, key));        
             writeData( id, cust.getKey(), cust );
 
             out_h.writeUTF("DECITE," + id + "," + key);
@@ -507,7 +506,7 @@ public class TCPMiddleware implements ResourceManager
 
     // Adds flight reservation to this customer.  
     public boolean reserveFlight(int id, int customerID, int flightNum)
-        throws RemoteException
+        throws IOException
         {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );        
@@ -519,12 +518,12 @@ public class TCPMiddleware implements ResourceManager
         } 
 
         // MAKE THE PLANE SERVER DO THE THINGS
-        int num = queryFlight(id, key);
+        int num = queryFlight(id, flightNum);
         if (num == 0) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, String.valueOf(flightNum), queryFlightPrice(id, key));        
+            cust.reserve( key, String.valueOf(flightNum), queryFlightPrice(id, flightNum));        
             writeData( id, cust.getKey(), cust );
 
             out_p.writeUTF("DECITE," + id + "," + key);
@@ -536,7 +535,8 @@ public class TCPMiddleware implements ResourceManager
 
     /* reserve an itinerary */
     public boolean itinerary(int id,int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
-        throws RemoteException {
+        throws IOException
+        {
             ListIterator itr = flightNumbers.listIterator();
             while (itr.hasNext()) {
                 reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));
@@ -555,8 +555,8 @@ class Connection extends Thread {
     DataInputStream in;
     DataOutputStream out;
     Socket clientSocket;
-    ResourceManager master;
-    public Connection (Socket aClientSocket, ResourceManager mast) {
+    TCPResourceManager master;
+    public Connection (Socket aClientSocket, TCPResourceManager mast) {
         master = mast;
         try {
             clientSocket = aClientSocket;
@@ -698,11 +698,11 @@ class Connection extends Thread {
 
                 else if(splat[0].equals("INCITE"))
                     master.incrementItem(Integer.parseInt(splat[1]),
-                            Integer.parseInt(splat[2]), Integer.parseInt(splat[3])))
+                            splat[2], Integer.parseInt(splat[3]));
 
                 else if(splat[0].equals("DECITE"))
                     master.decrementItem(Integer.parseInt(splat[1]),
-                        Integer.parseInt(splat[2]));
+                        splat[2]);
             }
             //out.writeUTF(data);
         } catch(EOFException e) {System.out.println("EOF:"+e.getMessage());
