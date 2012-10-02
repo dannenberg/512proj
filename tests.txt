@@ -19,7 +19,7 @@ querycustomer,2,400
 ;; also what if they never existed
 queryflight,999,999
 querycar,999,Space
-querycar,999,Space
+queryroom,999,Space
 querycustomer,999,999
 ;; generic getprice
 queryflightprice,100,101
@@ -28,7 +28,7 @@ queryroomprice,300,Home
 ;; also what if they never existed
 queryflightprice,999,999
 querycarprice,999,Space
-querycarprice,999,Space
+queryroomprice,999,Space
 ;; generic reserve
 reserveflight,100,400,101
 reservecar,200,400,Home
@@ -54,8 +54,8 @@ querycustomer,2,400
 ;; Removing a busy customer
 deletecustomer,2,400
 queryflight,100,101
-querycar,200,201
-queryroom,300,301
+querycar,200,Home
+queryroom,300,Home
 ;; Removing dudes with a bunch of dependencies
 deleteflight,100,101
 deletecar,200,201
