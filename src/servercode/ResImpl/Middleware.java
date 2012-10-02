@@ -568,7 +568,7 @@ implements ResourceManager {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, location, rmc.queryPrice(id, key));        
+            cust.reserve( key, location, rmh.queryPrice(id, key));        
             writeData( id, cust.getKey(), cust );
 
             rmh.decrementItem(id, key);
@@ -597,7 +597,7 @@ implements ResourceManager {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, String.valueOf(flightNum), rmc.queryPrice(id, key));        
+            cust.reserve( key, String.valueOf(flightNum), rmp.queryPrice(id, key));        
             writeData( id, cust.getKey(), cust );
 
             rmp.decrementItem(id, key);
