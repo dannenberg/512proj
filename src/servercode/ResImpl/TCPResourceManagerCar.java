@@ -21,8 +21,9 @@ implements TCPResourceManager {
         // Figure out where server is running
         String server = "localhost";
 
+        int serverport = 9897;
         if (args.length == 1) {
-            server = server + ":" + args[0];
+            serverport = Integer.parseInt(args[0]);
         } else if (args.length != 0 &&  args.length != 1) {
             System.err.println ("Wrong usage");
             System.out.println("Usage: java ResImpl.TCPResourceManagerCar [port]");
@@ -34,7 +35,6 @@ implements TCPResourceManager {
             // create a new Server object
             TCPResourceManagerCar carRM = new TCPResourceManagerCar();
             // set up port for client connections
-            int serverport = 9897; //TODO make dynamic
             ServerSocket listenSocket = new ServerSocket(serverport);
             System.err.println("CarRM ready!");
             while (true) {

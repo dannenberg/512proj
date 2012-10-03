@@ -31,9 +31,15 @@ public class client
 
 
         String server = "localhost";
-        if (args.length == 1) 
+        int port = 9988;
+        if (args.length == 2)
+        {
+            port = Integer.parseInt(args[1]); 
             server = args[0]; 
-        else if (args.length != 0 &&  args.length != 1) 
+        }
+        else if (args.length == 1) 
+            server = args[0]; 
+        else if (args.length != 0)
         {
             System.out.println ("Usage: java client [rmihost]"); 
             System.exit(1); 
@@ -42,7 +48,7 @@ public class client
         try 
         {
             // get a reference to the rmiregistry
-            Registry registry = LocateRegistry.getRegistry(server, 9988);
+            Registry registry = LocateRegistry.getRegistry(server, port);
             // get the proxy and the remote reference by rmiregistry lookup
             rm = (ResourceManager) registry.lookup("Group13Middleware");
             if(rm!=null)

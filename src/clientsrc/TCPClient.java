@@ -25,13 +25,18 @@ public class TCPClient
         int numCars;
         String location;
         Socket s = null;
-        int serverport = 9988; //TODO make this dynamic
+        int serverport = 9988;
 
 
         String server = "localhost";
-        if (args.length == 1) 
+        if (args.length == 2)
+        {
+            server = args[0];
+            serverport = Integer.parseInt(args[1]);
+        }
+        else if (args.length == 1) 
             server = args[0]; 
-        else if (args.length != 0 &&  args.length != 1) 
+        else if (args.length != 0)
         {
             System.out.println ("Usage: java client [rmihost]"); 
             System.exit(1); 

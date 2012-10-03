@@ -20,9 +20,10 @@ implements TCPResourceManager {
     public static void main(String args[]) {
         // Figure out where server is running
         String server = "localhost";
+        int serverport = 9898;
 
         if (args.length == 1) {
-            server = server + ":" + args[0];
+            serverport = Integer.parseInt(args[0]);
         } else if (args.length != 0 &&  args.length != 1) {
             System.err.println ("Wrong usage");
             System.out.println("Usage: java ResImpl.TCPResourceManagerPlane [port]");
@@ -34,7 +35,6 @@ implements TCPResourceManager {
             // create a new Server object
             TCPResourceManagerPlane planeRM = new TCPResourceManagerPlane();
             // set up port for client connections
-            int serverport = 9898; //TODO make dynamic
             ServerSocket listenSocket = new ServerSocket(serverport);
             System.err.println("PlaneRM ready!");
             while (true) {

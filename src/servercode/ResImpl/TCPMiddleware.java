@@ -33,14 +33,47 @@ public class TCPMiddleware implements TCPResourceManager
 
     public static void main(String args[]) {
         // Figure out where server is running
-        String server = "mimi.cs.mcgill.ca";  // TODO: a living dynamo
+        String server_c = "mimi.cs.mcgill.ca";
+        String server_p = server_c;
+        String server_h = server_c;
+        int port = 9988;
 
-        // TODO either start using args or remove this
-        if (args.length == 1) {
-            server = server + ":" + args[0];
-        } else if (args.length != 0 &&  args.length != 1) {
+        if (args.length == 7)  // mw_port, (server, port) * 3
+        {
+            port = Integer.parseInt(args[0]);
+            server_c = args[1];
+            server_p = args[3];
+            server_h = args[5];
+            portc = Integer.parseInt(args[2]);
+            portp = Integer.parseInt(args[4]);
+            porth = Integer.parseInt(args[6]);
+        }
+        else if (args.length == 5) // mw_port, allserver, (port, ) * 3
+        {
+            port = Integer.parseInt(args[0]);
+            server_c = args[1];
+            server_p = args[1];
+            server_h = args[1];
+            portc = Integer.parseInt(args[2]);
+            portp = Integer.parseInt(args[3]);
+            porth = Integer.parseInt(args[4]);
+        }
+        else if (args.length == 2) // mw_port, allserver
+        {
+            port = Integer.parseInt(args[0]);
+            server_c = args[1];
+            server_p = args[1];
+            server_h = args[1];
+        }
+        else if (args.length == 1)
+            port = Integer.parseInt(args[0]);
+        else if (args.length != 0) {
             System.err.println ("Wrong usage");
-            System.out.println("Usage: java ResImpl.TCPMiddleware [port]");
+            System.out.println("Usage: java ResImpl.TCPMiddleware");
+            System.out.println("  OR : java ResImpl.TCPMiddleware middleware_port");
+            System.out.println("  OR : java ResImpl.TCPMiddleware mw_port rm_server");
+            System.out.println("  OR : java ResImpl.TCPMiddleware mw_port rm_server carport hotelport flightport");
+            System.out.println("  OR : java ResImpl.TCPMiddleware mw_port carserver carport hotelserver hotelport flightserver flightport");
             System.exit(1);
         }
 
@@ -59,8 +92,7 @@ public class TCPMiddleware implements TCPResourceManager
             out_h = new DataOutputStream(sock_h.getOutputStream());
 
             // set up port for client connections
-            int serverport =9988; //TODO make dynamic?
-            ServerSocket listenSocket = new ServerSocket(9988);
+            ServerSocket listenSocket = new ServerSocket(port);
             System.err.println("Server ready");
             TCPMiddleware customerServer = new TCPMiddleware();
             while (true) {

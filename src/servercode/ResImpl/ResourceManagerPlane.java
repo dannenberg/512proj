@@ -25,8 +25,9 @@ implements ResourceManager {
         // Figure out where server is running
         String server = "localhost";
 
+        int port = 9898;
         if (args.length == 1) {
-            server = server + ":" + args[0];
+            port = Integer.parseInt(args[0]);
         } else if (args.length != 0 &&  args.length != 1) {
             System.err.println ("Wrong usage");
             System.out.println("Usage: java ResImpl.ResourceManagerPlane [port]");
@@ -41,7 +42,7 @@ implements ResourceManager {
             ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
 
             // Bind the remote object's stub in the registry
-            Registry registry = LocateRegistry.getRegistry(9898);
+            Registry registry = LocateRegistry.getRegistry(port);
             registry.rebind("Group13ResourceManagerPlane", rm);
 
             System.err.println("Server ready");
