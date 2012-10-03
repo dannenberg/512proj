@@ -28,7 +28,7 @@ public class TCPClient
         int serverport = 9988;
 
 
-        String server = "localhost";
+        String server = "willy.cs.mcgill.ca";
         if (args.length == 2)
         {
             server = args[0];

@@ -79,15 +79,15 @@ public class TCPMiddleware implements TCPResourceManager
 
         try 
         {
-            sock_c = new Socket(server, portc);
+            sock_c = new Socket(server_c, portc);
             in_c = new DataInputStream(sock_c.getInputStream());
             out_c = new DataOutputStream(sock_c.getOutputStream());
 
-            sock_p = new Socket(server, portp);
+            sock_p = new Socket(server_p, portp);
             in_p = new DataInputStream(sock_p.getInputStream());
             out_p = new DataOutputStream(sock_p.getOutputStream());
 
-            sock_h = new Socket(server, porth);
+            sock_h = new Socket(server_h, porth);
             in_h = new DataInputStream(sock_h.getInputStream());
             out_h = new DataOutputStream(sock_h.getOutputStream());
 
