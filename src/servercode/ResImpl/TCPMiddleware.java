@@ -343,11 +343,11 @@ public class TCPMiddleware implements TCPResourceManager
                 for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
                     key = (String) e.nextElement();
                     if(key.startsWith("car-"))
-                        s += queryCars(id, key) + " " + key + " $" + queryCarsPrice(id, key) + "\n";
+                        s += queryCars(id, key.substring(4)) + " " + key + " $" + queryCarsPrice(id, key.substring(4)) + "\n";
                     else if(key.startsWith("flight-"))
                         s += queryFlight(id, Integer.parseInt(key.substring(7))) + " " + key + " $" + queryFlightPrice(id, Integer.parseInt(key.substring(7))) + "\n";
                     else if(key.startsWith("room-"))
-                        s += queryRooms(id, key) + " " + key + " $" + queryRoomsPrice(id, key) + "\n";
+                        s += queryRooms(id, key.substring(5)) + " " + key + " $" + queryRoomsPrice(id, key.substring(5))+ "\n";
                 }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
                 System.out.println( s );
@@ -408,7 +408,7 @@ public class TCPMiddleware implements TCPResourceManager
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
 
                     DataOutputStream sendto = sendToWhom(reservedkey);
-                    sendto.writeUTF("INCITE,"+id+reservedkey+reserveditem.getCount());
+                    sendto.writeUTF("INCITE,"+id+","+reservedkey+","+reserveditem.getCount());
                     //sendto.incrementItem(id, reservedkey, reserveditem.getCount());
                     // TODO: the trace is bad now
                     //Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + "which is reserved" +  item.getReserved() +  " times and is still available " + item.getCount() + " times"  );
@@ -459,12 +459,12 @@ public class TCPMiddleware implements TCPResourceManager
         } 
 
         // MAKE THE CAR SERVER DO THE THINGS
-        int num = queryCars(id, key);
+        int num = queryCars(id, location);
         if (num == 0) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, location, queryCarsPrice(id, key));
+            cust.reserve( key, location, queryCarsPrice(id, location));
             writeData( id, cust.getKey(), cust );
 
             out_c.writeUTF("DECITE," + id + "," + key);
@@ -489,12 +489,12 @@ public class TCPMiddleware implements TCPResourceManager
         } 
 
         // MAKE THE HOTEL SERVER DO THE THINGS
-        int num = queryRooms(id, key);
+        int num = queryRooms(id, location);
         if (num == 0) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {            
-            cust.reserve( key, location, queryRoomsPrice(id, key));        
+            cust.reserve( key, location, queryRoomsPrice(id, location));        
             writeData( id, cust.getKey(), cust );
 
             out_h.writeUTF("DECITE," + id + "," + key);
@@ -680,8 +680,8 @@ class Connection extends Thread {
                     for(int i=0; i<veclen; i++)
                         sendme.add(Integer.parseInt(splat[i + 3]));
                     if(master.itinerary(Integer.parseInt(splat[1]), Integer.parseInt(splat[2]),
-                            sendme, splat[splat.length - 3], Boolean.getBoolean(splat[splat.length - 2]),
-                            Boolean.getBoolean(splat[splat.length - 1])))
+                            sendme, splat[splat.length - 3], splat[splat.length - 2].equals("true"),
+                            splat[splat.length - 1].equals("true")))
                         out.writeUTF("TRUE");
                     else
                         out.writeUTF("FALSE");

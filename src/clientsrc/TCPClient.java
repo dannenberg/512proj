@@ -350,7 +350,7 @@ public class TCPClient
                             int customer = obj.getInt(arguments.elementAt(2));
                             out.writeUTF("QUECUS,"+Id+","+customer);
                             String response = in.readUTF();
-                            System.out.println("Customer info:"+Integer.parseInt(response));
+                            System.out.println("Customer info:"+response);
                         }
                         catch(Exception e){
                             System.out.println("EXCEPTION:");
