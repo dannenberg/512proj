@@ -63,11 +63,16 @@ public class LockManager
                         if (bConvert.get(0) == true) {
                             // lock conversion 
                             // *** ADD CODE HERE *** to carry out the lock conversion in the
-                            if (){
-                                this.lockTable.add(trxnObj);
-                                this.lockTable.add(dataObj);
-                            }
                             // lock table
+                            TrxnObj trxnKill = (TrxnObj)trxnObj.clone();
+                            DataObj dataKill = (DataObj)dataObj.clone();
+                            trxnKill.setLockType(TrxnObj.READ);
+                            dataKill.setLockType(DataObj.READ);
+                            this.lockTable.remove(trxnKill);
+                            this.lockTable.remove(dataKill);
+
+                            this.lockTable.add(trxnObj);
+                            this.lockTable.add(dataObj);
                         } else {
                             // a lock request that is not lock conversion
                             this.lockTable.add(trxnObj);
@@ -207,12 +212,21 @@ public class LockManager
                     // (2) transaction already had a WRITE lock
                     // Seeing the comments at the top of this function might be helpful
                     // *** ADD CODE HERE *** to take care of both these cases
-                    if (guy has write) {
+                    if (dataObj2.getLockType() == DataObj.WRITE) {  // have a write, want a write
                         throw new RedundantLockRequestException(dataObj.getXId(), "Redundant WRITE lock request");
                     }
-                    else if (guy has read) {
-                        check if others have
-
+                    else if (dataObj2.getLockType() == DataObj.READ) {    // have a read, want a write
+                        if(size > 1)  // if anyone else has locked this
+                            return true;
+                        // for(i=0; i < size; i++)
+                        // {   // if any of them are read (and not us)
+                        //     dataObj2 = (DataObj) vect.elementAt(i);
+                        //     if(dataObj2.getLockType() == DataObj.READ &&
+                        //             dataObj2.getXId() != dataObj2.getXId())
+                        //         return true;
+                        // }
+                        bitset.set(0, true);
+                        return false;
                     }
                 }
             } 

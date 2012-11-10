@@ -35,7 +35,7 @@ class MyThread extends Thread {
 	    catch (InterruptedException e) { }
 
 	    try {
-		lm.Lock (1, "b", LockManager.WRITE);
+		lm.Lock (1, "a", LockManager.WRITE);
 	    }
 	    catch (DeadlockException e) {
 	        System.out.println ("Deadlock.... ");
