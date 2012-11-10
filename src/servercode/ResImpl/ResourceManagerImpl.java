@@ -471,7 +471,17 @@ implements ResourceManager {
     /* reserve an itinerary */
     public boolean itinerary(int id,int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
         throws RemoteException {
-            return false;
+            ListIterator itr = flightNumbers.listIterator();
+            while (itr.hasNext()) {
+                reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));
+            }
+            if (Car)
+                reserveCar(id, customer, location);
+
+            if (Room)
+                reserveRoom(id, customer, location);
+
+            return true;
         }
 
 }
