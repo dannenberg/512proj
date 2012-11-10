@@ -1,0 +1,9 @@
+Submission 1
+
+Description of Design:
+---
+In both the TCP and RMI implementations, we have split the server into three resource managers and a middleware server. The middleware server delegates tasks to the resource managers, which each track a single resource. Data about the individual customers is stored in the middleware.
+
+For the TCP implementation, we created our own protocol for strings passed over the standard write and read UTF commands to communicate between the clients and the middleware, and the middleware and the resource managers. To keep parsing simple, the first six characters of a message denote the command being run while the rest denote the comma separated arguments. For the few cases where one of the parameters was a vector we simply flattened the vector into the parameters and let the receiver parse them out. Since most of the methods being called were named in a verb-noun format, for the six-character command we concatenated the leading three characters of each word of the method name (eg: reserveFlight -> RESFLI). Our TCP middleware spawns a thread for each client to prevent blocking.
+
+We tested both the RMI and TCP versions of our software distributed across one to six servers (three resource managers, one middleware and two clients, all on seperate machines). Our testing consisted of running a series of commands which checked all methods for success and expected failure. By running a single command from the list at a time, we could then check the result on each server against our expected result. In addition to these tests, we would perform similar tests across two clients simultaneously referring to the same resource to ensure consistancy. Attached below is our primary test file.
