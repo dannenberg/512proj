@@ -113,7 +113,7 @@ implements ResourceManager {
 
 
     // deletes the entire item
-    protected boolean deleteItem(int id, String key)
+    public boolean deleteItem(int id, String key)
     {
         Trace.info("RM::deleteItem(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key );

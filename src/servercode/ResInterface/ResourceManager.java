@@ -47,7 +47,7 @@ public interface ResourceManager extends Remote
     public boolean addRooms(int id, String location, int numRooms, int price) 
 	throws RemoteException; 			    
 
-    public void deleteItem(int id, String key)
+    public boolean deleteItem(int id, String key)
     throws RemoteException;
 			    
     /* new customer just returns a unique customer identifier */

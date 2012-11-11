@@ -155,7 +155,7 @@ implements ResourceManager {
 
 
     // deletes the entire item
-    protected boolean deleteItem(int id, String key)
+    public boolean deleteItem(int id, String key)
     {
         Trace.info("RM::deleteItem(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key );
@@ -672,6 +672,7 @@ implements ResourceManager {
     public boolean commit(int trxnId) throws RemoteException //, TransactionAbortedException, InvalidTransactionException
     {
         tm.commit(trxnId);
+        return true;
     }
     public void abort(int trxnId) throws RemoteException //, InvalidTransactionException
     {
