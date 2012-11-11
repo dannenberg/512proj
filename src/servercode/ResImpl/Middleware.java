@@ -39,6 +39,7 @@ implements ResourceManager {
 
         tm = new TransactionManager();
         tmm = new TransactionManagerManager();
+        System.out.println("I'm goddamn being set, see? " + tmm);
 
         if (args.length == 7)  // mw_port, (server, port) * 3
         {

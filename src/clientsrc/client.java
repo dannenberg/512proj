@@ -574,6 +574,9 @@ public class client
                     try {
                         System.out.println("started transaction #" + rm.start()); // TODO dont start if already started, dont allow commands, commit, or abort unless currently transacting
                     } catch (Exception e) {
+                        System.out.println("EXCEPTION:");
+                        System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
 
@@ -588,6 +591,9 @@ public class client
                         Id = obj.getInt(arguments.elementAt(1));
                         rm.commit(Id);
                     } catch (Exception e) {
+                        System.out.println("EXCEPTION:");
+                        System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
 
@@ -602,6 +608,9 @@ public class client
                         Id = obj.getInt(arguments.elementAt(1));
                         rm.abort(Id);
                     } catch (Exception e) {
+                        System.out.println("EXCEPTION:");
+                        System.out.println(e.getMessage());
+                        e.printStackTrace();
                     }
                     break;
 
