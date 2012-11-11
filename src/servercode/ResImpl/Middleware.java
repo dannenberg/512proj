@@ -25,6 +25,7 @@ implements ResourceManager {
     static ResourceManager rmp = null;
     static ResourceManager rmh = null;
     static TransactionManager tm = null;
+    static TransactionManagerManager tmm = null;
 
     public static void main(String args[]) {
         // Figure out where server is running
@@ -37,6 +38,7 @@ implements ResourceManager {
         int porth = 9899;
 
         tm = new TransactionManager();
+        tmm = new TransactionManagerManager();
 
         if (args.length == 7)  // mw_port, (server, port) * 3
         {
