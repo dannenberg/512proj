@@ -18,7 +18,7 @@ public class client
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String command = "";
         Vector arguments  = new Vector();
-        int Id, Cid;
+        int Id, Cid, Tid;
         int flightNum;
         int flightPrice;
         int flightSeats;
@@ -567,6 +567,22 @@ public class client
                     }
                     break;
 
+
+                case 23: // start 
+                    Tid = rm.start(); // TODO dont start if already started, dont allow commands, commit, or abort unless currently transacting
+                    break;
+
+
+                case 24: // commit
+                    rm.commit(Tid);
+                    break;
+
+
+                case 25: // abort
+                    rm.abort(Tid);
+                    break;
+
+
                 default:
                     System.out.println("The interface does not support this command.");
                     break;
@@ -633,6 +649,12 @@ public class client
             return 21;
         else if (argument.compareToIgnoreCase("newcustomerid")==0)
             return 22;
+        else if (argument.compareToIgnoreCase("start")==0)
+            return 23;
+        else if (argument.compareToIgnoreCase("commit")==0)
+            return 24;
+        else if (argument.compareToIgnoreCase("abort")==0)
+            return 25;
         else
             return 666;
 
