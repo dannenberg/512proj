@@ -43,6 +43,9 @@ class TransactionManager
 		return writes.get(trxnId);
 	}
 
+	public void start(int trxnId)
+		{writes.add(trxnId);}
+
 	public void abort(int trxnId)
 	{
 		writes.remove(trxnId);

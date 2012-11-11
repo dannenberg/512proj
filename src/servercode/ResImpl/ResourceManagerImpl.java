@@ -568,4 +568,6 @@ implements ResourceManager {
     {
     }
 
+    public void enlist(int trxnId)
+        {tm.start(trxnId);}
 }

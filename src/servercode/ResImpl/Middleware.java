@@ -755,4 +755,7 @@ implements ResourceManager {
     {
         return false;
     }
+
+    public void enlist(int trxnId)
+        {tm.start(trxnId);}
 }

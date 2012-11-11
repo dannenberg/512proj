@@ -30,6 +30,7 @@ public class TransactionManagerManager
 		if(!transactionTouch.containsKey(t))
 			transactionTouch.put(t, new HashSet());
 		transactionTouch.get(t).add(rm);
+		rm.enlist(t);
 	}
 
 	public void abort(int trxnId)
