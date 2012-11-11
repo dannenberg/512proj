@@ -27,14 +27,24 @@ class TransactionManager
 		return nextTrxnId++;
 	}
 
-	public void add(int trxnId, int id, String key, Transaction.Action action)
+	public void addCreate(int trxnId, int id, String key)
 	{
-		writes.get(trxnId).add(new Transaction(id, key, action));
+		writes.get(trxnId).add(0, new Transaction(id, key, Transaction.Action.CREATE));
 	}
 
-	public void addDelete(int trxnId, int id, String key, int numDeleted)
+	public void addBook(int trxnId, int id, String key, int custId)
 	{
-		writes.get(trxnId).add(new Transaction(id, key, Transaction.Action.DELETED, numDeleted));
+		writes.get(trxnId).add(0, new Transaction(id, key, Transaction.Action.BOOK, custId));
+	}
+
+	public void addDelete(int trxnId, int id, String key, int numDeleted, int price)
+	{
+		writes.get(trxnId).add(0, new Transaction(id, key, Transaction.Action.DELETE, numDeleted, price));
+	}
+
+	public void addUnbook(int trxnId, int id, String key, int custId, int price)
+	{
+		writes.get(trxnId).add(0, new Transaction(id, key, Transaction.Action.UNBOOK, custId, price));
 	}
 
 	public ArrayList<Transaction> getTrxns(int trxnId)
