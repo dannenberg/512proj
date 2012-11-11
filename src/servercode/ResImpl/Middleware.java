@@ -17,7 +17,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 //public class Middleware extends java.rmi.server.UnicastRemoteObject
 public class Middleware
-implements MiddleWare {
+implements ResourceManager {
     
     protected RMHashtable m_itemHT = new RMHashtable();
 
@@ -178,7 +178,7 @@ implements MiddleWare {
 
 
     // query the number of available seats/rooms/cars
-    public int queryNum(int trxnId, int id, String key) {
+    public int queryNum(int id, String key) {
         Trace.info("RM::queryNum(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0;  
@@ -190,7 +190,7 @@ implements MiddleWare {
     }    
 
     // query the price of an item
-    public int queryPrice(int trxnId, int id, String key){
+    public int queryPrice(int id, String key){
         return 0;    
     }
 
@@ -209,7 +209,7 @@ implements MiddleWare {
 
 
     // reserve an item
-    protected boolean reserveItem(int trxnId, int id, int customerID, String key, String location){
+    protected boolean reserveItem(int id, int customerID, String key, String location){
         Trace.info("RM::reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
@@ -241,7 +241,7 @@ implements MiddleWare {
 
     // Create a new flight, or add seats to existing flight
     //  NOTE: if flightPrice <= 0 and the flight already exists, it maintains its current price
-    public boolean addFlight(int trxnId, int id, int flightNum, int flightSeats, int flightPrice)
+    public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
         throws RemoteException
         {
             tm.lock(trxnId, Flight.getKey(flightNum), LockManager.WRITE);
@@ -255,7 +255,7 @@ implements MiddleWare {
 
 
 
-    public boolean deleteFlight(int trxnId, int id, int flightNum)
+    public boolean deleteFlight(int id, int flightNum)
         throws RemoteException
         {
             String key = Flight.getKey(flightNum);
@@ -273,7 +273,7 @@ implements MiddleWare {
 
     // Create a new room location or add rooms to an existing location
     //  NOTE: if price <= 0 and the room location already exists, it maintains its current price
-    public boolean addRooms(int trxnId, int id, String location, int count, int price)
+    public boolean addRooms(int id, String location, int count, int price)
         throws RemoteException
         {
             String key = Hotel.getKey(location);
@@ -287,7 +287,7 @@ implements MiddleWare {
         }
 
     // Delete rooms from a location
-    public boolean deleteRooms(int trxnId, int id, String location)
+    public boolean deleteRooms(int id, String location)
         throws RemoteException
         {
             String key = Hotel.getKey(location);
@@ -304,7 +304,7 @@ implements MiddleWare {
 
     // Create a new car location or add cars to an existing location
     //  NOTE: if price <= 0 and the location already exists, it maintains its current price
-    public boolean addCars(int trxnId, int id, String location, int count, int price)
+    public boolean addCars(int id, String location, int count, int price)
         throws RemoteException
         {
             tm.lock(trxnId, Car.getKey(location), LockManager.WRITE);
@@ -318,7 +318,7 @@ implements MiddleWare {
 
 
     // Delete cars from a location
-    public boolean deleteCars(int trxnId, int id, String location)
+    public boolean deleteCars(int id, String location)
         throws RemoteException
         {
             String key = Car.getKey(location);
@@ -335,7 +335,7 @@ implements MiddleWare {
 
 
     // Returns the number of empty seats on this flight
-    public int queryFlight(int trxnId, int id, int flightNum)
+    public int queryFlight(int id, int flightNum)
         throws RemoteException
         {
             tm.lock(trxnId, Flight.getKey(flightNum), LockManager.READ);
@@ -357,7 +357,7 @@ implements MiddleWare {
 
 
     // Returns price of this flight
-    public int queryFlightPrice(int trxnId, int id, int flightNum )
+    public int queryFlightPrice(int id, int flightNum )
         throws RemoteException
         {
             tm.lock(trxnId, Flight.getKey(flightNum), LockManager.READ);
@@ -366,7 +366,7 @@ implements MiddleWare {
 
 
     // Returns the number of rooms available at a location
-    public int queryRooms(int trxnId, int id, String location)
+    public int queryRooms(int id, String location)
         throws RemoteException
         {
             tm.lock(trxnId, Hotel.getKey(location), LockManager.READ);
@@ -375,7 +375,7 @@ implements MiddleWare {
 
 
     // Returns room price at this location
-    public int queryRoomsPrice(int trxnId, int id, String location)
+    public int queryRoomsPrice(int id, String location)
         throws RemoteException
         {
             tm.lock(trxnId, Hotel.getKey(location), LockManager.READ);
@@ -384,7 +384,7 @@ implements MiddleWare {
 
 
     // Returns the number of cars available at a location
-    public int queryCars(int trxnId, int id, String location)
+    public int queryCars(int id, String location)
         throws RemoteException
         {
             tm.lock(trxnId, Car.getKey(location), LockManager.READ);
@@ -393,7 +393,7 @@ implements MiddleWare {
 
 
     // Returns price of cars at this location
-    public int queryCarsPrice(int trxnId, int id, String location)
+    public int queryCarsPrice(int id, String location)
         throws RemoteException
         {
             tm.lock(trxnId, Car.getKey(location), LockManager.READ);
@@ -410,7 +410,7 @@ implements MiddleWare {
         }
 
     // return a bill
-    public String queryCustomerInfo(int trxnId, int id, int customerID)
+    public String queryCustomerInfo(int id, int customerID)
         throws RemoteException
         {
             Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
@@ -439,7 +439,7 @@ implements MiddleWare {
     // customer functions
     // new customer just returns a unique customer identifier
 
-    public int newCustomer(int trxnId, int id)
+    public int newCustomer(int id)
         throws RemoteException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ") called" );
@@ -456,7 +456,7 @@ implements MiddleWare {
         }
 
     // I opted to pass in customerID instead. This makes testing easier
-    public boolean newCustomer(int trxnId, int id, int customerID )
+    public boolean newCustomer(int id, int customerID )
         throws RemoteException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
@@ -477,7 +477,7 @@ implements MiddleWare {
 
 
     // Deletes customer from the database. 
-    public boolean deleteCustomer(int trxnId, int id, int customerID)
+    public boolean deleteCustomer(int id, int customerID)
         throws RemoteException
         {
             Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
@@ -547,7 +547,7 @@ implements MiddleWare {
 
 
     // Adds car reservation to this customer. 
-    public boolean reserveCar(int trxnId, int id, int customerID, String location)
+    public boolean reserveCar(int id, int customerID, String location)
         throws RemoteException
         {
         String key = Car.getKey(location);
@@ -582,7 +582,7 @@ implements MiddleWare {
 
 
     // Adds room reservation to this customer. 
-    public boolean reserveRoom(int trxnId, int id, int customerID, String location)
+    public boolean reserveRoom(int id, int customerID, String location)
         throws RemoteException
         {
         String key = Hotel.getKey(location);
@@ -616,7 +616,7 @@ implements MiddleWare {
         }
 
     // Adds flight reservation to this customer.  
-    public boolean reserveFlight(int trxnId, int id, int customerID, int flightNum)
+    public boolean reserveFlight(int id, int customerID, int flightNum)
         throws RemoteException
         {
         String key = Flight.getKey(flightNum);
@@ -651,7 +651,7 @@ implements MiddleWare {
         }
 
     /* reserve an itinerary */
-    public boolean itinerary(int trxnId, int id, int customer,Vector flightNumbers,String location,boolean car,boolean room)
+    public boolean itinerary(int id, int customer,Vector flightNumbers,String location,boolean car,boolean room)
         throws RemoteException {
             ListIterator itr = flightNumbers.listIterator();
             while (itr.hasNext()) {
