@@ -428,8 +428,8 @@ implements ResourceManager {
                 ResourceManager whom;
                 for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
                     key = (String) e.nextElement();
-                    tmm.lock(id, key, LockManager.READ, null);  // TODO: here
                     whom = sendToWhom(key);
+                    tmm.lock(id, key, LockManager.READ, whom);
                     s += whom.queryNum(id, key) + " " + key + " $" + whom.queryPrice(id, key) + "\n";
                 }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
@@ -493,12 +493,12 @@ implements ResourceManager {
                 RMHashtable reservationHT = cust.getReservations();
                 for(Enumeration e = reservationHT.keys(); e.hasMoreElements();){        
                     String reservedkey = (String) (e.nextElement());
-                    tmm.lock(id, reservedkey, LockManager.WRITE, null); // TODO: mystery paul
+                    ResourceManager sendto = sendToWhom(reservedkey);
+                    tmm.lock(id, reservedkey, LockManager.WRITE, sendto);
                     tm.addUnbook(id, reservedkey, customerID, sendToWhom(reservedkey).queryPrice(id, reservedkey));
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
 
-                    ResourceManager sendto = sendToWhom(reservedkey);
                     sendto.incrementItem(id, reservedkey, reserveditem.getCount());
                     // TODO: the trace is bad now
                     //Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + "which is reserved" +  item.getReserved() +  " times and is still available " + item.getCount() + " times"  );

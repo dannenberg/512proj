@@ -37,9 +37,7 @@ public class TransactionManagerManager
 	public boolean lock(int trxnId, String strData, int lockType, ResourceManager rm) throws DeadlockException
 	{
 		if(rm == null)
-		{
 			Trace.info("   !!!!! Hey, you didn't change the RM to stop being null when sent to lock.");
-		}
 		enlist(trxnId, rm);
 		return lm.Lock(trxnId, strData, lockType);
 	}
