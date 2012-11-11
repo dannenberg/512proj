@@ -2,11 +2,11 @@ package ResImpl;
 
 public class Transaction
 {
-	public static enum Action {BOOK, CREATE, DELETE, UNBOOK};
+	public static enum Action {BOOK, CREATE, DELETE, UNBOOK, STOCK};
 	public int id;		// my programming language has no tuples
 	public String key;	// then how does it smell?
 	public Action action;	// terrible!
-	private int numDeletedOrCustId;
+	private int numDeletedOrCustIdOrAmount;
 	public int price;
 
 	public Transaction(int id, String key, Action action)
@@ -16,12 +16,12 @@ public class Transaction
 		this.action = action;
 	}
 
-	public Transaction(int id, String key, Action action, int custId)
-	{	// BOOKING
+	public Transaction(int id, String key, Action action, int custIdOrAmount)
+	{	// BOOKING / STOCK
 		this.id = id;
 		this.key = key;
 		this.action = action;
-		this.numDeletedOrCustId = custId;
+		this.numDeletedOrCustIdOrAmount = custIdOrAmount;
 	}
 
 	public Transaction(int id, String key, Action action, int numDeleted, int price)
@@ -29,12 +29,15 @@ public class Transaction
 		this.id = id;
 		this.key = key;
 		this.action = action;
-		this.numDeletedOrCustId = numDeleted;
+		this.numDeletedOrCustIdOrAmount = numDeleted;
 	}
 
 	public int custId()
-		{return numDeletedOrCustId;}
+		{return numDeletedOrCustIdOrAmount;}
 
 	public int numDeleted()
-		{return numDeletedOrCustId;}
+		{return numDeletedOrCustIdOrAmount;}
+
+	public int amount()
+		{return numDeletedOrCustIdOrAmount;}
 }

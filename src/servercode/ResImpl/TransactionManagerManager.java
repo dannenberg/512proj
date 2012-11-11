@@ -9,10 +9,19 @@ public class TransactionManagerManager
 {
 	private HashMap<Integer, HashSet<ResourceManager>> transactionTouch;
 	private LockManager lm;
+	private int nextTrxnId;
 
 	public TransactionManagerManager()
 	{
 		transactionTouch = new HashMap();
+		nextTrxnId = 0;
+	}
+
+	public int start()
+	{
+		//writes.put(nextTrxnId, new ArrayList());
+		transactionTouch.put(nextTrxnId, new HashSet());
+		return nextTrxnId++;
 	}
 
 	public void enlist(int t, ResourceManager rm)
@@ -29,7 +38,7 @@ public class TransactionManagerManager
 	}
 
 	public void commit(int trxnId)
-	{	// DONE
+	{
 		lm.UnlockAll(trxnId);
 		// actually call the other Managers for the commits
 	}
@@ -38,7 +47,8 @@ public class TransactionManagerManager
 	{
 		if(rm == null)
 			Trace.info("   !!!!! Hey, you didn't change the RM to stop being null when sent to lock.");
-		enlist(trxnId, rm);
+		if(lockType == LockManager.WRITE)
+			enlist(trxnId, rm);
 		return lm.Lock(trxnId, strData, lockType);
 	}
 }

@@ -7,17 +7,10 @@ import java.util.ArrayList;
 class TransactionManager
 {
 	private HashMap<Integer, ArrayList<Transaction>> writes;
-	private int nextTrxnId;
+	
 	public TransactionManager()
 	{
 		writes = new HashMap();
-		nextTrxnId = 0;
-	}
-
-	public int start()
-	{
-		writes.put(nextTrxnId, new ArrayList());
-		return nextTrxnId++;
 	}
 
 	public void addCreate(int id, String key)
@@ -28,6 +21,11 @@ class TransactionManager
 	public void addBook(int id, String key, int custId)
 	{
 		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.BOOK, custId));
+	}
+
+	public void addStock(int id, String key, int amount)
+	{
+		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.STOCK, amount));
 	}
 
 	public void addDelete(int id, String key, int numDeleted, int price)

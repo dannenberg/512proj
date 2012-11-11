@@ -246,13 +246,10 @@ implements ResourceManager {
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
         throws RemoteException
         {
-            tmm.lock(id, Flight.getKey(flightNum), LockManager.WRITE, rmp);
-            if(rmp.addFlight(id, flightNum, flightSeats, flightPrice))
-            {
-                tm.addCreate(id, Flight.getKey(flightNum));
-                return true;
-            }
-            return false;
+            try{
+                tmm.lock(id, Flight.getKey(flightNum), LockManager.WRITE, rmp);
+            } catch (DeadlockException d) {}
+            return rmp.addFlight(id, flightNum, flightSeats, flightPrice);
         }
 
 
@@ -261,14 +258,10 @@ implements ResourceManager {
         throws RemoteException
         {
             String key = Flight.getKey(flightNum);
-            tmm.lock(id, key, LockManager.WRITE, rmp);
-            int seats = rmp.queryFlight(id, flightNum);
-            if(rmp.deleteFlight(id, flightNum))
-            {
-                tm.addDelete(id, key, seats, rmp.queryPrice(id, key));
-                return true;
-            }
-            return false;
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmp);
+            } catch (DeadlockException d) {}
+            return rmp.deleteFlight(id, flightNum);
         }
 
 
@@ -279,13 +272,10 @@ implements ResourceManager {
         throws RemoteException
         {
             String key = Hotel.getKey(location);
-            tmm.lock(id, key, LockManager.WRITE, rmh);
-            if(rmh.addRooms(id, location, count, price))
-            {
-                tm.addCreate(id, key);
-                return true;
-            }
-            return false;
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmh);
+            } catch (DeadlockException d) {}
+            return rmh.addRooms(id, location, count, price);
         }
 
     // Delete rooms from a location
@@ -293,15 +283,10 @@ implements ResourceManager {
         throws RemoteException
         {
             String key = Hotel.getKey(location);
-            tmm.lock(id, key, LockManager.WRITE, rmh);
-            int rooms = rmh.queryRooms(id, location);
-            if(rmh.deleteRooms(id, location))
-            {
-                tm.addDelete(id, key, rooms, rmh.queryPrice(id, key));
-                return true;
-            }
-            return false;
-
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmh);
+            } catch (DeadlockException d) {}
+            return rmh.deleteRooms(id, location);
         }
 
     // Create a new car location or add cars to an existing location
@@ -309,13 +294,10 @@ implements ResourceManager {
     public boolean addCars(int id, String location, int count, int price)
         throws RemoteException
         {
-            tmm.lock(id, Car.getKey(location), LockManager.WRITE, rmc);
-            if(rmc.addCars(id, location, count, price))
-            {
-                tm.addCreate(id, Car.getKey(location));
-                return true;
-            }
-            return false;
+            try{
+                tmm.lock(id, Car.getKey(location), LockManager.WRITE, rmc);
+            } catch (DeadlockException d) {}
+            return rmc.addCars(id, location, count, price);
         }
 
 
@@ -324,14 +306,10 @@ implements ResourceManager {
         throws RemoteException
         {
             String key = Car.getKey(location);
-            tmm.lock(id, key, LockManager.WRITE, rmc);
-            int cars = rmc.queryCars(id, location);
-            if(rmc.deleteCars(id, location))
-            {
-                tm.addDelete(id, key, cars, rmc.queryPrice(id, key));
-                return true;
-            }
-            return false;
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmc);
+            } catch (DeadlockException d) {}
+            return rmc.deleteCars(id, location);
         }
 
 
@@ -340,7 +318,9 @@ implements ResourceManager {
     public int queryFlight(int id, int flightNum)
         throws RemoteException
         {
-            tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
+            try{
+                tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
+            } catch (DeadlockException d) {}
             return rmp.queryFlight(id, flightNum);
         }
 
@@ -362,7 +342,9 @@ implements ResourceManager {
     public int queryFlightPrice(int id, int flightNum )
         throws RemoteException
         {
-            tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
+            try{
+                tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
+            } catch (DeadlockException d) {}
             return rmp.queryFlightPrice(id, flightNum);
         }
 
@@ -371,7 +353,9 @@ implements ResourceManager {
     public int queryRooms(int id, String location)
         throws RemoteException
         {
-            tmm.lock(id, Hotel.getKey(location), LockManager.READ, rmh);
+            try{
+                tmm.lock(id, Hotel.getKey(location), LockManager.READ, rmh);
+            } catch (DeadlockException d) {}
             return rmh.queryRooms(id, location);
         }
 
@@ -380,7 +364,9 @@ implements ResourceManager {
     public int queryRoomsPrice(int id, String location)
         throws RemoteException
         {
-            tmm.lock(id, Hotel.getKey(location), LockManager.READ,rmh);
+            try{
+                tmm.lock(id, Hotel.getKey(location), LockManager.READ,rmh);
+            } catch (DeadlockException d) {}
             return rmh.queryRoomsPrice(id, location);
         }
 
@@ -389,7 +375,9 @@ implements ResourceManager {
     public int queryCars(int id, String location)
         throws RemoteException
         {
-            tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
+            try{
+                tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
+            } catch (DeadlockException d) {}
             return rmc.queryCars(id, location);
         }
 
@@ -398,7 +386,9 @@ implements ResourceManager {
     public int queryCarsPrice(int id, String location)
         throws RemoteException
         {
-            tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
+            try{
+                tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
+            } catch (DeadlockException d) {}
             return rmc.queryCarsPrice(id, location);
         }
 
@@ -416,7 +406,9 @@ implements ResourceManager {
         throws RemoteException
         {
             Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
-            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            try{
+                tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            } catch (DeadlockException d) {}
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 Trace.warn("RM::queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
@@ -429,7 +421,9 @@ implements ResourceManager {
                 for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
                     key = (String) e.nextElement();
                     whom = sendToWhom(key);
-                    tmm.lock(id, key, LockManager.READ, whom);
+                    try{
+                        tmm.lock(id, key, LockManager.READ, whom);
+                    } catch (DeadlockException d) {}
                     s += whom.queryNum(id, key) + " " + key + " $" + whom.queryPrice(id, key) + "\n";
                 }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
@@ -449,7 +443,9 @@ implements ResourceManager {
             int cid = Integer.parseInt( String.valueOf(id) +
                     String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)) +
                     String.valueOf( Math.round( Math.random() * 100 + 1 )));
-            tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, this);
+            try{
+                tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, this);
+            } catch (DeadlockException d) {}
             tm.addCreate(id, Customer.getKey(cid));
             Customer cust = new Customer( cid );
             writeData( id, cust.getKey(), cust );
@@ -462,10 +458,14 @@ implements ResourceManager {
         throws RemoteException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
-            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            try{
+                tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            } catch (DeadlockException d) {}
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
-                tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+                try{
+                    tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+                } catch (DeadlockException d) {}
                 tm.addCreate(id, Customer.getKey(customerID));
                 cust = new Customer(customerID);
                 writeData( id, cust.getKey(), cust );
@@ -483,7 +483,9 @@ implements ResourceManager {
         throws RemoteException
         {
             Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
-            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            try{
+                tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            } catch (DeadlockException d) {}
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 Trace.warn("RM::deleteCustomer(" + id + ", " + customerID + ") failed--customer doesn't exist" );
@@ -494,7 +496,9 @@ implements ResourceManager {
                 for(Enumeration e = reservationHT.keys(); e.hasMoreElements();){        
                     String reservedkey = (String) (e.nextElement());
                     ResourceManager sendto = sendToWhom(reservedkey);
-                    tmm.lock(id, reservedkey, LockManager.WRITE, sendto);
+                    try{
+                        tmm.lock(id, reservedkey, LockManager.WRITE, sendto);
+                    } catch (DeadlockException d) {}
                     tm.addUnbook(id, reservedkey, customerID, sendToWhom(reservedkey).queryPrice(id, reservedkey));
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
@@ -506,7 +510,9 @@ implements ResourceManager {
 
                 // remove the customer from the storage
 
-                tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+                try{
+                    tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+                } catch (DeadlockException d) {}
                 tm.addDelete(id, Customer.getKey(customerID), 0, 0);
                 removeData(id, cust.getKey());
 
@@ -555,7 +561,9 @@ implements ResourceManager {
         String key = Car.getKey(location);
         Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
-        tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+        try{
+            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+        } catch (DeadlockException d) {}
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
@@ -563,14 +571,20 @@ implements ResourceManager {
         } 
 
         // MAKE THE CAR SERVER DO THE THINGS
-        tmm.lock(id, key, LockManager.READ, rmc);
+        try{
+            tmm.lock(id, key, LockManager.READ, rmc);
+        } catch (DeadlockException d) {}
         int num = rmc.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-            tmm.lock(id, key, LockManager.WRITE, rmc);
+            try{
+                tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            } catch (DeadlockException d) {}
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmc);
+            } catch (DeadlockException d) {}
             tm.addBook(id, key, customerID);
             cust.reserve( key, location, rmc.queryPrice(id, key));
             writeData( id, cust.getKey(), cust );
@@ -590,7 +604,9 @@ implements ResourceManager {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
-        tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+        try{
+            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+        } catch (DeadlockException d) {}
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
@@ -598,14 +614,20 @@ implements ResourceManager {
         } 
 
         // MAKE THE HOTEL SERVER DO THE THINGS
-        tmm.lock(id, key, LockManager.READ, rmh);
+        try{
+            tmm.lock(id, key, LockManager.READ, rmh);
+        } catch (DeadlockException d) {}
         int num = rmh.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-            tmm.lock(id, key, LockManager.WRITE, rmh);
+            try{
+                tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            } catch (DeadlockException d) {}
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmh);
+            } catch (DeadlockException d) {}
             tm.addBook(id, key, customerID);
             cust.reserve( key, location, rmh.queryPrice(id, key));        
             writeData( id, cust.getKey(), cust );
@@ -624,7 +646,9 @@ implements ResourceManager {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );        
         // Read customer object if it exists (and read lock it)
-        tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+        try{
+            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+        } catch (DeadlockException d) {}
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", "+flightNum+")  failed--customer doesn't exist" );
@@ -632,14 +656,20 @@ implements ResourceManager {
         } 
 
         // MAKE THE PLANE SERVER DO THE THINGS
-        tmm.lock(id, key, LockManager.READ, rmp);
+        try{
+            tmm.lock(id, key, LockManager.READ, rmp);
+        } catch (DeadlockException d) {}
         int num = rmp.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
             return false;
         } else {
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-            tmm.lock(id, key, LockManager.WRITE, rmp);
+            try{
+                tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            } catch (DeadlockException d) {}
+            try{
+                tmm.lock(id, key, LockManager.WRITE, rmp);
+            } catch (DeadlockException d) {}
             tm.addBook(id, key, customerID);
 
             cust.reserve( key, String.valueOf(flightNum), rmp.queryPrice(id, key));        
@@ -669,7 +699,7 @@ implements ResourceManager {
         }
 
     public int start() throws RemoteException
-        {return tm.start();}
+        {return tmm.start();}
 
     public boolean commit(int trxnId) throws RemoteException //, TransactionAbortedException, InvalidTransactionException
     {
