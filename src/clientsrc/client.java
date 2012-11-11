@@ -878,6 +878,27 @@ public class client
                 System.out.println("\tnewcustomerid, <id>, <customerid>");
                 break;
 
+            case 23:  // start trxn
+                System.out.println("Start a new transaction.");
+                System.out.println("Purpose:");
+                System.out.println("\tStarts a transaction and gives the transaction number.");
+                System.out.println("\nUsage:");
+                System.out.println("\tstart");
+
+            case 24:  // commit
+                System.out.println("Commit a transaction.");
+                System.out.println("Purpose:");
+                System.out.println("\tCommits a transaction.");
+                System.out.println("\nUsage:");
+                System.out.println("\tcommit <trxnId>");
+
+            case 25:  // abort
+                System.out.println("Abort a transaction.");
+                System.out.println("Purpose:");
+                System.out.println("\tAborts a transaction.");
+                System.out.println("\nUsage:");
+                System.out.println("\tabort <trxnId>");
+
             default:
                 System.out.println(command);
                 System.out.println("The interface does not support this command.");
