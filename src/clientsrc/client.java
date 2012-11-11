@@ -72,9 +72,11 @@ public class client
 
 
 
+        /*
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new RMISecurityManager());
         }
+        */
 
 
         System.out.println("\n\n\tClient Interface");
@@ -98,10 +100,11 @@ public class client
 
             commandNum = obj.findChoice((String)arguments.elementAt(0));
             // do not proceed if they are doing anything aside from help or start without an active transaction
-            if (Id == -1 && commandNum != 1 && commandNum != 23) {
+           /* if (Id == -1 && commandNum != 1 && commandNum != 23) {
                 System.out.println("you need to have an active transaction to be able to run this command");
                 continue;
             }
+            */
 
             //decide which of the commands this was
             switch(obj.findChoice((String)arguments.elementAt(0))){
@@ -560,10 +563,9 @@ public class client
 
                 case 23: // start 
                     try {
-                        if (Id != -1)
-                            rm.abort(Id);
-                        Id = rm.start(); // TODO dont start if already started, dont allow commands, commit, or abort unless currently transacting
+                        rm.start(); // TODO dont start if already started, dont allow commands, commit, or abort unless currently transacting
                     } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
                     }
                     break;
 
@@ -573,6 +575,7 @@ public class client
                         rm.commit(Id);
                         Id = -1;
                     } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
                     }
                     break;
 
@@ -582,6 +585,7 @@ public class client
                         rm.abort(Id);
                         Id = -1;
                     } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
                     }
                     break;
 

@@ -118,10 +118,12 @@ implements ResourceManager {
             e.printStackTrace();
         }
 
+        /*
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new RMISecurityManager());
         }
+        */
     }
 
 

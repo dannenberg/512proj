@@ -63,7 +63,7 @@ implements ResourceManager {
             // create a new Server object
             ResourceManagerImpl obj = new ResourceManagerImpl();
             // dynamically generate the stub (client proxy)
-            ResourceManagerImpl rm = (ResourceManagerImpl) UnicastRemoteObject.exportObject(obj, 0);
+            ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry(port);
@@ -77,10 +77,12 @@ implements ResourceManager {
             e.printStackTrace();
         }
 
+        /*
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new RMISecurityManager());
         }
+        */
     }
 
 
