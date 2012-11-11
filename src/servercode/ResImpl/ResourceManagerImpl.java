@@ -516,7 +516,6 @@ implements ResourceManager {
             String key = Car.getKey(location);
             if(reserveItem(id, customerID, key, location))
             {
-                tm.addBook(id, key, customerID);
                 return true;
             }
             return false;
@@ -530,7 +529,6 @@ implements ResourceManager {
             String key = Hotel.getKey(location);
             if(reserveItem(id, customerID, key, location))
             {
-                tm.addBook(id, key, customerID);
                 return true;
             }
             return false;
@@ -542,7 +540,6 @@ implements ResourceManager {
             String key = Flight.getKey(flightNum);
             if(reserveItem(id, customerID, key, flightNum + ""))
             {
-                tm.addBook(id, key, customerID);
                 return true;
             }
             return false;
