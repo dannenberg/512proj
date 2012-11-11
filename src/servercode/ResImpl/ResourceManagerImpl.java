@@ -552,4 +552,18 @@ implements ResourceManager {
             return false;
         }
 
+    public int start() throws RemoteException
+    {
+        return 0;
+    }
+
+    public boolean commit(int trxnId) throws RemoteException
+    {
+        return false;
+    }
+
+    public void abort(int trxnId) throws RemoteException //, InvalidTransactionException
+    {
+    }
+
 }
