@@ -5,6 +5,7 @@
 package ResImpl;
 
 import ResInterface.*;
+import LockManager.*;
 
 import java.util.*;
 import java.rmi.*;
@@ -23,7 +24,7 @@ implements ResourceManager {
     static ResourceManager rmc = null;
     static ResourceManager rmp = null;
     static ResourceManager rmh = null;
-
+    static TransactionManager tm = null;
 
     public static void main(String args[]) {
         // Figure out where server is running
@@ -34,6 +35,8 @@ implements ResourceManager {
         int portc = 9897;
         int portp = 9898;
         int porth = 9899;
+
+        tm = new TransactionManager();
 
         if (args.length == 7)  // mw_port, (server, port) * 3
         {
@@ -656,4 +659,22 @@ implements ResourceManager {
 
             return true;
         }
+
+    public int start() throws RemoteException
+    {
+        return tm.start();
+    }
+
+    public boolean commit(int transactionId) throws RemoteException //, TransactionAbortedException, InvalidTransactionException
+    {
+        return false;  // HA HA HA
+    }
+    public void abort(int transactionId) throws RemoteException //, InvalidTransactionException
+    {
+
+    }
+    public boolean shutdown() throws RemoteException
+    {
+        return false;
+    }
 }
