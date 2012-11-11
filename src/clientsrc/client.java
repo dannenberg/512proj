@@ -18,7 +18,7 @@ public class client
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String command = "";
         Vector arguments  = new Vector();
-        int Id = 0;
+        int Id = -1;
         int Cid;
         int flightNum;
         int flightPrice;
@@ -28,6 +28,7 @@ public class client
         int price;
         int numRooms;
         int numCars;
+        int commandNum;
         String location;
 
 
@@ -94,6 +95,14 @@ public class client
 
             if (arguments.isEmpty())
                 continue;
+
+            commandNum = obj.findChoice((String)arguments.elementAt(0));
+            // do not proceed if they are doing anything aside from help or start without an active transaction
+            if (Id == -1 && commandNum != 1 && commandNum != 23) {
+                System.out.println("you need to have an active transaction to be able to run this command");
+                continue;
+            }
+
             //decide which of the commands this was
             switch(obj.findChoice((String)arguments.elementAt(0))){
                 case 1: //help section
@@ -551,6 +560,8 @@ public class client
 
                 case 23: // start 
                     try {
+                        if (Id != -1)
+                            rm.abort(Id);
                         Id = rm.start(); // TODO dont start if already started, dont allow commands, commit, or abort unless currently transacting
                     } catch (Exception e) {
                     }
@@ -560,6 +571,7 @@ public class client
                 case 24: // commit
                     try {
                         rm.commit(Id);
+                        Id = -1;
                     } catch (Exception e) {
                     }
                     break;
@@ -568,6 +580,7 @@ public class client
                 case 25: // abort
                     try {
                         rm.abort(Id);
+                        Id = -1;
                     } catch (Exception e) {
                     }
                     break;
