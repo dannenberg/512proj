@@ -18,7 +18,7 @@ public class ResourceManagerImpl
 implements ResourceManager {
 	
     protected RMHashtable m_itemHT = new RMHashtable();
-
+    private TransactionManager tm = new TransactionManager();
 
     public static void main(String args[]) {
         // Figure out where server is running
