@@ -30,7 +30,12 @@ public class TransactionManagerManager
 		if(!transactionTouch.containsKey(t))
 			transactionTouch.put(t, new HashSet());
 		transactionTouch.get(t).add(rm);
+        try {
 		rm.enlist(t);
+        }
+        catch (Exception e) {
+            System.out.println("BNOOOOOOO");
+        }
 	}
 
 	public void abort(int trxnId)

@@ -568,6 +568,6 @@ implements ResourceManager {
     {
     }
 
-    public void enlist(int trxnId)
+    public void enlist(int trxnId) throws RemoteException
         {tm.start(trxnId);}
 }

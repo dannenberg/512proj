@@ -44,7 +44,7 @@ class TransactionManager
 	}
 
 	public void start(int trxnId)
-		{writes.add(trxnId);}
+		{writes.put(trxnId, new ArrayList());}
 
 	public void abort(int trxnId)
 	{
