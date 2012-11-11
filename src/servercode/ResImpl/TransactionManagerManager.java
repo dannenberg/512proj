@@ -14,6 +14,7 @@ public class TransactionManagerManager
 	public TransactionManagerManager()
 	{
 		transactionTouch = new HashMap();
+        lm = new LockManager();
 		nextTrxnId = 0;
 	}
 
