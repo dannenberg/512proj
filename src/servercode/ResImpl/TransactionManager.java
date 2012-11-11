@@ -16,9 +16,9 @@ class TransactionManager
 		nextTrxnId = 0;
 	}
 
-	public boolean lock(int Xid, String strData, int lockType) throws DeadlockException
+	public boolean lock(int trxnId, String strData, int lockType) throws DeadlockException
 	{
-		return lm.Lock(Xid, strData, lockType);
+		return lm.Lock(trxnId, strData, lockType);
 	}
 
 	public int start()
@@ -27,9 +27,14 @@ class TransactionManager
 		return nextTrxnId++;
 	}
 
-	public void add(int trxnId, int id, String key)
+	public void add(int trxnId, int id, String key, Transaction.Action action)
 	{
-		writes.get(trxnId).add(new Transaction(id, key));
+		writes.get(trxnId).add(new Transaction(id, key, action));
+	}
+
+	public void addDelete(int trxnId, int id, String key, int numDeleted)
+	{
+		writes.get(trxnId).add(new Transaction(id, key, Transaction.Action.DELETED, numDeleted));
 	}
 
 	public ArrayList<Transaction> getTrxns(int trxnId)

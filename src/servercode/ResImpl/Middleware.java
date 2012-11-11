@@ -251,27 +251,13 @@ implements MiddleWare {
     public boolean addFlight(int trxnId, int id, int flightNum, int flightSeats, int flightPrice)
         throws RemoteException
         {
-            return rmp.addFlight(id, flightNum, flightSeats, flightPrice);
-            /*
-            Trace.info("RM::addFlight(" + id + ", " + flightNum + ", $" + flightPrice + ", " + flightSeats + ") called" );
-            Flight curObj = (Flight) readData( id, Flight.getKey(flightNum) );
-            if( curObj == null ) {
-                // doesn't exist...add it
-                Flight newObj = new Flight( flightNum, flightSeats, flightPrice );
-                writeData( id, newObj.getKey(), newObj );
-                Trace.info("RM::addFlight(" + id + ") created new flight " + flightNum + ", seats=" +
-                        flightSeats + ", price=$" + flightPrice );
-            } else {
-                // add seats to existing flight and update the price...
-                curObj.setCount( curObj.getCount() + flightSeats );
-                if( flightPrice > 0 ) {
-                    curObj.setPrice( flightPrice );
-                } // if
-                writeData( id, curObj.getKey(), curObj );
-                Trace.info("RM::addFlight(" + id + ") modified existing flight " + flightNum + ", seats=" + curObj.getCount() + ", price=$" + flightPrice );
-            } // else
-            return(true);
-            */
+            tm.lock(trxnId, Flight.getKey(flightNum), LockManager.WRITE);
+            if(rmp.addFlight(id, flightNum, flightSeats, flightPrice))
+            {
+                tm.add(trxnId, id, Flight.getKey(flightNum), Transaction.Action.CREATE);
+                return true;
+            }
+            return false;
         }
 
 
@@ -279,7 +265,14 @@ implements MiddleWare {
     public boolean deleteFlight(int trxnId, int id, int flightNum)
         throws RemoteException
         {
-            return rmp.deleteFlight(id, flightNum);
+            tm.lock(trxnId, Flight.getKey(flightNum), LockManager.WRITE);
+            int seats = rmp.queryFlight(id, flightNum);
+            if(rmp.deleteFlight(id, flightNum))
+            {
+                tm.addDelete(trxnId, id, Flight.getKey(flightNum), seats);
+                return true;
+            }
+            return false;
         }
 
 
@@ -289,33 +282,27 @@ implements MiddleWare {
     public boolean addRooms(int trxnId, int id, String location, int count, int price)
         throws RemoteException
         {
-            return rmh.addRooms(id, location, count, price);
-            /*
-            Trace.info("RM::addRooms(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
-            Hotel curObj = (Hotel) readData( id, Hotel.getKey(location) );
-            if( curObj == null ) {
-                // doesn't exist...add it
-                Hotel newObj = new Hotel( location, count, price );
-                writeData( id, newObj.getKey(), newObj );
-                Trace.info("RM::addRooms(" + id + ") created new room location " + location + ", count=" + count + ", price=$" + price );
-            } else {
-                // add count to existing object and update price...
-                curObj.setCount( curObj.getCount() + count );
-                if( price > 0 ) {
-                    curObj.setPrice( price );
-                } // if
-                writeData( id, curObj.getKey(), curObj );
-                Trace.info("RM::addRooms(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
-            } // else
-            return(true);
-            */
+            tm.lock(trxnId, Room.getKey(location), LockManager.WRITE);
+            if(rmh.addRooms(id, location, count, price))
+            {
+                tm.add(trxnId, id, Room.getKey(location), Transaction.Action.CREATE);
+                return true;
+            }
+            return false;
         }
 
     // Delete rooms from a location
     public boolean deleteRooms(int trxnId, int id, String location)
         throws RemoteException
         {
-            return rmh.deleteRooms(id, location);
+            tm.lock(trxnId, Room.getKey(location), LockManager.WRITE);
+            int rooms = rmh.queryRooms(id, location);
+            if(rmh.deleteRooms(id, location))
+            {
+                tm.addDelete(trxnId, id, Room.getKey(location), rooms);
+                return true;
+            }
+            return false;
 
         }
 
@@ -324,26 +311,13 @@ implements MiddleWare {
     public boolean addCars(int trxnId, int id, String location, int count, int price)
         throws RemoteException
         {
-            return rmc.addCars(id, location, count, price);
-            /*
-            Trace.info("RM::addCars(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
-            Car curObj = (Car) readData( id, Car.getKey(location) );
-            if( curObj == null ) {
-                // car location doesn't exist...add it
-                Car newObj = new Car( location, count, price );
-                writeData( id, newObj.getKey(), newObj );
-                Trace.info("RM::addCars(" + id + ") created new location " + location + ", count=" + count + ", price=$" + price );
-            } else {
-                // add count to existing car location and update price...
-                curObj.setCount( curObj.getCount() + count );
-                if( price > 0 ) {
-                    curObj.setPrice( price );
-                } // if
-                writeData( id, curObj.getKey(), curObj );
-                Trace.info("RM::addCars(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
-            } // else
-            return(true);
-            */
+            tm.lock(trxnId, Car.getKey(location), LockManager.WRITE);
+            if(rmc.addCars(id, location, count, price))
+            {
+                tm.add(trxnId, id, Car.getKey(location), Transaction.Action.CREATE);
+                return true;
+            }
+            return false;
         }
 
 
@@ -351,7 +325,14 @@ implements MiddleWare {
     public boolean deleteCars(int trxnId, int id, String location)
         throws RemoteException
         {
-            return rmc.deleteCars(id, location);
+            tm.lock(trxnId, Car.getKey(location), LockManager.WRITE);
+            int cars = rmc.queryCars(id, location);
+            if(rmc.deleteCars(id, location))
+            {
+                tm.addDelete(trxnId, id, Car.getKey(location), cars);
+                return true;
+            }
+            return false;
         }
 
 
@@ -360,6 +341,7 @@ implements MiddleWare {
     public int queryFlight(int trxnId, int id, int flightNum)
         throws RemoteException
         {
+            tm.lock(trxnId, Flight.getKey(flightNum), LockManager.READ);
             return rmp.queryFlight(id, flightNum);
         }
 
@@ -381,6 +363,7 @@ implements MiddleWare {
     public int queryFlightPrice(int trxnId, int id, int flightNum )
         throws RemoteException
         {
+            tm.lock(trxnId, Flight.getKey(flightNum), LockManager.READ);
             return rmp.queryFlightPrice(id, flightNum);
         }
 
@@ -389,16 +372,16 @@ implements MiddleWare {
     public int queryRooms(int trxnId, int id, String location)
         throws RemoteException
         {
+            tm.lock(trxnId, Room.getKey(location), LockManager.READ);
             return rmh.queryRooms(id, location);
         }
-
-
 
 
     // Returns room price at this location
     public int queryRoomsPrice(int trxnId, int id, String location)
         throws RemoteException
         {
+            tm.lock(trxnId, Room.getKey(location), LockManager.READ);
             return rmh.queryRoomsPrice(id, location);
         }
 
@@ -407,6 +390,7 @@ implements MiddleWare {
     public int queryCars(int trxnId, int id, String location)
         throws RemoteException
         {
+            tm.lock(trxnId, Car.getKey(location), LockManager.READ);
             return rmc.queryCars(id, location);
         }
 
@@ -415,6 +399,7 @@ implements MiddleWare {
     public int queryCarsPrice(int trxnId, int id, String location)
         throws RemoteException
         {
+            tm.lock(trxnId, Car.getKey(location), LockManager.READ);
             return rmc.queryCarsPrice(id, location);
         }
 
@@ -424,6 +409,7 @@ implements MiddleWare {
     public RMHashtable getCustomerReservations(int id, int customerID)
         throws RemoteException
         {
+            // NEVER CALLED
             Trace.info("RM::getCustomerReservations(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
@@ -439,6 +425,7 @@ implements MiddleWare {
         throws RemoteException
         {
             Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
+            tm.lock(trxnId, Customer.getKey(customerID), LockManager.READ);
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 Trace.warn("RM::queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
@@ -450,6 +437,7 @@ implements MiddleWare {
                 ResourceManager whom;
                 for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
                     key = (String) e.nextElement();
+                    tm.lock(trxnId, key, LockManager.READ);
                     whom = sendToWhom(key);
                     s += whom.queryNum(id, key) + " " + key + " $" + whom.queryPrice(id, key) + "\n";
                 }
@@ -470,6 +458,7 @@ implements MiddleWare {
             int cid = Integer.parseInt( String.valueOf(id) +
                     String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)) +
                     String.valueOf( Math.round( Math.random() * 100 + 1 )));
+            tm.lock(trxnId, Customer.getKey(cid), LockManager.WRITE);
             Customer cust = new Customer( cid );
             writeData( id, cust.getKey(), cust );
             Trace.info("RM::newCustomer(" + cid + ") returns ID=" + cid );
@@ -477,12 +466,14 @@ implements MiddleWare {
         }
 
     // I opted to pass in customerID instead. This makes testing easier
-    public boolean newCustomer(int trxnId, int id, int customerID )
+    public boolean newCustomer(int trxnIn, int id, int customerID )
         throws RemoteException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
+            tm.lock(trxnId, Customer.getKey(customerID), LockManager.READ);
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
+                tm.lock(trxnId, Customer.getKey(customerID), LockManager.WRITE);
                 cust = new Customer(customerID);
                 writeData( id, cust.getKey(), cust );
                 Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") created a new customer" );
@@ -499,6 +490,7 @@ implements MiddleWare {
         throws RemoteException
         {
             Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
+            tm.lock(trxnId, Customer.getKey(customerID), LockManager.READ);
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 Trace.warn("RM::deleteCustomer(" + id + ", " + customerID + ") failed--customer doesn't exist" );
@@ -508,6 +500,7 @@ implements MiddleWare {
                 RMHashtable reservationHT = cust.getReservations();
                 for(Enumeration e = reservationHT.keys(); e.hasMoreElements();){        
                     String reservedkey = (String) (e.nextElement());
+                    tm.lock(trxnId, reservedkey, LockManager.WRITE);
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
 
@@ -518,6 +511,8 @@ implements MiddleWare {
                 }
 
                 // remove the customer from the storage
+
+                tm.lock(trxnId, Customer.getKey(customerID), LockManager.WRITE);
                 removeData(id, cust.getKey());
 
                 Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") succeeded" );
@@ -563,6 +558,7 @@ implements MiddleWare {
         String key = Car.getKey(location);
         Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
+        tm.lock(trxnId, Customer.getKey(customerID), LockManager.READ);
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
@@ -570,12 +566,14 @@ implements MiddleWare {
         } 
 
         // MAKE THE CAR SERVER DO THE THINGS
+        tm.lock(trxnId, key, LockManager.WRITE);
         int num = rmc.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
-        } else {            
-            cust.reserve( key, location, rmc.queryPrice(id, key));        
+        } else {
+            tm.lock(trxnId, Customer.getKey(customerID), LockManager.WRITE);
+            cust.reserve( key, location, rmc.queryPrice(id, key));
             writeData( id, cust.getKey(), cust );
 
             rmc.decrementItem(id, key);
@@ -593,6 +591,7 @@ implements MiddleWare {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
+        tm.lock(trxnId, Customer.getKey(customerID), LockManager.READ);
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
@@ -600,11 +599,14 @@ implements MiddleWare {
         } 
 
         // MAKE THE HOTEL SERVER DO THE THINGS
+        tm.lock(trxnId, key, LockManager.READ);
         int num = rmh.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
-        } else {            
+        } else {
+            tm.lock(trxnId, Customer.getKey(customerID), LockManager.WRITE);
+            tm.lock(trxnId, key, LockManager.WRITE);
             cust.reserve( key, location, rmh.queryPrice(id, key));        
             writeData( id, cust.getKey(), cust );
 
@@ -622,6 +624,7 @@ implements MiddleWare {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );        
         // Read customer object if it exists (and read lock it)
+        tm.lock(trxnId, Customer.getKey(customerID), LockManager.READ);
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", "+flightNum+")  failed--customer doesn't exist" );
@@ -629,11 +632,15 @@ implements MiddleWare {
         } 
 
         // MAKE THE PLANE SERVER DO THE THINGS
+        tm.lock(trxnId, key, LockManager.READ);
         int num = rmp.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
             return false;
-        } else {            
+        } else {
+            tm.lock(trxnId, Customer.getKey(customerID), LockManager.WRITE);
+            tm.lock(trxnId, key, LockManager.WRITE);
+
             cust.reserve( key, String.valueOf(flightNum), rmp.queryPrice(id, key));        
             writeData( id, cust.getKey(), cust );
 
@@ -645,7 +652,7 @@ implements MiddleWare {
         }
 
     /* reserve an itinerary */
-    public boolean itinerary(int trxnId, int id,int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
+    public boolean itinerary(int trxnId, int id, int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
         throws RemoteException {
             ListIterator itr = flightNumbers.listIterator();
             while (itr.hasNext()) {
