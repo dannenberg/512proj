@@ -1,5 +1,6 @@
 import java.rmi.*;
 import ResInterface.*;
+import ResImpl.TransactionAbortedException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -194,7 +195,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -216,7 +217,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -242,7 +243,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -269,7 +270,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -295,7 +296,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -321,7 +322,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -345,7 +346,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -369,7 +370,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -393,7 +394,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -417,7 +418,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -441,7 +442,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -465,7 +466,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -489,7 +490,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -517,7 +518,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -547,7 +548,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -576,7 +577,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -614,7 +615,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -646,7 +647,7 @@ public class client
                     }
                     catch(TransactionAbortedException t) {
                         System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
+                        trxns.remove(t.getTrxnId());
                     }
                     catch(Exception e){
                         System.out.println("EXCEPTION:");
@@ -660,10 +661,6 @@ public class client
                     try {
                         Id = rm.start();
                     }
-                    catch(TransactionAbortedException t) {
-                        System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
-                    } 
                     catch (Exception e) {
                         System.out.println("EXCEPTION:");
                         System.out.println(e.getMessage());
@@ -684,10 +681,6 @@ public class client
                         rm.clientCommit(Id);
                         trxns.remove(Id);
                     }
-                    catch(TransactionAbortedException t) {
-                        System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
-                    }
                     catch (Exception e) {
                         System.out.println("EXCEPTION:");
                         System.out.println(e.getMessage());
@@ -705,10 +698,6 @@ public class client
                     try {
                         rm.clientAbort(Id);
                         trxns.remove(Id);
-                    }
-                    catch(TransactionAbortedException t) {
-                        System.out.println("due to a locking conflict, your transactoin " + " has been aborted!");
-                        trxns.remove(t.id);
                     }
                     catch (Exception e) {
                         System.out.println("EXCEPTION:");

@@ -13,7 +13,7 @@ public class TransactionAbortedException extends Exception
         this.trxnid = trxnid;
     }
     
-    int getTrxnId()
+    public int getTrxnId()
     {
         return trxnid;
     }
