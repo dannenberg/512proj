@@ -4,6 +4,7 @@ import ResInterface.ResourceManager;
 import LockManager.*;
 import java.util.Hashtable;
 import java.util.HashSet;
+import java.util.Enumeration;
 
 public class TransactionManagerManager
 {
@@ -42,15 +43,16 @@ public class TransactionManagerManager
 
     public synchronized void abort(int trxnId)
     {	// actually call the other Managers for the aborts
-        for(ResourceManager rm : transactionTouch.get(trxnId))
-        {
+        ResourceManager rm;
+        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
+            rm = (ResourceManager)e.nextElement();
             try {
                 rm.abort(trxnId);
-            } catch (Exception e)
+            } catch (Exception x)
             {
                 System.out.println("EXCEPTION:");
-                System.out.println(e.getMessage());
-                e.printStackTrace();
+                System.out.println(x.getMessage());
+                x.printStackTrace();
             }
         }
         transactionTouch.remove(trxnId);
@@ -59,15 +61,16 @@ public class TransactionManagerManager
 
     public synchronized void commit(int trxnId)
     {	// actually call the other Managers for the commits
-        for(ResourceManager rm : transactionTouch.get(trxnId))
-        {
+        ResourceManager rm;
+        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
+            rm = (ResourceManager)e.nextElement();
             try {
                 rm.commit(trxnId);
-            } catch (Exception e)
+            } catch (Exception x)
             {
                 System.out.println("EXCEPTION:");
-                System.out.println(e.getMessage());
-                e.printStackTrace();
+                System.out.println(x.getMessage());
+                x.printStackTrace();
             }
         }
         transactionTouch.remove(trxnId);
@@ -89,10 +92,13 @@ public class TransactionManagerManager
 
     public synchronized void cleanTrxns()
     {
-        for(Integer trxn : transactionTouch.keySet())
+        Integer trxn;
+        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
+            trxn = (Integer)e.nextElement();
             if(transactionTouch.get(trxn).getTTL() < System.currentTimeMillis()) {
                 abort(trxn);
                 System.out.println("transaction " + trxn + " was culled ");
+            }
         }
     }
 }
