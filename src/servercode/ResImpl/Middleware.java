@@ -247,11 +247,15 @@ implements MiddleWare {
     // Create a new flight, or add seats to existing flight
     //  NOTE: if flightPrice <= 0 and the flight already exists, it maintains its current price
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Flight.getKey(flightNum), LockManager.WRITE, rmp);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[addFlight] Deadlock");
+            }
             return rmp.addFlight(id, flightNum, flightSeats, flightPrice);
         }
 
@@ -263,7 +267,11 @@ implements MiddleWare {
             String key = Flight.getKey(flightNum);
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmp);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[deleteFlight] Deadlock");
+            }
             return rmp.deleteFlight(id, flightNum);
         }
 
@@ -272,47 +280,63 @@ implements MiddleWare {
     // Create a new room location or add rooms to an existing location
     //  NOTE: if price <= 0 and the room location already exists, it maintains its current price
     public boolean addRooms(int id, String location, int count, int price)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             String key = Hotel.getKey(location);
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmh);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[addRooms] Deadlock");
+            }
             return rmh.addRooms(id, location, count, price);
         }
 
     // Delete rooms from a location
     public boolean deleteRooms(int id, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             String key = Hotel.getKey(location);
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmh);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[deleteRooms] Deadlock");
+            }
             return rmh.deleteRooms(id, location);
         }
 
     // Create a new car location or add cars to an existing location
     //  NOTE: if price <= 0 and the location already exists, it maintains its current price
     public boolean addCars(int id, String location, int count, int price)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 System.out.println("look cunt we have a fucking tmm" + tmm);
                 tmm.lock(id, Car.getKey(location), LockManager.WRITE, rmc);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[addCars] Deadlock");
+            }
             return rmc.addCars(id, location, count, price);
         }
 
 
     // Delete cars from a location
     public boolean deleteCars(int id, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             String key = Car.getKey(location);
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmc);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[deleteCars] Deadlock");
+            }
             return rmc.deleteCars(id, location);
         }
 
@@ -320,27 +344,17 @@ implements MiddleWare {
 
     // Returns the number of empty seats on this flight
     public int queryFlight(int id, int flightNum)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[queryFlight] Deadlock");
+            }
             return rmp.queryFlight(id, flightNum);
         }
-
-    // Returns the number of reservations for this flight. 
-    //    public int queryFlightReservations(int id, int flightNum)
-    //        throws RemoteException
-    //    {
-    //        Trace.info("RM::queryFlightReservations(" + id + ", #" + flightNum + ") called" );
-    //        RMInteger numReservations = (RMInteger) readData( id, Flight.getNumReservationsKey(flightNum) );
-    //        if( numReservations == null ) {
-    //            numReservations = new RMInteger(0);
-    //        } // if
-    //        Trace.info("RM::queryFlightReservations(" + id + ", #" + flightNum + ") returns " + numReservations );
-    //        return numReservations.getValue();
-    //    }
-
 
     // Returns price of this flight
     public int queryFlightPrice(int id, int flightNum )
@@ -351,7 +365,7 @@ implements MiddleWare {
             } catch (DeadlockException d)
             {
                 tmm.abort(id);
-                throw new TransactionAbortedException(id, "Deadlock");
+                throw new TransactionAbortedException(id, "[queryFlightPrice] Deadlock");
             }
             return rmp.queryFlightPrice(id, flightNum);
         }
@@ -359,44 +373,60 @@ implements MiddleWare {
 
     // Returns the number of rooms available at a location
     public int queryRooms(int id, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Hotel.getKey(location), LockManager.READ, rmh);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[queryRooms] Deadlock");
+            }
             return rmh.queryRooms(id, location);
         }
 
 
     // Returns room price at this location
     public int queryRoomsPrice(int id, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Hotel.getKey(location), LockManager.READ,rmh);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[queryRoomsPrice] Deadlock");
+            }
             return rmh.queryRoomsPrice(id, location);
         }
 
 
     // Returns the number of cars available at a location
     public int queryCars(int id, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[queryCars] Deadlock");
+            }
             return rmc.queryCars(id, location);
         }
 
 
     // Returns price of cars at this location
     public int queryCarsPrice(int id, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[queryCarsPrice] Deadlock");
+            }
             return rmc.queryCarsPrice(id, location);
         }
 
@@ -404,19 +434,23 @@ implements MiddleWare {
     //  customer doesn't exist. Returns empty RMHashtable if customer exists but has no
     //  reservations.
     public RMHashtable getCustomerReservations(int id, int customerID)
-        throws RemoteException
-        {
+        throws RemoteException, TransactionAbortedException
+        {   // NOTHING CALLS THIS EVER
             return null;
         }
 
     // return a bill
     public String queryCustomerInfo(int id, int customerID)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
             try{
                 tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[queryCustomerInfo] Deadlock (read customer)");
+            }
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 Trace.warn("RM::queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
@@ -431,7 +465,11 @@ implements MiddleWare {
                     whom = sendToWhom(key);
                     try{
                         tmm.lock(id, key, LockManager.READ, whom);
-                    } catch (DeadlockException d) {}
+                    } catch (DeadlockException d) 
+                    {
+                        tmm.abort(id);
+                        throw new TransactionAbortedException(id, "[queryCustomerInfo] Deadlock (read customer reservation)");
+                    }
                     s += whom.queryNum(id, key) + " " + key + " $" + whom.queryPrice(id, key) + "\n";
                 }
                 Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
@@ -444,7 +482,7 @@ implements MiddleWare {
     // new customer just returns a unique customer identifier
 
     public int newCustomer(int id)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ") called" );
             // Generate a globally unique ID for the new customer
@@ -453,7 +491,11 @@ implements MiddleWare {
                     String.valueOf( Math.round( Math.random() * 100 + 1 )));
             try{
                 tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[newCustomer] Deadlock");
+            }
             tm.addCreate(id, Customer.getKey(cid));
             Customer cust = new Customer( cid );
             writeData( id, cust.getKey(), cust );
@@ -463,17 +505,25 @@ implements MiddleWare {
 
     // I opted to pass in customerID instead. This makes testing easier
     public boolean newCustomer(int id, int customerID )
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
             try{
                 tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[newCustomer] Read Deadlock");
+            }
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 try{
                     tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-                } catch (DeadlockException d) {}
+                } catch (DeadlockException d)
+                {
+                    tmm.abort(id);
+                    throw new TransactionAbortedException(id, "[newCustomer] Write Deadlock");
+                }
                 tm.addCreate(id, Customer.getKey(customerID));
                 cust = new Customer(customerID);
                 writeData( id, cust.getKey(), cust );
@@ -488,12 +538,16 @@ implements MiddleWare {
 
     // Deletes customer from the database. 
     public boolean deleteCustomer(int id, int customerID)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
             try{
                 tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[deleteCustomer] Read Deadlock");
+            }
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 Trace.warn("RM::deleteCustomer(" + id + ", " + customerID + ") failed--customer doesn't exist" );
@@ -506,7 +560,11 @@ implements MiddleWare {
                     ResourceManager sendto = sendToWhom(reservedkey);
                     try{
                         tmm.lock(id, reservedkey, LockManager.WRITE, sendto);
-                    } catch (DeadlockException d) {}
+                    } catch (DeadlockException d)
+                    {
+                        tmm.abort(id);
+                        throw new TransactionAbortedException(id, "[deleteCustomer] Write Item Deadlock");
+                    }
                     tm.addUnbook(id, reservedkey, customerID, sendToWhom(reservedkey).queryPrice(id, reservedkey));
                     ReservedItem reserveditem = cust.getReservedItem(reservedkey);
                     Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
@@ -520,7 +578,11 @@ implements MiddleWare {
 
                 try{
                     tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-                } catch (DeadlockException d) {}
+                } catch (DeadlockException d)
+                {
+                    tmm.abort(id);
+                    throw new TransactionAbortedException(id, "[deleteCustomer] Write Customer Deadlock");
+                }
                 tm.addDelete(id, Customer.getKey(customerID), 0, 0);
                 removeData(id, cust.getKey());
 
@@ -564,14 +626,18 @@ implements MiddleWare {
 
     // Adds car reservation to this customer. 
     public boolean reserveCar(int id, int customerID, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
         String key = Car.getKey(location);
         Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
-        } catch (DeadlockException d) {}
+        } catch (DeadlockException d)
+        {
+            tmm.abort(id);
+            throw new TransactionAbortedException(id, "[reserveCar] Read Customer Deadlock");
+        }
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
@@ -581,7 +647,11 @@ implements MiddleWare {
         // MAKE THE CAR SERVER DO THE THINGS
         try{
             tmm.lock(id, key, LockManager.READ, rmc);
-        } catch (DeadlockException d) {}
+        } catch (DeadlockException d)
+        {
+            tmm.abort(id);
+            throw new TransactionAbortedException(id, "[reserveCar] Read Car Deadlock");
+        }
         int num = rmc.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
@@ -589,10 +659,18 @@ implements MiddleWare {
         } else {
             try{
                 tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[reserveCar] Write Customer Deadlock");
+            }
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmc);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[reserveCar] Write Car Deadlock");
+            }
             tm.addBook(id, key, customerID);
             cust.reserve( key, location, rmc.queryPrice(id, key));
             writeData( id, cust.getKey(), cust );
@@ -607,14 +685,18 @@ implements MiddleWare {
 
     // Adds room reservation to this customer. 
     public boolean reserveRoom(int id, int customerID, String location)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );        
         // Read customer object if it exists (and read lock it)
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
-        } catch (DeadlockException d) {}
+        } catch (DeadlockException d)
+        {
+            tmm.abort(id);
+            throw new TransactionAbortedException(id, "[reserveRoom] Read Customer Deadlock");
+        }
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
@@ -624,7 +706,11 @@ implements MiddleWare {
         // MAKE THE HOTEL SERVER DO THE THINGS
         try{
             tmm.lock(id, key, LockManager.READ, rmh);
-        } catch (DeadlockException d) {}
+        } catch (DeadlockException d)
+        {
+            tmm.abort(id);
+            throw new TransactionAbortedException(id, "[reserveRoom] Read Room Deadlock");
+        }
         int num = rmh.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
@@ -632,10 +718,18 @@ implements MiddleWare {
         } else {
             try{
                 tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[reserveRoom] Write Customer Deadlock");
+            }
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmh);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[reserveRoom] Write Room Deadlock");
+            }
             tm.addBook(id, key, customerID);
             cust.reserve( key, location, rmh.queryPrice(id, key));        
             writeData( id, cust.getKey(), cust );
@@ -649,14 +743,18 @@ implements MiddleWare {
 
     // Adds flight reservation to this customer.  
     public boolean reserveFlight(int id, int customerID, int flightNum)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );        
         // Read customer object if it exists (and read lock it)
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
-        } catch (DeadlockException d) {}
+        } catch (DeadlockException d)
+        {
+            tmm.abort(id);
+            throw new TransactionAbortedException(id, "[reserveFlight] Read Customer Deadlock");
+        }
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );        
         if( cust == null ) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", "+flightNum+")  failed--customer doesn't exist" );
@@ -666,7 +764,11 @@ implements MiddleWare {
         // MAKE THE PLANE SERVER DO THE THINGS
         try{
             tmm.lock(id, key, LockManager.READ, rmp);
-        } catch (DeadlockException d) {}
+        } catch (DeadlockException d) 
+        {
+            tmm.abort(id);
+            throw new TransactionAbortedException(id, "[reserveFlight] Read Flight Deadlock");
+        }
         int num = rmp.queryNum(id, key);
         if (num == 0) {
             Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
@@ -674,10 +776,18 @@ implements MiddleWare {
         } else {
             try{
                 tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[reserveFlight] Write Customer Deadlock");
+            }
             try{
                 tmm.lock(id, key, LockManager.WRITE, rmp);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d) 
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "[reserveFlight] Write Flight Deadlock");
+            }
             tm.addBook(id, key, customerID);
 
             cust.reserve( key, String.valueOf(flightNum), rmp.queryPrice(id, key));        
@@ -692,7 +802,7 @@ implements MiddleWare {
 
     /* reserve an itinerary */
     public boolean itinerary(int id, int customer,Vector flightNumbers,String location,boolean car,boolean room)
-        throws RemoteException {
+        throws RemoteException, TransactionAbortedException {
             ListIterator itr = flightNumbers.listIterator();
             while (itr.hasNext()) {
                 reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));
@@ -709,12 +819,12 @@ implements MiddleWare {
     public int start() throws RemoteException
         {return tmm.start();}
 
-    public boolean commit(int trxnId) throws RemoteException //, TransactionAbortedException, InvalidTransactionException
+    public boolean commit(int trxnId) throws RemoteException
     {
         tm.commit(trxnId);
         return true;
     }
-    public void abort(int trxnId) throws RemoteException //, InvalidTransactionException
+    public void abort(int trxnId) throws RemoteException
     {   // TM's abort
         // ResourceManager sendTo;
         Customer crust;
