@@ -100,7 +100,7 @@ public class Client
         }//end of while(true)
     }
 
-    public static void handleInput(String command, boolean silent)
+    public static int handleInput(String command, boolean silent)
     {
         Vector arguments  = new Vector();
         int Id = -1;
@@ -698,6 +698,7 @@ public class Client
                 }
                 println("started transaction #" + Id);
                 trxns.add(Id);
+                return Id;
                 break;
 
             case 24: // commit
@@ -744,6 +745,7 @@ public class Client
                 println("The interface does not support this command.");
                 break;
         }//end of switch
+        return -1;
     }
 
     public Vector parse(String command)
