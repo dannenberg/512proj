@@ -93,6 +93,7 @@ public class TransactionManagerManager
             if(transactionTouch.get(trxn).getTTL() < System.currentTimeMillis()) {
                 abort(trxn);
                 System.out.println("transaction " + trxn + " was culled ");
+        }
     }
 }
 

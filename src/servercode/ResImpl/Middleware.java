@@ -314,7 +314,6 @@ implements MiddleWare {
         throws RemoteException, TransactionAbortedException
         {
             try{
-                System.out.println("look cunt we have a fucking tmm" + tmm);
                 tmm.lock(id, Car.getKey(location), LockManager.WRITE, rmc);
             } catch (DeadlockException d) 
             {
