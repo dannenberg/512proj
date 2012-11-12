@@ -17,6 +17,7 @@ public class TransactionManagerManager
 		transactionTouch = new HashMap();
         lm = new LockManager();
 		grim = new AngelOfDeath(this);
+		grim.start();
 		nextTrxnId = 0;
 	}
 
@@ -85,12 +86,15 @@ public class TransactionManagerManager
 		lm.UnlockAll(trxnId);
 	}
 
-	public boolean lock(int trxnId, String strData, int lockType, ResourceManager rm) throws DeadlockException
+	public boolean lock(int trxnId, String strData, int lockType, ResourceManager rm)
+	throws DeadlockException, TransactionAbortedException
 	{
 		if(rm == null)
 			Trace.info("   !!!!! Hey, you didn't change the RM to stop being null when sent to lock.");
 		synchronized(transactionTouch)
 		{
+			if(!transactionTouch.containsKey(trxnId))
+				throw new TransactionAbortedException(trxnId, "Transaction Timed Out");
 			transactionTouch.get(trxnId).updateDeathClock();
 			if(lockType == LockManager.WRITE)
 				enlist(trxnId, rm);
