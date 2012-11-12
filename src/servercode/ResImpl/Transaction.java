@@ -17,7 +17,7 @@ public class Transaction
 	}
 
 	public Transaction(int id, String key, Action action, int custIdOrAmount)
-	{	// BOOKING / STOCK
+	{	// BOOK / STOCK
 		this.id = id;
 		this.key = key;
 		this.action = action;
@@ -25,7 +25,7 @@ public class Transaction
 	}
 
 	public Transaction(int id, String key, Action action, int numDeleted, int price)
-	{	// DELETING  / UNBOOKING
+	{	// DELETE  / UNBOOK
 		this.id = id;
 		this.key = key;
 		this.action = action;

@@ -1,6 +1,7 @@
 package ResInterface;
 
 
+import ResImpl.TransactionAbortedException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -67,7 +68,7 @@ public interface ResourceManager extends Remote
      * @return success.
      */   
     public boolean deleteFlight(int id, int flightNum) 
-	throws RemoteException; 
+	throws RemoteException, TransactionAbortedException; 
     
     /* Delete all Cars from a location.
      * It may not succeed if there are reservations for this location
@@ -107,7 +108,7 @@ public interface ResourceManager extends Remote
     
     /* queryFlightPrice returns the price of a seat on this flight. */
     public int queryFlightPrice(int id, int flightNumber) 
-	throws RemoteException; 
+	throws RemoteException, TransactionAbortedException; 
 
     /* return the price of a car at a location */
     public int queryCarsPrice(int id, String location) 

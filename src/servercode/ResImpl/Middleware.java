@@ -258,7 +258,7 @@ implements ResourceManager {
 
 
     public boolean deleteFlight(int id, int flightNum)
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             String key = Flight.getKey(flightNum);
             try{
@@ -344,11 +344,15 @@ implements ResourceManager {
 
     // Returns price of this flight
     public int queryFlightPrice(int id, int flightNum )
-        throws RemoteException
+        throws RemoteException, TransactionAbortedException
         {
             try{
                 tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
-            } catch (DeadlockException d) {}
+            } catch (DeadlockException d)
+            {
+                tmm.abort(id);
+                throw new TransactionAbortedException(id, "Deadlock");
+            }
             return rmp.queryFlightPrice(id, flightNum);
         }
 
