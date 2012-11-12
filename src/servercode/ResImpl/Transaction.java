@@ -28,6 +28,7 @@ public class Transaction
 	{	// DELETE  / UNBOOK
 		this.id = id;
 		this.key = key;
+		this.price = price;
 		this.action = action;
 		this.numDeletedOrCustIdOrAmount = numDeleted;
 	}

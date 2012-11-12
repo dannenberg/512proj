@@ -7,7 +7,8 @@ import java.util.HashSet;
 
 public class TransactionManagerManager
 {
-	private HashMap<Integer, HashSet<ResourceManager>> transactionTouch;
+	private HashMap<Integer, TransactionItem<ResourceManager>> transactionTouch;
+	private AngelOfDeath grim;
 	private LockManager lm;
 	private int nextTrxnId;
 
@@ -15,62 +16,72 @@ public class TransactionManagerManager
 	{
 		transactionTouch = new HashMap();
         lm = new LockManager();
+		grim = new AngelOfDeath(this);
 		nextTrxnId = 0;
 	}
 
 	public int start()
 	{
-		//writes.put(nextTrxnId, new ArrayList());
-		transactionTouch.put(nextTrxnId, new HashSet());
+		synchronized(transactionTouch)
+		{
+			transactionTouch.put(nextTrxnId, new TransactionItem());
+		}
 		return nextTrxnId++;
 	}
 
 	public void enlist(int t, ResourceManager rm)
 	{
-		if(!transactionTouch.containsKey(t))
-			transactionTouch.put(t, new HashSet());
-		transactionTouch.get(t).add(rm);
-        try {
-		rm.enlist(t);
-        }
-        catch (Exception e) {
-            System.out.println("BNOOOOOOO");
-        }
+		synchronized(transactionTouch)
+		{
+			if(!transactionTouch.containsKey(t))
+				transactionTouch.put(t, new TransactionItem());
+			transactionTouch.get(t).add(rm);
+	        try {
+				rm.enlist(t);
+	        }
+	        catch (Exception e) {
+	            System.out.println("BNOOOOOOO");
+	        }
+	    }
 	}
 
 	public void abort(int trxnId)
-	{
-		// actually call the other Managers for the aborts
-		for(ResourceManager rm : transactionTouch.get(trxnId))
+	{	// actually call the other Managers for the aborts
+		synchronized(transactionTouch)
 		{
-			try {
-				rm.abort(trxnId);
-			} catch (Exception e)
+			for(ResourceManager rm : transactionTouch.get(trxnId))
 			{
-                System.out.println("EXCEPTION:");
-                System.out.println(e.getMessage());
-                e.printStackTrace();
+				try {
+					rm.abort(trxnId);
+				} catch (Exception e)
+				{
+	                System.out.println("EXCEPTION:");
+	                System.out.println(e.getMessage());
+	                e.printStackTrace();
+				}
 			}
+			transactionTouch.remove(trxnId);
 		}
-		transactionTouch.remove(trxnId);
 		lm.UnlockAll(trxnId);
 	}
 
 	public void commit(int trxnId)
-	{
-		// actually call the other Managers for the commits
-		for(ResourceManager rm : transactionTouch.get(trxnId))
+	{	// actually call the other Managers for the commits
+		synchronized(transactionTouch)
 		{
-			try {
-				rm.commit(trxnId);
-			} catch (Exception e)
+			for(ResourceManager rm : transactionTouch.get(trxnId))
 			{
-                System.out.println("EXCEPTION:");
-                System.out.println(e.getMessage());
-                e.printStackTrace();
+				try {
+					rm.commit(trxnId);
+				} catch (Exception e)
+				{
+	                System.out.println("EXCEPTION:");
+	                System.out.println(e.getMessage());
+	                e.printStackTrace();
+				}
 			}
+			transactionTouch.remove(trxnId);
 		}
-		transactionTouch.remove(trxnId);
 		lm.UnlockAll(trxnId);
 	}
 
@@ -78,8 +89,59 @@ public class TransactionManagerManager
 	{
 		if(rm == null)
 			Trace.info("   !!!!! Hey, you didn't change the RM to stop being null when sent to lock.");
-		if(lockType == LockManager.WRITE)
-			enlist(trxnId, rm);
+		synchronized(transactionTouch)
+		{
+			transactionTouch.get(trxnId).updateDeathClock();
+			if(lockType == LockManager.WRITE)
+				enlist(trxnId, rm);
+		}
 		return lm.Lock(trxnId, strData, lockType);
+	}
+
+	public void cleanTrxns()
+	{
+		synchronized(transactionTouch)
+		{
+			for(Integer trxn : transactionTouch.keySet())
+				if(transactionTouch.get(trxn).getTTL() < System.currentTimeMillis())
+					abort(trxn);
+		}
+	}
+}
+
+class TransactionItem<V> extends HashSet<V>
+{
+	public static final long TTL = 10 * 1000;
+	private long ttl;
+	public TransactionItem()
+	{
+		super();
+		updateDeathClock();
+	}
+
+	public long getTTL()
+		{return ttl;}
+
+	public void updateDeathClock()
+		{ttl = TTL + System.currentTimeMillis();}
+}
+
+class AngelOfDeath extends Thread
+{
+	private TransactionManagerManager tmm;
+	public AngelOfDeath(TransactionManagerManager tmm)
+		{this.tmm = tmm;}
+
+	public void run()
+	{
+		while(true)
+		{
+			tmm.cleanTrxns();
+			try {
+				Thread.sleep(1000);
+			} catch(InterruptedException e) {
+				break;
+			}
+		}
 	}
 }
