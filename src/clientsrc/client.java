@@ -698,7 +698,7 @@ public class client
                         obj.wrongNumber();
                         break;
                     }
-                    System.out.println("commiting transaction " + arguments.elementAt(1));
+                    System.out.println("aborting transaction " + arguments.elementAt(1));
                     try {
                         rm.clientAbort(Id);
                         trxns.remove(Id);

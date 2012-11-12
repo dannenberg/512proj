@@ -606,7 +606,7 @@ implements ResourceManager {
                 case UPDATE:
                     curObj = (ReservableItem) readData(t.id, t.key);
                     curObj.setCount(t.amount());
-                    curObj.setReserved(t.price());
+                    curObj.setReserved(t.price);
                     break;
             }
         }

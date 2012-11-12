@@ -30,7 +30,7 @@ public class Transaction
 		this.key = key;
 		this.price = price;
 		this.action = action;
-		this.numDeletedOrCustIdOrAmount = numDeleted;
+		this.numDeletedOrCustIdOrAmount = numDeletedOrAmount;
 	}
 
 	public int custId()
