@@ -17,7 +17,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 //public class Middleware extends java.rmi.server.UnicastRemoteObject
 public class Middleware
-implements ResourceManager {
+implements MiddleWare {
     
     protected RMHashtable m_itemHT = new RMHashtable();
 
@@ -108,7 +108,7 @@ implements ResourceManager {
             }
             // set up port for client connections
             Middleware obj = new Middleware();
-            ResourceManager rm = (ResourceManager) UnicastRemoteObject.exportObject(obj, 0);
+            MiddleWare rm = (MiddleWare) UnicastRemoteObject.exportObject(obj, 0);
             registry = LocateRegistry.getRegistry(port);
             registry.rebind("Group13Middleware", rm);
             System.err.println("Server ready");

@@ -18,7 +18,8 @@ public class client
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String command = "";
         Vector arguments  = new Vector();
-        int Id, Cid;
+        int Id = -1;
+        int Cid;
         int flightNum;
         int flightPrice;
         int flightSeats;
@@ -28,7 +29,7 @@ public class client
         int numRooms;
         int numCars;
         String location;
-        HashSet<Integer> txns = new HashSet();
+        HashSet<Integer> trxns = new HashSet();
         int choice;
 
 
@@ -99,9 +100,9 @@ public class client
                 continue;
 
             choice = obj.findChoice((String)arguments.elementAt(0));
-            if(choice != 1 && choice != 23 && arguments.size() > 2)
+            if(choice != 1 && choice != 23 && arguments.size() >= 2)
             {
-                Id = obj.getInt(arguments.elementAt(1));
+                Id = Integer.parseInt((String)arguments.elementAt(1));
                 if(!trxns.contains(Id))
                 {
                     System.out.println("Hey, you haven't opened that transaction!");
@@ -592,7 +593,7 @@ public class client
                         e.printStackTrace();
                     }
                     System.out.println("started transaction #" + Id);
-                    trxn.add(Id);
+                    trxns.add(Id);
                     break;
 
 
@@ -604,7 +605,7 @@ public class client
                     System.out.println("commiting transaction " + arguments.elementAt(1));
                     try {
                         rm.clientCommit(Id);
-                        trxn.remove(Id);
+                        trxns.remove(Id);
                     } catch (Exception e) {
                         System.out.println("EXCEPTION:");
                         System.out.println(e.getMessage());
@@ -621,7 +622,7 @@ public class client
                     System.out.println("commiting transaction " + arguments.elementAt(1));
                     try {
                         rm.clientAbort(Id);
-                        trxn.remove(Id);
+                        trxns.remove(Id);
                     } catch (Exception e) {
                         System.out.println("EXCEPTION:");
                         System.out.println(e.getMessage());
