@@ -10,7 +10,7 @@ import java.io.*;
 public class client
 {
     static String message = "blank";
-    static ResourceManager rm = null;
+    static MiddleWare rm = null;
 
     public static void main(String args[])
     {
@@ -50,7 +50,7 @@ public class client
             // get a reference to the rmiregistry
             Registry registry = LocateRegistry.getRegistry(server, port);
             // get the proxy and the remote reference by rmiregistry lookup
-            rm = (ResourceManager) registry.lookup("Group13Middleware");
+            rm = (MiddleWare) registry.lookup("Group13Middleware");
             if(rm!=null)
             {
                 System.out.println("Successful");
@@ -589,7 +589,7 @@ public class client
                     System.out.println("commiting transaction " + arguments.elementAt(1));
                     try {
                         Id = obj.getInt(arguments.elementAt(1));
-                        rm.commit(Id);
+                        rm.clientCommit(Id);
                     } catch (Exception e) {
                         System.out.println("EXCEPTION:");
                         System.out.println(e.getMessage());
@@ -606,7 +606,7 @@ public class client
                     System.out.println("commiting transaction " + arguments.elementAt(1));
                     try {
                         Id = obj.getInt(arguments.elementAt(1));
-                        rm.abort(Id);
+                        rm.clientAbort(Id);
                     } catch (Exception e) {
                         System.out.println("EXCEPTION:");
                         System.out.println(e.getMessage());

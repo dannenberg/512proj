@@ -40,14 +40,38 @@ public class TransactionManagerManager
 
 	public void abort(int trxnId)
 	{
-		lm.UnlockAll(trxnId);
 		// actually call the other Managers for the aborts
+		for(ResourceManager rm : transactionTouch.get(trxnId))
+		{
+			try {
+				rm.abort(trxnId);
+			} catch (Exception e)
+			{
+                System.out.println("EXCEPTION:");
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+			}
+		}
+		transactionTouch.remove(trxnId);
+		lm.UnlockAll(trxnId);
 	}
 
 	public void commit(int trxnId)
 	{
-		lm.UnlockAll(trxnId);
 		// actually call the other Managers for the commits
+		for(ResourceManager rm : transactionTouch.get(trxnId))
+		{
+			try {
+				rm.commit(trxnId);
+			} catch (Exception e)
+			{
+                System.out.println("EXCEPTION:");
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+			}
+		}
+		transactionTouch.remove(trxnId);
+		lm.UnlockAll(trxnId);
 	}
 
 	public boolean lock(int trxnId, String strData, int lockType, ResourceManager rm) throws DeadlockException

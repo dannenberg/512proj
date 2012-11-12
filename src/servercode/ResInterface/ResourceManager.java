@@ -152,6 +152,5 @@ public interface ResourceManager extends Remote
     public boolean commit(int transactionId) throws RemoteException; //, TransactionAbortedException,  InvalidTransactionException;
     public void abort(int transactionId) throws RemoteException; //, InvalidTransactionException;
 
-
     public void enlist(int trxnId) throws RemoteException;
 }

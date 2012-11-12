@@ -561,11 +561,50 @@ implements ResourceManager {
 
     public boolean commit(int trxnId) throws RemoteException
     {
-        return false;
+        tm.commit(trxnId);
+        return true;
     }
 
     public void abort(int trxnId) throws RemoteException //, InvalidTransactionException
-    {
+    {   // TM's abort
+        String location = null;
+        ReservableItem curObj = null;
+        for(Transaction t : tm.getTrxns(trxnId))
+        {
+            switch(t.action)
+            {   // undo em
+                case BOOK:    // impossible
+                case UNBOOK:  // impossible
+                    break;
+                case CREATE:    // DONE
+                    deleteItem(t.id, t.key);
+                    break;
+                case DELETE:    // recreate the item
+                    location = t.key.substring(t.key.indexOf("-") + 1);
+                    if(t.key.startsWith("car-"))
+                    {
+                        Car newObj = new Car( location, t.numDeleted(), t.price );
+                        writeData( t.id, newObj.getKey(), newObj );
+                    }
+                    else if(t.key.startsWith("flight-"))
+                    {
+                        Flight newObj = new Flight( Integer.parseInt(location), t.numDeleted(), t.price );
+                        writeData( t.id, newObj.getKey(), newObj );
+                    }
+                    else if(t.key.startsWith("room-"))
+                    {
+                        Hotel newObj = new Hotel( location, t.numDeleted(), t.price );
+                        writeData( t.id, newObj.getKey(), newObj );
+                    }
+                    break;
+                case STOCK:    // DONE
+                    curObj = (ReservableItem) readData(t.id, t.key);
+                    curObj.setCount(curObj.getCount() - t.amount());
+                    curObj.setReserved(curObj.getReserved() - t.amount());
+                    break;
+            }
+        }
+        tm.abort(trxnId);
     }
 
     public void enlist(int trxnId) throws RemoteException

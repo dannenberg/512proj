@@ -711,41 +711,36 @@ implements ResourceManager {
         return true;
     }
     public void abort(int trxnId) throws RemoteException //, InvalidTransactionException
-    {
-        ResourceManager sendTo;
+    {   // TM's abort
+        // ResourceManager sendTo;
         Customer crust;
         for(Transaction t : tm.getTrxns(trxnId))
         {
-            sendTo = sendToWhom(t.key);
+            // sendTo = sendToWhom(t.key);
             switch(t.action)
             {   // undo em
-                case BOOK:
-                    // just wanna decrement
-                    sendTo.decrementItem(t.id, t.key);
+                case BOOK:    // DONE
                     crust = (Customer) readData( t.id, Customer.getKey(t.custId()) );
                     crust.unserve(t.key);
                     break;
-                case CREATE:
-                    sendTo.deleteItem(t.id, t.key);
+                case CREATE:    // DONE
+                    deleteItem(t.id, t.key);
                     break;
-                case DELETE:    // can only delete with no clients, so that's a load off.
-                    if(t.key.startsWith("car-"))
-                        sendTo.addCars(t.id, t.key.substring(4), t.numDeleted(), t.price);
-                    else if(t.key.startsWith("flight-"))
-                        sendTo.addFlight(t.id, Integer.parseInt(t.key.substring(7)), t.numDeleted(), t.price);
-                    else if(t.key.startsWith("room-"))
-                        sendTo.addRooms(t.id, t.key.substring(5), t.numDeleted(), t.price);
-                    else if(t.key.startsWith("customer-"))
-                    {
-                        crust = new Customer(t.id);  // an unsafe "newCustomer()"
-                        writeData(t.id, crust.getKey(), crust);
-                        //sendTo. recreateCustomer (t.id, t.key.substring(), );
-                    }
+                case DELETE:    // for deleting a customer
+                    // if(t.key.startsWith("car-"))
+                    //     sendTo.addCars(t.id, t.key.substring(4), t.numDeleted(), t.price);
+                    // else if(t.key.startsWith("flight-"))
+                    //     sendTo.addFlight(t.id, Integer.parseInt(t.key.substring(7)), t.numDeleted(), t.price);
+                    // else if(t.key.startsWith("room-"))
+                    //     sendTo.addRooms(t.id, t.key.substring(5), t.numDeleted(), t.price);
+                    crust = new Customer(t.id);  // an unsafe "newCustomer()"
+                    writeData(t.id, crust.getKey(), crust);
                     break;
-                case UNBOOK:
-                    sendTo.incrementItem(t.id, t.key, 1);
+                case UNBOOK:    // DONE
                     crust = (Customer) readData( t.id, Customer.getKey(t.custId()) );
                     crust.reserve(t.key, t.key.substring(t.key.indexOf("-") + 1), t.price);
+                    break;
+                case STOCK:
                     break;
             }
         }
@@ -758,4 +753,14 @@ implements ResourceManager {
 
     public void enlist(int trxnId) throws RemoteException
         {tm.start(trxnId);}
+
+    public void clientAbort(int trxnId) throws RemoteException
+    {   // TMM's abort
+        tmm.abort(trxnId);
+    }
+
+    public void clientCommit(int trxnId) throws RemoteException
+    {
+        tmm.commit(trxnId);
+    }
 }
