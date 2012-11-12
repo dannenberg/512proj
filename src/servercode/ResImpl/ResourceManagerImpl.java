@@ -215,11 +215,12 @@ implements ResourceManager {
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
         throws RemoteException, TransactionAbortedException
         {
+            String key = Flight.getKey(flightNum);
             Trace.info("RM::addFlight(" + id + ", " + flightNum + ", $" + flightPrice + ", " + flightSeats + ") called" );
             Flight curObj = (Flight) readData( id, Flight.getKey(flightNum) );
             if( curObj == null ) {
                 // doesn't exist...add it
-                tm.addCreate(id, Flight.getKey(flightNum));
+                tm.addCreate(id, key);
 
                 Flight newObj = new Flight( flightNum, flightSeats, flightPrice );
                 writeData( id, newObj.getKey(), newObj );
@@ -227,7 +228,7 @@ implements ResourceManager {
                         flightSeats + ", price=$" + flightPrice );
             } else {
                 // add seats to existing flight and update the price...
-                // TODO: this could be problemk
+                tm.addUpdate(id, key, curObj.getCount(), curObj.getPrice());
                 curObj.setCount( curObj.getCount() + flightSeats );
                 if( flightPrice > 0 ) {
                     curObj.setPrice( flightPrice );
@@ -261,8 +262,9 @@ implements ResourceManager {
     public boolean addRooms(int id, String location, int count, int price)
         throws RemoteException, TransactionAbortedException
         {
+            String key = Hotel.getKey(location);
             Trace.info("RM::addRooms(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
-            Hotel curObj = (Hotel) readData( id, Hotel.getKey(location) );
+            Hotel curObj = (Hotel) readData( id, key );
             if( curObj == null ) {
                 // doesn't exist...add it
                 tm.addCreate(id, Hotel.getKey(location));
@@ -272,7 +274,7 @@ implements ResourceManager {
                 Trace.info("RM::addRooms(" + id + ") created new room location " + location + ", count=" + count + ", price=$" + price );
             } else {
                 // add count to existing object and update price...
-                // TODO: this could be problemk
+                tm.addUpdate(id, key, curObj.getCount(), curObj.getPrice());
                 curObj.setCount( curObj.getCount() + count );
                 if( price > 0 ) {
                     curObj.setPrice( price );
@@ -304,8 +306,9 @@ implements ResourceManager {
     public boolean addCars(int id, String location, int count, int price)
         throws RemoteException, TransactionAbortedException
         {
+            String key = Car.getKey(location);
             Trace.info("RM::addCars(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
-            Car curObj = (Car) readData( id, Car.getKey(location) );
+            Car curObj = (Car) readData( id, key );
             if( curObj == null ) {
                 // car location doesn't exist...add it
                 tm.addCreate(id, Car.getKey(location));
@@ -316,6 +319,7 @@ implements ResourceManager {
             } else {
                 // add count to existing car location and update price...
                 // TODO: this could be problemk
+                tm.addUpdate(id, key, curObj.getCount(), curObj.getPrice());
                 curObj.setCount( curObj.getCount() + count );
                 if( price > 0 ) {
                     curObj.setPrice( price );
@@ -598,6 +602,11 @@ implements ResourceManager {
                     curObj = (ReservableItem) readData(t.id, t.key);
                     curObj.setCount(curObj.getCount() - t.amount());
                     curObj.setReserved(curObj.getReserved() - t.amount());
+                    break;
+                case UPDATE:
+                    curObj = (ReservableItem) readData(t.id, t.key);
+                    curObj.setCount(t.amount());
+                    curObj.setReserved(t.price());
                     break;
             }
         }

@@ -38,6 +38,11 @@ class TransactionManager
 		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.UNBOOK, custId, price));
 	}
 
+	public void addUpdate(int id, String key, int amount, int price)
+	{
+		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.UPDATE, amount, price));
+	}
+
 	public ArrayList<Transaction> getTrxns(int trxnId)
 	{
 		return writes.get(trxnId);
