@@ -3,6 +3,7 @@ package ResInterface;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import ResImpl.TransactionAbortedException;
 
 import java.util.*;
 /** 
@@ -24,5 +25,6 @@ import java.util.*;
 public interface MiddleWare extends ResourceManager 
 {
     public void clientAbort(int transactionId) throws RemoteException;
-    public void clientCommit(int transactionId) throws RemoteException;
+    public void clientCommit(int transactionId)
+        throws RemoteException, TransactionAbortedException;
 }

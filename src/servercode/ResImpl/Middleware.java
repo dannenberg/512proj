@@ -872,7 +872,7 @@ implements MiddleWare {
         tmm.abort(trxnId);
     }
 
-    public void clientCommit(int trxnId) throws RemoteException
+    public void clientCommit(int trxnId) throws RemoteException, TransactionAbortedException
     {
         tmm.commit(trxnId);
     }
