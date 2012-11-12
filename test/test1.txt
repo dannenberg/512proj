@@ -1,3 +1,12 @@
+start
+newflight,0,1,1,1
+commit,0
+start
+newflight,1,1,2,2
+abort,1
+start
+queryflight,2,1
+commit,2
 ;; generic inits
 newflight,100,101,5,102
 newflight,110,111,2,112
