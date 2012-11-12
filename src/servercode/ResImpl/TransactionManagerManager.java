@@ -43,9 +43,7 @@ public class TransactionManagerManager
 
     public synchronized void abort(int trxnId)
     {	// actually call the other Managers for the aborts
-        ResourceManager rm;
-        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
-            rm = (ResourceManager)e.nextElement();
+        for (ResourceManager rm : transactionTouch.get(trxnId)) {
             try {
                 rm.abort(trxnId);
             } catch (Exception x)
@@ -61,9 +59,7 @@ public class TransactionManagerManager
 
     public synchronized void commit(int trxnId)
     {	// actually call the other Managers for the commits
-        ResourceManager rm;
-        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
-            rm = (ResourceManager)e.nextElement();
+        for (ResourceManager rm : transactionTouch.get(trxnId)) {
             try {
                 rm.commit(trxnId);
             } catch (Exception x)
