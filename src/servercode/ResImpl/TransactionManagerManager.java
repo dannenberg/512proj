@@ -43,7 +43,7 @@ public class TransactionManagerManager
 
     public synchronized void abort(int trxnId)
     {	// actually call the other Managers for the aborts
-        if(!transactionTouch.contains(trxnId))
+        if(!transactionTouch.containsKey(trxnId))
             return;
         for (ResourceManager rm : transactionTouch.get(trxnId)) {
             try {
@@ -61,8 +61,8 @@ public class TransactionManagerManager
 
     public synchronized void commit(int trxnId) throws TransactionAbortedException
     {	// actually call the other Managers for the commits
-        if(!transactionTouch.contains(trxnId))
-            throw new TransactionAbortedException(trxnId, "Transaction Timed Out");
+        if(!transactionTouch.containsKey(trxnId))
+            throw new TransactionAbortedException(trxnId, "Transaction ");
         for (ResourceManager rm : transactionTouch.get(trxnId)) {
             try {
                 rm.commit(trxnId);

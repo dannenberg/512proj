@@ -120,7 +120,7 @@ public class Client
         arguments=obj.parse(command);
 
         if (arguments.isEmpty())
-            continue;
+            return -1;
 
         choice = obj.findChoice((String)arguments.elementAt(0));
         if(choice != 1 && choice != 23 && arguments.size() >= 2)
@@ -129,7 +129,7 @@ public class Client
             if(!trxns.contains(Id))
             {
                 println("Hey, you haven't opened that transaction!");
-                continue;
+                return -1;
             }
         }
         //decide which of the commands this was
@@ -699,7 +699,6 @@ public class Client
                 println("started transaction #" + Id);
                 trxns.add(Id);
                 return Id;
-                break;
 
             case 24: // commit
                 if(arguments.size()!=2){
