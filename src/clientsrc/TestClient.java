@@ -45,18 +45,32 @@ class TestClient extends Client
         silent = true;
         handleArgs(args);
         connect();
+        long time = System.currentTimeMillis();;
+        int cmdcnt = 1;
+        long totalRunTime = 0;
         try {
             BufferedReader in = new BufferedReader(new FileReader(file));
             while ((command = in.readLine()) != null)
             {
+                System.out.print(totalRunTime + " for " + cmdcnt/3 + "iterations");
+                if (cmdcnt%3 == 0) {
+                    totalRunTime += System.currentTimeMillis() - time;
+                    time = System.currentTimeMillis();
+                }
                 try{
                     matcher = regex.matcher(command);
+                    matcher.find();
                     command = matcher.replaceFirst("," + tIds.get(Integer.parseInt(matcher.group(1))));
                 }
                 catch (IllegalStateException e) {}
                 start = handleInput(command, true);
-                if(start != -1)
+                if (start == -1) {
+                    cmdcnt++;
+                }
+                else if (start > -1) {
                     tIds.add(start);
+                }
+
             }
         }
         catch (IOException e) {

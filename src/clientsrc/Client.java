@@ -121,7 +121,7 @@ public class Client
         arguments=obj.parse(command);
 
         if (arguments.isEmpty())
-            return -1;
+            return -2;
 
         choice = obj.findChoice((String)arguments.elementAt(0));
         if(choice != 1 && choice != 23 && arguments.size() >= 2)
@@ -130,7 +130,7 @@ public class Client
             if(!trxns.contains(Id))
             {
                 println("Hey, you haven't opened that transaction!");
-                return -1;
+                return -2;
             }
         }
         //decide which of the commands this was
@@ -173,7 +173,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 3:  //new Car
                 if(arguments.size()!=5){
@@ -203,7 +203,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 4:  //new Room
                 if(arguments.size()!=5){
@@ -233,7 +233,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 5:  //new Customer
                 if(arguments.size()!=2){
@@ -255,7 +255,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 6: //delete Flight
                 if(arguments.size()!=3){
@@ -281,7 +281,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 7: //delete Car
                 if(arguments.size()!=3){
@@ -308,7 +308,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 8: //delete Room
                 if(arguments.size()!=3){
@@ -334,7 +334,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 9: //delete Customer
                 if(arguments.size()!=3){
@@ -360,7 +360,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 10: //querying a flight
                 if(arguments.size()!=3){
@@ -528,7 +528,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 17:  //reserve a flight
                 if(arguments.size()!=4){
@@ -556,7 +556,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 18:  //reserve a car
                 if(arguments.size()!=4){
@@ -586,7 +586,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 19:  //reserve a room
                 if(arguments.size()!=4){
@@ -615,7 +615,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 20:  //reserve an Itinerary
                 if(arguments.size()<7){
@@ -653,7 +653,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 21:  //quit the client
                 if(arguments.size()!=1){
@@ -745,7 +745,7 @@ public class Client
                 println("The interface does not support this command.");
                 break;
         }//end of switch
-        return -1;
+        return -2;
     }
 
     public Vector parse(String command)
