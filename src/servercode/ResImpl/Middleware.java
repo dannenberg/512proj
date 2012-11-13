@@ -830,10 +830,12 @@ implements MiddleWare {
         Customer crust;
         for(Transaction t : tm.getTrxns(trxnId))
         {
+            System.out.println("doesnt matter");
             // sendTo = sendToWhom(t.key);
             switch(t.action)
             {   // undo em
                 case BOOK:    // DONE
+                    System.out.println("BOOK" + t.key);
                     crust = (Customer) readData( t.id, Customer.getKey(t.custId()) );
                     crust.unserve(t.key);
                     break;
