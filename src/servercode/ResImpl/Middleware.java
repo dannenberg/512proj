@@ -554,6 +554,13 @@ implements MiddleWare {
             } else {            
                 // Increase the reserved numbers of all reservable items which the customer reserved. 
                 RMHashtable reservationHT = cust.getReservations();
+                try{
+                    tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+                } catch (DeadlockException d)
+                {
+                    tmm.abort(id);
+                    throw new TransactionAbortedException(id, "[deleteCustomer] Write Customer Deadlock");
+                }
                 for(Enumeration e = reservationHT.keys(); e.hasMoreElements();){        
                     String reservedkey = (String) (e.nextElement());
                     ResourceManager sendto = sendToWhom(reservedkey);
@@ -575,13 +582,6 @@ implements MiddleWare {
 
                 // remove the customer from the storage
 
-                try{
-                    tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
-                } catch (DeadlockException d)
-                {
-                    tmm.abort(id);
-                    throw new TransactionAbortedException(id, "[deleteCustomer] Write Customer Deadlock");
-                }
                 tm.addDelete(id, Customer.getKey(customerID), 0, 0);
                 removeData(id, cust.getKey());
 

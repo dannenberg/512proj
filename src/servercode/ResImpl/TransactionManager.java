@@ -35,6 +35,10 @@ class TransactionManager
 
 	public void addUnbook(int id, String key, int custId, int price)
 	{
+        if (!writes.containsKey(id))
+            System.out.println("it wasnt there, id was " + id);
+        if (writes.get(id) == null) 
+            System.out.println("it was a null, id was " + id);
 		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.UNBOOK, custId, price));
 	}
 
@@ -49,7 +53,8 @@ class TransactionManager
 	}
 
 	public void start(int trxnId)
-		{writes.put(trxnId, new ArrayList());}
+		{writes.put(trxnId, new ArrayList());
+            System.out.println(trxnId + " is not null " + writes.get(trxnId)); }
 
 	public void abort(int trxnId)
 	{
