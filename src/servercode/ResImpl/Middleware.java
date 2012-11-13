@@ -876,4 +876,12 @@ implements MiddleWare {
     {
         tmm.commit(trxnId);
     }
+
+    public boolean shutdown() throws RemoteException
+    {
+        tmm.shutdown();
+        return rmc.shutdown() &&
+               rmh.shutdown() &&
+               rmp.shutdown();
+    }
 }

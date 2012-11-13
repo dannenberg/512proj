@@ -77,6 +77,16 @@ public class TransactionManagerManager
         lm.UnlockAll(trxnId);
     }
 
+    public synchronized boolean shutdown()
+    {
+        Integer trxn;
+        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
+            trxn = (Integer)e.nextElement();
+            abort(trxn);
+        }
+        return true;
+    }
+
     public synchronized boolean lock(int trxnId, String strData, int lockType, ResourceManager rm)
         throws DeadlockException, TransactionAbortedException
         {

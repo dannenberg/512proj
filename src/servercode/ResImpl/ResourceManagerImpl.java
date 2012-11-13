@@ -615,4 +615,9 @@ implements ResourceManager {
 
     public void enlist(int trxnId) throws RemoteException
         {tm.start(trxnId);}
+
+    public boolean shutdown() throws RemoteException
+    {
+        return true;
+    }
 }

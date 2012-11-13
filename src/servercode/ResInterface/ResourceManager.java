@@ -154,4 +154,6 @@ public interface ResourceManager extends Remote
     public void abort(int transactionId) throws RemoteException; //, InvalidTransactionException;
 
     public void enlist(int trxnId) throws RemoteException;
+
+    public boolean shutdown() throws RemoteException;
 }
