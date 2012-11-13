@@ -115,7 +115,7 @@ public class TransactionManagerManager
 
 class TransactionItem<V> extends HashSet<V>
 {
-    public static final long TTL = 10 * 1000;
+    public static final long TTL = 30 * 1000;
     private long ttl;
     public TransactionItem()
     {

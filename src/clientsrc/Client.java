@@ -384,7 +384,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 11: //querying a Car Location
                 if(arguments.size()!=3){
@@ -408,7 +408,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 12: //querying a Room location
                 if(arguments.size()!=3){
@@ -432,7 +432,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 13: //querying Customer Information
                 if(arguments.size()!=3){
@@ -456,7 +456,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;             
+                return -1;             
 
             case 14: //querying a flight Price
                 if(arguments.size()!=3){
@@ -480,7 +480,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
             case 15: //querying a Car Price
                 if(arguments.size()!=3){
@@ -504,7 +504,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }          
-                break;
+                return -1;
 
             case 16: //querying a Room price
                 if(arguments.size()!=3){
@@ -685,7 +685,7 @@ public class Client
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
-                break;
+                return -1;
 
 
             case 23: // start 
@@ -740,6 +740,18 @@ public class Client
                 }
                 break;
 
+            case 26:
+                System.out.println("shutting down network");
+                try {
+                    rm.shutdown();
+                }
+                catch (Exception e) {
+                    System.out.println("EXCEPTION:");
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
+                }
+                System.out.println("network shut down");
+                break;
 
             default:
                 println("The interface does not support this command.");
@@ -813,6 +825,8 @@ public class Client
             return 24;
         else if (argument.compareToIgnoreCase("abort")==0)
             return 25;
+        else if (argument.compareToIgnoreCase("shutdown")==0)
+            return 26;
         else
             return 666;
 

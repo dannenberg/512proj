@@ -41,13 +41,13 @@ class TestClient extends Client
         Pattern regex = Pattern.compile(",\\s*(\\d+)");
         Matcher matcher;
         int start = -1;
-        String command = null;
+        String cmd = null;
         silent = true;
         handleArgs(args);
         connect();
         long time = System.currentTimeMillis();
         long startTime = time + 1000 * 10;
-        long endTime = starttime + 1000 * 60;
+        long endTime = startTime + 1000 * 60;
         long quitTime = endTime + 1000 * 10;
         long lasttime = time;
         int cmdcnt = 1;
@@ -55,15 +55,15 @@ class TestClient extends Client
         ArrayList<String> cmds = new ArrayList();
         try {
             BufferedReader in = new BufferedReader(new FileReader(file));
-            while ((command = in.readLine()) != null)
-                {cmds.add(command);}
+            while ((cmd = in.readLine()) != null)
+                {cmds.add(cmd);}
         }
         catch (IOException e) {
             System.out.println("since this is a test function only we will use I am not going to do anything with caught exceptions aside from print them:" + e.toString());
             e.printStackTrace();
             return;
         }
-        while (time < quitTime)
+        while (time < quitTime) {
             for (String command : cmds)
             {
                 time = System.currentTimeMillis();
@@ -92,5 +92,7 @@ class TestClient extends Client
                     tIds.add(start);
                 }
             }
+            tIds.clear();
+        }
     }
 }
