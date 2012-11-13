@@ -79,11 +79,6 @@ public class TransactionManagerManager
 
     public synchronized boolean shutdown()
     {
-        Integer trxn;
-        for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
-            trxn = (Integer)e.nextElement();
-            abort(trxn);
-        }
         return true;
     }
 

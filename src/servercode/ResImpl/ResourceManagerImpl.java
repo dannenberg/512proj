@@ -19,6 +19,7 @@ implements ResourceManager {
 	
     protected RMHashtable m_itemHT = new RMHashtable();
     private TransactionManager tm = new TransactionManager();
+    private Shutdown s = new Shutdown();
 
     public static void main(String args[]) {
         // Figure out where server is running
@@ -618,6 +619,7 @@ implements ResourceManager {
 
     public boolean shutdown() throws RemoteException
     {
+        s.start();
         return true;
     }
 }

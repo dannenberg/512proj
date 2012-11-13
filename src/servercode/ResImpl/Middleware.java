@@ -26,6 +26,7 @@ implements MiddleWare {
     static ResourceManager rmh = null;
     static TransactionManager tm = null;
     static TransactionManagerManager tmm = null;
+    private Shutdown s = new Shutdown();
 
     public static void main(String args[]) {
         // Figure out where server is running
@@ -876,8 +877,10 @@ implements MiddleWare {
     public boolean shutdown() throws RemoteException
     {
         tmm.shutdown();
-        return rmc.shutdown() &&
-               rmh.shutdown() &&
-               rmp.shutdown();
+        rmc.shutdown();
+        rmh.shutdown();
+        rmp.shutdown();
+        s.start();
+        return true;
     }
 }

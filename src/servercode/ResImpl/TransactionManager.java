@@ -65,4 +65,10 @@ class TransactionManager
 	{	// DONE
 		writes.remove(trxnId);
 	}
+
+	public boolean shutdown()
+	{
+		// writes.clear();
+		return true;
+	}
 }
