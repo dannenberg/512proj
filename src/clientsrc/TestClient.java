@@ -45,17 +45,32 @@ class TestClient extends Client
         silent = true;
         handleArgs(args);
         connect();
-        long time = System.currentTimeMillis();;
+        long time = System.currentTimeMillis();
+        long startTime = time + 1000 * 10;
+        long endTime = starttime + 1000 * 60;
+        long quitTime = endTime + 1000 * 10;
+        long lasttime = time;
         int cmdcnt = 1;
         long totalRunTime = 0;
+        ArrayList<String> cmds = new ArrayList();
         try {
             BufferedReader in = new BufferedReader(new FileReader(file));
             while ((command = in.readLine()) != null)
+                {cmds.add(command);}
+        }
+        catch (IOException e) {
+            System.out.println("since this is a test function only we will use I am not going to do anything with caught exceptions aside from print them:" + e.toString());
+            e.printStackTrace();
+            return;
+        }
+        while (time < quitTime)
+            for (String command : cmds)
             {
-                System.out.print(totalRunTime + " for " + cmdcnt/3 + "iterations");
+                time = System.currentTimeMillis();
                 if (cmdcnt%3 == 0) {
-                    totalRunTime += System.currentTimeMillis() - time;
-                    time = System.currentTimeMillis();
+                    totalRunTime += time - lasttime;
+                    lasttime = time;
+                    System.out.println(totalRunTime + " for " + cmdcnt/3 + "iterations");
                 }
                 try{
                     matcher = regex.matcher(command);
@@ -63,19 +78,19 @@ class TestClient extends Client
                     command = matcher.replaceFirst("," + tIds.get(Integer.parseInt(matcher.group(1))));
                 }
                 catch (IllegalStateException e) {}
+
+
+                // DO THE COMMAND
                 start = handleInput(command, true);
+
+
                 if (start == -1) {
-                    cmdcnt++;
+                    if ((startTime < time && time < endTime) || cmdcnt % 3 == 0)
+                        cmdcnt++;
                 }
                 else if (start > -1) {
                     tIds.add(start);
                 }
-
             }
-        }
-        catch (IOException e) {
-            System.out.println("since this is a test function only we will use I am not going to do anything with caught exceptions aside from print them:" + e.toString());
-            e.printStackTrace();
-        }
     }
 }
