@@ -744,12 +744,14 @@ public class Client
                 System.out.println("shutting down network");
                 try {
                     rm.shutdown();
+                    Thread.sleep(2000);
                 }
                 catch (Exception e) {
                     System.out.println("EXCEPTION:");
                     System.out.println(e.getMessage());
                     e.printStackTrace();
                 }
+
                 System.out.println("network shut down");
                 break;
 
