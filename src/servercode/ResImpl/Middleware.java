@@ -859,10 +859,6 @@ implements MiddleWare {
         }
         tm.abort(trxnId);
     }
-    public boolean shutdown() throws RemoteException
-    {
-        return false;
-    }
 
     public void enlist(int trxnId) throws RemoteException
         {tm.start(trxnId);}
