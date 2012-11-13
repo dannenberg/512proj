@@ -16,7 +16,7 @@ public class Client
     protected static String server;
     protected static int port;
 
-    protected static Client obj = new Client();
+    protected static Client obj = null;
     protected static boolean silent;
 
     public static void println(String toR)
@@ -76,6 +76,7 @@ public class Client
 
     public static void main(String args[])
     {
+        obj = new Client();
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
         String command = "";
         silent = false;

@@ -1,4 +1,9 @@
 import java.util.ArrayList;
+import java.util.regex.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 
 class TestClient extends Client
 {
@@ -31,20 +36,32 @@ class TestClient extends Client
 
     public static void main(String args[])
     {
+        obj = new TestClient();
         ArrayList<Integer> tIds = new ArrayList();
         Pattern regex = Pattern.compile(",\\s*(\\d+)");
         Matcher matcher;
         int start = -1;
+        String command = null;
         silent = true;
         handleArgs(args);
-        BufferedReader in = new BufferedReader(new FileReader(file));
-        while ((command = in.readLine()) != null)
-        {
-            matcher = regex.matcher(command);
-            command = matcher.replaceFirst("," + tIds.get(Integer.parseInt(matcher.group(1))));
-            start = handleInput(command);
-            if(start != -1)
-                tIds.add(start);
+        connect();
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(file));
+            while ((command = in.readLine()) != null)
+            {
+                try{
+                    matcher = regex.matcher(command);
+                    command = matcher.replaceFirst("," + tIds.get(Integer.parseInt(matcher.group(1))));
+                }
+                catch (IllegalStateException e) {}
+                start = handleInput(command, true);
+                if(start != -1)
+                    tIds.add(start);
+            }
+        }
+        catch (IOException e) {
+            System.out.println("since this is a test function only we will use I am not going to do anything with caught exceptions aside from print them:" + e.toString());
+            e.printStackTrace();
         }
     }
 }
