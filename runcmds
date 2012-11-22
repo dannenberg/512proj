@@ -1,0 +1,17 @@
+ssh mimi
+    rmiregistry 9897&
+    java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Car
+
+ssh mimi
+    rmiregistry 9898&
+    java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Plane
+
+ssh mimi
+    rmiregistry 9899&
+    java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Hotel
+
+ssh willy
+    rmiregistry 9988&
+    java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=file:$CLASSPATH/java.policy ResImpl/Middleware
+
+java Client
