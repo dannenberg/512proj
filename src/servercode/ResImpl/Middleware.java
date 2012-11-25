@@ -24,6 +24,7 @@ implements MiddleWare {
     static RMCluster rmc = new RMCluster();
     static RMCluster rmp = new RMCluster();
     static RMCluster rmh = new RMCluster();
+    static RMCluster rmall = new RMCluster();
     // static TransactionManager tm = null;
     static TransactionManagerManager tmm = null;
     private Shutdown s = new Shutdown();
@@ -83,29 +84,39 @@ implements MiddleWare {
         try
         {
             // connect to car registry
+            ResourceManager guy;
             Registry registry = LocateRegistry.getRegistry(server_c, portc);
-            rmc = (ResourceManager) registry.lookup("Group13ResourceManagerCar");
-            if (rmc != null) {
+            guy = (ResourceManager) registry.lookup("Group13ResourceManagerCar");
+            if (guy != null) {
                 System.out.println("Connected to RMCar!");
             } else {
                 System.out.println("Failed to connect to RMCar");
             }
+            rmc.add(guy);
+            guy = null;
             // connect to plane registry
             registry = LocateRegistry.getRegistry(server_p, portp);
-            rmp = (ResourceManager) registry.lookup("Group13ResourceManagerPlane");
-            if(rmp != null) {
+            guy = (ResourceManager) registry.lookup("Group13ResourceManagerPlane");
+            if(guy != null) {
                 System.out.println("Connected to RMPlane!");
             } else {
                 System.out.println("Failed to connect to RMPlane");
             }
+            rmp.add(guy);
+            guy = null;
             // connect to hotel registry
             registry = LocateRegistry.getRegistry(server_h, porth);
-            rmh = (ResourceManager) registry.lookup("Group13ResourceManagerHotel");
-            if (rmh != null) {
+            guy = (ResourceManager) registry.lookup("Group13ResourceManagerHotel");
+            if (guy != null) {
                 System.out.println("Connected to RMHotel!");
             } else {
                 System.out.println("Failed to connect to RMHotel");
             }
+            rmh.add(guy);
+
+            rmall.add(rmc);
+            rmall.add(rmp);
+            rmall.add(rmh);
             // set up port for client connections
             Middleware obj = new Middleware();
             MiddleWare rm = (MiddleWare) UnicastRemoteObject.exportObject(obj, 0);
@@ -125,17 +136,6 @@ implements MiddleWare {
             System.setSecurityManager(new RMISecurityManager());
         }
         */
-    }
-
-    public void trackRM(ResourceManager rm, int add_to)
-    {
-        HashSet<ResourceManager> msets[] = {rmc, rmp, rmh};
-        for(int i=0; i<msets.length; i++)
-        {
-            if (add_to & 1)
-                msets[i].add(rm);
-            add_to >> 2;
-        }
     }
 
     public Middleware() throws RemoteException {
@@ -455,13 +455,13 @@ implements MiddleWare {
     {
         Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, rmc);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[queryCustomerInfo] Deadlock (read customer)");
         }
-        RMHashtable reservationHT = rmc.getCustomerReservations(id, Customer.getKey(customerID));
+        RMHashtable reservationHT = rmall.getCustomerReservations(id, Customer.getKey(customerID));
         if (reservationHT == null)
         {   // TODO: can unlock too
             return false;
@@ -470,7 +470,7 @@ implements MiddleWare {
         {
             String reservedkey = (String) (e.nextElement());
             try{
-                tmm.lock(id, reservedkey, LockManager.READ, sendto);
+                tmm.lock(id, reservedkey, LockManager.READ, rmall);
             } catch (DeadlockException d)
             {
                 tmm.abort(id);
@@ -479,7 +479,7 @@ implements MiddleWare {
         }
         Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
         System.out.println( s );
-        return rmc.queryCustomerInfo(id, customerID);
+        return rmall.queryCustomerInfo(id, customerID);
     }
 
     // customer functions
@@ -493,13 +493,13 @@ implements MiddleWare {
             String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)) +
             String.valueOf( Math.round( Math.random() * 100 + 1 )));
         try{
-            tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, rmc);
+            tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[newCustomer] Deadlock");
         }
-        return rmc.newCustomer(id, cid);
+        return rmall.newCustomer(id, cid);
     }
 
     // I opted to pass in customerID instead. This makes testing easier
@@ -508,13 +508,13 @@ implements MiddleWare {
     {
         Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[newCustomer] Write Deadlock");
         }
-        return rmc.newCustomer(id, customerID);
+        return rmall.newCustomer(id, customerID);
     }
 
 
@@ -524,13 +524,13 @@ implements MiddleWare {
     {
         Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[deleteCustomer] Write Deadlock");
         }
-        RMHashtable reservationHT = rmc.getCustomerReservations(id, Customer.getKey(customerID));
+        RMHashtable reservationHT = rmall.getCustomerReservations(id, Customer.getKey(customerID));
         if (reservationHT == null)
         {   // TODO: can unlock too
             return false;
@@ -546,7 +546,7 @@ implements MiddleWare {
                 throw new TransactionAbortedException(id, "[deleteCustomer] Write Item Deadlock");
             }
         }
-        return rmc.deleteCustomer(id, customerID);
+        return rmall.deleteCustomer(id, customerID);
     }
 
     // Adds car reservation to this customer.
@@ -556,7 +556,7 @@ implements MiddleWare {
         String key = Car.getKey(location);
         Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -581,7 +581,7 @@ implements MiddleWare {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -605,7 +605,7 @@ implements MiddleWare {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -669,9 +669,7 @@ implements MiddleWare {
     public boolean shutdown() throws RemoteException
     {
         tmm.shutdown();
-        rmc.shutdown();
-        rmh.shutdown();
-        rmp.shutdown();
+        rmall.shutdown();
         s.start();
         return true;
     }
