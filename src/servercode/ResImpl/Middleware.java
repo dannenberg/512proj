@@ -561,7 +561,7 @@ implements MiddleWare {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmh);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -585,7 +585,7 @@ implements MiddleWare {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmp);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
