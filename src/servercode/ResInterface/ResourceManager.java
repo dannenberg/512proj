@@ -114,6 +114,9 @@ public interface ResourceManager extends Remote
     public int queryCarsPrice(int id, String location) 
 	throws RemoteException, TransactionAbortedException; 
 
+    public RMHashtable getCustomerReservations(int id, int customerID)
+    throws RemoteException;
+
     /* return the num */
     public int queryNum(int id, String location) 
 	throws RemoteException; 
@@ -143,10 +146,6 @@ public interface ResourceManager extends Remote
 
     public void decrementItem(int id, String key) 
     throws RemoteException;
-
-    /* reserve an itinerary */
-    public boolean itinerary(int id,int customer,Vector flightNumbers,String location, boolean Car, boolean Room)
-	throws RemoteException, TransactionAbortedException; 
 
     /* transaction stuff */
     public int start() throws RemoteException;

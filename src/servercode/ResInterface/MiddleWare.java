@@ -27,4 +27,6 @@ public interface MiddleWare extends ResourceManager
     public void clientAbort(int transactionId) throws RemoteException;
     public void clientCommit(int transactionId)
         throws RemoteException, TransactionAbortedException;
+    public boolean itinerary(int id,int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
+        throws RemoteException, TransactionAbortedException;
 }
