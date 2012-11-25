@@ -184,6 +184,7 @@ implements ResourceManager
         for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
             ResourceManager r = i.next();
             try {
+                // TODO combine results fools
                 return r.queryCustomerInfo(id, customer);
             } catch(RemoteException re)
                 {i.remove();}
