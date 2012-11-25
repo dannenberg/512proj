@@ -8,6 +8,9 @@ import ResInterface.*;
 
 import java.util.*;
 import java.rmi.*;
+import java.io.*;
+import java.net.*;
+
 
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
@@ -24,8 +27,9 @@ implements ResourceManager {
     public static void main(String args[]) {
         // Figure out where server is running
         String server = "localhost";
+        String middlewareserver = "willy";
         String resource = null;
-
+        // TODO CHANGE PORT and SREVER PARSING
         int port = -1;
         if (args.length == 1) {
             resource = args[0];
@@ -42,7 +46,7 @@ implements ResourceManager {
 
         if(resource.equals("Car")) {
             if(port == -1)
-                port = 9897;
+                port = 9898;
         }
         else if(resource.equals("Plane")) {
             if(port == -1)
@@ -50,7 +54,7 @@ implements ResourceManager {
         }
         else if(resource.equals("Hotel")) {
             if(port == -1)
-                port = 9899;
+                port = 9898;
         }
         else
         {
@@ -58,6 +62,7 @@ implements ResourceManager {
             System.out.println("Must be of type Car, Plane, or Hotel.");
             System.exit(1);
         }
+        String name = "Group13ResourceManager" + resource + new Random().nextInt();
 
         try 
         {
@@ -68,7 +73,7 @@ implements ResourceManager {
 
             // Bind the remote object's stub in the registry
             Registry registry = LocateRegistry.getRegistry(port);
-            registry.rebind("Group13ResourceManager" + resource, rm);
+            registry.rebind(name, rm);
 
             System.err.println("Server ready");
         } 
@@ -77,7 +82,17 @@ implements ResourceManager {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();
         }
-
+        
+        try {
+            Socket clientSocket = new Socket(middlewareserver, 8085);
+            DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+      
+            outToServer.writeBytes(name +','+port+ '\n');
+            clientSocket.close();
+        } catch (IOException e) {
+            System.out.println("disaster struck while sending a message from an rm:");
+            e.printStackTrace();
+        }
         /*
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
@@ -455,6 +470,7 @@ implements ResourceManager {
         throws RemoteException, TransactionAbortedException
         {
             Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
+            Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 tm.addCreate(id, Customer.getKey(customerID));
                 cust = new Customer(customerID);
@@ -516,7 +532,7 @@ implements ResourceManager {
             return false;
         } else {
             tm.addBook(id, key, customerID);
-            cust.reserve( key, location, rmc.queryPrice(id, key));
+            cust.reserve( key, location, queryPrice(id, key));
             writeData( id, cust.getKey(), cust );
 
             if(!reserveItem(id, customerID, key, location))
@@ -581,7 +597,7 @@ implements ResourceManager {
             cust.reserve( key, String.valueOf(flightNum), queryPrice(id, key));
             writeData( id, cust.getKey(), cust );
 
-            if(!reserveItem(id, customerID, key, location))
+            if(!reserveItem(id, customerID, key, ""+flightNum))
                 return false;
 
             Trace.info("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", " +flightNum+") succeeded" );
@@ -611,10 +627,10 @@ implements ResourceManager {
             {   // undo em
                 case BOOK:    // Done
                     newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
-                    newObj.unserve(t.key);
+                    ((Customer)newObj).unserve(t.key);
                 case UNBOOK:  // DONE
                     newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
-                    newObj.reserve(t.key, t.key.substring(t.key.indexOf("-") + 1), t.price);
+                    ((Customer)newObj).reserve(t.key, t.key.substring(t.key.indexOf("-") + 1), t.price);
                     break;
                 case CREATE:    // DONE
                     deleteItem(t.id, t.key);

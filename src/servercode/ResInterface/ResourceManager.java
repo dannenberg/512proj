@@ -4,6 +4,7 @@ package ResInterface;
 import ResImpl.TransactionAbortedException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import ResImpl.RMHashtable;
 
 import java.util.*;
 /** 

@@ -9,6 +9,8 @@ import LockManager.*;
 
 import java.util.*;
 import java.rmi.*;
+import java.io.*;
+import java.net.*;
 
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
@@ -29,19 +31,22 @@ implements MiddleWare {
     static TransactionManagerManager tmm = null;
     private Shutdown s = new Shutdown();
 
+    private static ResourceManagerAcceptor friends;
+
     public static void main(String args[]) {
         // Figure out where server is running
-        String server_c = "mimi.cs.mcgill.ca";
+        String server_c = "skinner.cs.mcgill.ca";
         String server_p = server_c;
         String server_h = server_c;
         int port = 9988;
-        int portc = 9897;
-        int portp = 9898;
-        int porth = 9899;
+        int portc = 9898;
+        int portp = portc;
+        int porth = portc;
 
+       
         // tm = new TransactionManager();
         tmm = new TransactionManagerManager();
-
+        // TODO CHANGE PORT and SREVER PARSING
         if (args.length == 7)  // mw_port, (server, port) * 3
         {
             port = Integer.parseInt(args[0]);
@@ -81,54 +86,26 @@ implements MiddleWare {
             System.exit(1);
         }
 
-        try
-        {
-            // connect to car registry
-            ResourceManager guy;
-            Registry registry = LocateRegistry.getRegistry(server_c, portc);
-            guy = (ResourceManager) registry.lookup("Group13ResourceManagerCar");
-            if (guy != null) {
-                System.out.println("Connected to RMCar!");
-            } else {
-                System.out.println("Failed to connect to RMCar");
-            }
-            rmc.add(guy);
-            guy = null;
-            // connect to plane registry
-            registry = LocateRegistry.getRegistry(server_p, portp);
-            guy = (ResourceManager) registry.lookup("Group13ResourceManagerPlane");
-            if(guy != null) {
-                System.out.println("Connected to RMPlane!");
-            } else {
-                System.out.println("Failed to connect to RMPlane");
-            }
-            rmp.add(guy);
-            guy = null;
-            // connect to hotel registry
-            registry = LocateRegistry.getRegistry(server_h, porth);
-            guy = (ResourceManager) registry.lookup("Group13ResourceManagerHotel");
-            if (guy != null) {
-                System.out.println("Connected to RMHotel!");
-            } else {
-                System.out.println("Failed to connect to RMHotel");
-            }
-            rmh.add(guy);
+        friends = new ResourceManagerAcceptor();
+        friends.start();
 
-            rmall.add(rmc);
-            rmall.add(rmp);
-            rmall.add(rmh);
-            // set up port for client connections
+        rmall.add(rmc);
+        rmall.add(rmp);
+        rmall.add(rmh);
+
+        try {
             Middleware obj = new Middleware();
             MiddleWare rm = (MiddleWare) UnicastRemoteObject.exportObject(obj, 0);
-            registry = LocateRegistry.getRegistry(port);
+            Registry registry = LocateRegistry.getRegistry(port);
             registry.rebind("Group13Middleware", rm);
             System.err.println("Server ready");
         }
         catch (Exception e)
         {
-            System.err.println("Middleware exception: " + e.toString());
+            System.err.println("Middleware exception: ");
             e.printStackTrace();
         }
+
 
         /*
         // Create and install a security manager
@@ -444,7 +421,7 @@ implements MiddleWare {
     //  customer doesn't exist. Returns empty RMHashtable if customer exists but has no
     //  reservations.
     public RMHashtable getCustomerReservations(int id, int customerID)
-        throws RemoteException, TransactionAbortedException
+        throws RemoteException
     {
         return null;
     }
@@ -461,10 +438,10 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[queryCustomerInfo] Deadlock (read customer)");
         }
-        RMHashtable reservationHT = rmall.getCustomerReservations(id, Customer.getKey(customerID));
+        RMHashtable reservationHT = rmall.getCustomerReservations(id, customerID);
         if (reservationHT == null)
         {   // TODO: can unlock too
-            return false;
+            return "";
         }
         for(Enumeration e = reservationHT.keys(); e.hasMoreElements();)
         {
@@ -499,7 +476,8 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[newCustomer] Deadlock");
         }
-        return rmall.newCustomer(id, cid);
+        rmall.newCustomer(id, cid);
+        return cid;
     }
 
     // I opted to pass in customerID instead. This makes testing easier
@@ -530,7 +508,7 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[deleteCustomer] Write Deadlock");
         }
-        RMHashtable reservationHT = rmall.getCustomerReservations(id, Customer.getKey(customerID));
+        RMHashtable reservationHT = rmall.getCustomerReservations(id, customerID);
         if (reservationHT == null)
         {   // TODO: can unlock too
             return false;
@@ -539,7 +517,9 @@ implements MiddleWare {
         {
             String reservedkey = (String) (e.nextElement());
             try{
-                tmm.lock(id, reservedkey, LockManager.WRITE, sendto);
+                // TODO: make him sendto again.
+                // fix it!
+                tmm.lock(id, reservedkey, LockManager.WRITE, rmall);
             } catch (DeadlockException d)
             {
                 tmm.abort(id);
@@ -672,5 +652,64 @@ implements MiddleWare {
         rmall.shutdown();
         s.start();
         return true;
+    }
+}
+
+class ResourceManagerAcceptor extends Thread
+{
+    Registry registry;
+    public ResourceManagerAcceptor()
+    {}
+
+    public void run()
+    {
+        ServerSocket welcomeSocket = null;
+        try {
+            welcomeSocket = new ServerSocket(8085);
+        } catch (IOException e) {
+            System.out.println("disaster struck while creating accepting server:");
+            e.printStackTrace();
+        }
+
+        while(true)
+        {
+            String message[] = null;
+            String server = null;
+            int port = 0;
+            String clientName = null;
+            ResourceManager guy = null;
+            try {
+                Socket connectionSocket = welcomeSocket.accept();
+                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+                message = inFromClient.readLine().split(",");
+                System.out.println("Received: " + message.toString() + "end");
+
+                clientName = message[0];
+                port = Integer.parseInt(message[1]);
+                server = connectionSocket.getInetAddress().getHostName();
+
+                Registry registry = LocateRegistry.getRegistry(server, port);
+
+                guy = (ResourceManager) registry.lookup(clientName);
+            } catch (IOException e) {
+                System.out.println("disaster struck while accepting a message from an rm:");
+                e.printStackTrace();
+                continue;
+            } catch (NotBoundException e) {
+                System.out.println("disaster struck while accepting a message from an rm:");
+                e.printStackTrace();
+                continue;
+            }
+            if (clientName.contains("Car"))
+                Middleware.rmc.add(guy);
+            else if (clientName.contains("Plane"))
+                Middleware.rmp.add(guy);
+            else if (clientName.contains("Hotel"))
+                Middleware.rmh.add(guy);
+            else
+                System.out.println("confusing message: " + clientName);
+            System.out.println("added RM: " + clientName);
+        
+        }
     }
 }

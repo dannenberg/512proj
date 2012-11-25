@@ -17,8 +17,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.addFlight(id, flightNum, flightSeats, flightPrice);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.addFlight(id, flightNum, flightSeats, flightPrice);
+            } catch (RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -26,8 +31,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.addCars(id, location, numCars, price);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.addCars(id, location, numCars, price);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -35,8 +45,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.addRooms(id, location, numRooms, price);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.addRooms(id, location, numRooms, price);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -44,8 +59,13 @@ implements ResourceManager
     throws RemoteException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.deleteItem(id, key);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.deleteItem(id, key);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -53,8 +73,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.newCustomer(id, cid);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.newCustomer(id, cid);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -62,8 +87,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.deleteFlight(id, flightNum);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.deleteFlight(id, flightNum);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -71,8 +101,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.deleteCars(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.deleteCars(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -80,8 +115,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.deleteRooms(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.deleteRooms(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -89,76 +129,104 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.deleteCustomer(id, customer);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.deleteCustomer(id, customer);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
     public synchronized int queryFlight(int id, int flightNumber)
     throws RemoteException, TransactionAbortedException
     {
-        // int toR = -1;
-        // int temp;
-        // for(ResourceManager r : this)
-        // {
-        //     temp = r.queryFlight(id, flightNumber);
-        //     if (toR != -1 && temp != toR)
-        //     {   // inconsistent data
-        //         ;
-        //     }
-        //     toR = temp;
-        // }
-        // return toR;
-        for(ResourceManager r : this)
-            return r.queryFlight(id, flightNumber);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryFlight(id, flightNumber);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
     public synchronized int queryCars(int id, String location)
     throws RemoteException, TransactionAbortedException
     {
-        for(ResourceManager r : this)
-            return r.queryCars(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryCars(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
     public synchronized int queryRooms(int id, String location)
     throws RemoteException, TransactionAbortedException
     {
-        for(ResourceManager r : this)
-            return r.queryRooms(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryRooms(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
     public synchronized String queryCustomerInfo(int id,int customer)
     throws RemoteException, TransactionAbortedException
     {
-        for(ResourceManager r : this)
-            return r.queryCustomerInfo(id, customer);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryCustomerInfo(id, customer);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return "";
     }
 
     public synchronized int queryFlightPrice(int id, int flightNumber)
     throws RemoteException, TransactionAbortedException
     {
-        for(ResourceManager r : this)
-            return r.queryFlightPrice(id, flightNumber);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryFlightPrice(id, flightNumber);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
     public synchronized int queryCarsPrice(int id, String location)
     throws RemoteException, TransactionAbortedException
     {
-        for(ResourceManager r : this)
-            return r.queryCarsPrice(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryCarsPrice(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
     public synchronized RMHashtable getCustomerReservations(int id, int customerID)
     throws RemoteException
     {
-        for(ResourceManager r : this)
-            return r.getCustomerReservations(id, customerID);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.getCustomerReservations(id, customerID);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return null;
     }
 
@@ -166,8 +234,13 @@ implements ResourceManager
     public synchronized int queryNum(int id, String location)
     throws RemoteException
     {
-        for(ResourceManager r : this)
-            return r.queryNum(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryNum(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
@@ -175,8 +248,13 @@ implements ResourceManager
     public synchronized int queryPrice(int id, String location)
     throws RemoteException
     {
-        for(ResourceManager r : this)
-            return r.queryPrice(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryPrice(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
@@ -184,8 +262,13 @@ implements ResourceManager
     public synchronized int queryRoomsPrice(int id, String location)
     throws RemoteException, TransactionAbortedException
     {
-        for(ResourceManager r : this)
-            return r.queryRoomsPrice(id, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                return r.queryRoomsPrice(id, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return -1;
     }
 
@@ -194,8 +277,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.reserveFlight(id, customer, flightNumber);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.reserveFlight(id, customer, flightNumber);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -204,8 +292,13 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.reserveCar(id, customer, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.reserveCar(id, customer, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
@@ -214,57 +307,97 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.reserveRoom(id, customer, location);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.reserveRoom(id, customer, location);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
     public synchronized void incrementItem(int id, String key, int change)
     throws RemoteException
     {
-        for(ResourceManager r : this)
-            r.incrementItem(id, key, change);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                r.incrementItem(id, key, change);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
     }
 
     public synchronized void decrementItem(int id, String key)
     throws RemoteException
     {
-        for(ResourceManager r : this)
-            toR = r.decrementItem(id, key);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                r.decrementItem(id, key);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
     }
 
     public synchronized int start() throws RemoteException
     {
-        for(ResourceManager r : this)
-            r.start();
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                r.start();
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return 0;
     }
 
     public synchronized boolean commit(int transactionId) throws RemoteException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.commit(transactionId);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.commit(transactionId);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 
     public synchronized void abort(int transactionId) throws RemoteException
     {
-        for(ResourceManager r : this)
-            r.reserveFlight(id, customer, flightNumber);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                r.abort(transactionId);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
     }
 
     public synchronized void enlist(int trxnId) throws RemoteException
     {
-        for(ResourceManager r : this)
-            r.enlist(trxnId);
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                r.enlist(trxnId);
+            } catch(RemoteException re)
+                {i.remove();}
+        }
     }
 
     public synchronized boolean shutdown() throws RemoteException
     {
         boolean toR = false;
-        for(ResourceManager r : this)
-            toR = r.shutdown();
+        for(Iterator<ResourceManager> i = iterator(); i.hasNext();) {
+            ResourceManager r = i.next();
+            try {
+                toR = r.shutdown();
+            } catch(RemoteException re)
+                {i.remove();}
+        }
         return toR;
     }
 }

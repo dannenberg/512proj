@@ -13,4 +13,6 @@ public abstract class RMItem implements Serializable
     RMItem() {
 			super();
     }
+
+    public abstract String getKey();
 }

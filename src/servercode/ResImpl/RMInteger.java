@@ -30,4 +30,9 @@ public class RMInteger extends RMItem implements Serializable
 		{
 			return String.valueOf(m_value);
 		}
+
+	    public String getKey()
+	    {
+	    	return "Why!?";
+	    }
 }
