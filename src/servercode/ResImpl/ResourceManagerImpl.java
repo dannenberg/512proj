@@ -450,24 +450,6 @@ implements ResourceManager {
         } // if
     }
 
-    // customer functions
-    // new customer just returns a unique customer identifier
-
-    public int newCustomer(int id)
-        throws RemoteException, TransactionAbortedException
-        {
-            Trace.info("INFO: RM::newCustomer(" + id + ") called" );
-            // Generate a globally unique ID for the new customer
-            int cid = Integer.parseInt( String.valueOf(id) +
-                    String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)) +
-                    String.valueOf( Math.round( Math.random() * 100 + 1 )));
-            tm.addCreate(id, Customer.getKey(cid));
-            Customer cust = new Customer( cid );
-            writeData( id, cust.getKey(), cust );
-            Trace.info("RM::newCustomer(" + cid + ") returns ID=" + cid );
-            return cid;
-        }
-
     // I opted to pass in customerID instead. This makes testing easier
     public boolean newCustomer(int id, int customerID )
         throws RemoteException, TransactionAbortedException
@@ -618,23 +600,27 @@ implements ResourceManager {
         return true;
     }
 
-    public void abort(int trxnId) throws RemoteException //, InvalidTransactionException
+    public void abort(int trxnId) throws RemoteException
     {   // TM's abort
         String location = null;
         ReservableItem curObj = null;
         for(Transaction t : tm.getTrxns(trxnId))
         {
+            RMItem newObj;
             switch(t.action)
             {   // undo em
-                case BOOK:    // impossible
-                case UNBOOK:  // impossible
+                case BOOK:    // Done
+                    newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
+                    newObj.unserve(t.key);
+                case UNBOOK:  // DONE
+                    newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
+                    newObj.reserve(t.key, t.key.substring(t.key.indexOf("-") + 1), t.price);
                     break;
                 case CREATE:    // DONE
                     deleteItem(t.id, t.key);
                     break;
                 case DELETE:    // recreate the item
                     location = t.key.substring(t.key.indexOf("-") + 1);
-                    RMItem newObj;
                     if(t.key.startsWith("car-"))
                     {
                         newObj = new Car( location, t.numDeleted(), t.price );

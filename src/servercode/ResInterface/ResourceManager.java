@@ -50,10 +50,6 @@ public interface ResourceManager extends Remote
 
     public boolean deleteItem(int id, String key)
     throws RemoteException;
-			    
-    /* new customer just returns a unique customer identifier */
-    public int newCustomer(int id) 
-	throws RemoteException, TransactionAbortedException; 
     
     /* new customer with providing id */
     public boolean newCustomer(int id, int cid)

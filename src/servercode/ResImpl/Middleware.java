@@ -21,9 +21,9 @@ implements MiddleWare {
 
     protected RMHashtable m_itemHT = new RMHashtable();
 
-    static HashSet<ResourceManager> rmc = new HashSet();
-    static HashSet<ResourceManager> rmp = new HashSet();
-    static HashSet<ResourceManager> rmh = new HashSet();
+    static RMCluster rmc = new RMCluster();
+    static RMCluster rmp = new RMCluster();
+    static RMCluster rmh = new RMCluster();
     // static TransactionManager tm = null;
     static TransactionManagerManager tmm = null;
     private Shutdown s = new Shutdown();
@@ -455,7 +455,7 @@ implements MiddleWare {
     {
         Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, this);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.READ, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -489,14 +489,17 @@ implements MiddleWare {
         throws RemoteException, TransactionAbortedException
     {
         Trace.info("INFO: RM::newCustomer(" + id + ") called" );
+        int cid = Integer.parseInt( String.valueOf(id) +
+            String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)) +
+            String.valueOf( Math.round( Math.random() * 100 + 1 )));
         try{
-            tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, this);
+            tmm.lock(id, Customer.getKey(cid), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[newCustomer] Deadlock");
         }
-        return rmc.newCustomer(id);
+        return rmc.newCustomer(id, cid);
     }
 
     // I opted to pass in customerID instead. This makes testing easier
@@ -505,7 +508,7 @@ implements MiddleWare {
     {
         Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -521,7 +524,7 @@ implements MiddleWare {
     {
         Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -546,20 +549,6 @@ implements MiddleWare {
         return rmc.deleteCustomer(id, customerID);
     }
 
-
-    public ResourceManager sendToWhom(String key)
-    {
-        if(key.startsWith("car-"))
-            return rmc;
-        else if(key.startsWith("flight-"))
-            return rmp;
-        else if(key.startsWith("room-"))
-            return rmh;
-        else if(key.startsWith("customer-"))
-            return this;
-        return null;
-    }
-
     // Adds car reservation to this customer.
     public boolean reserveCar(int id, int customerID, String location)
         throws RemoteException, TransactionAbortedException
@@ -567,7 +556,7 @@ implements MiddleWare {
         String key = Car.getKey(location);
         Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -592,7 +581,7 @@ implements MiddleWare {
         String key = Hotel.getKey(location);
         Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -616,7 +605,7 @@ implements MiddleWare {
         String key = Flight.getKey(flightNum);
         Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
         try{
-            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, this);
+            tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
         {
             tmm.abort(id);
@@ -654,40 +643,12 @@ implements MiddleWare {
 
     public boolean commit(int trxnId) throws RemoteException
     {
-        tm.commit(trxnId);
+        // tm.commit(trxnId);
         return true;
     }
     public void abort(int trxnId) throws RemoteException
     {   // TM's abort
-        // ResourceManager sendTo;
-        Customer crust;
-        for(Transaction t : tm.getTrxns(trxnId))
-        {
-            System.out.println("doesnt matter");
-            // sendTo = sendToWhom(t.key);
-            switch(t.action)
-            {   // undo em
-                case BOOK:    // DONE
-                    System.out.println("BOOK" + t.key);
-                    crust = (Customer) readData( t.id, Customer.getKey(t.custId()) );
-                    crust.unserve(t.key);
-                    break;
-                case CREATE:    // DONE
-                    deleteItem(t.id, t.key);
-                    break;
-                case DELETE:    // for deleting a customer
-                    crust = new Customer(t.id);  // an unsafe "newCustomer()"
-                    writeData(t.id, crust.getKey(), crust);
-                    break;
-                case UNBOOK:    // DONE
-                    crust = (Customer) readData( t.id, Customer.getKey(t.custId()) );
-                    crust.reserve(t.key, t.key.substring(t.key.indexOf("-") + 1), t.price);
-                    break;
-                case STOCK:
-                    break;
-            }
-        }
-        tm.abort(trxnId);
+        ;
     }
 
     public void enlist(int trxnId) throws RemoteException
