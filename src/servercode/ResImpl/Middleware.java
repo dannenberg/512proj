@@ -643,13 +643,12 @@ implements MiddleWare {
         if(primary)
         {
             Trace.info("Aborting trxn " + trxnId);
-            tmm.abort(trxnId);
         }
         else
         {
             Trace.info("Not a primary server: skipping abort and clearing the locks on trxn " + trxnId);
-            tmm.clearTrxn(trxnId);
         }
+        tmm.abort(trxnId);
     }
 
     public void commit(int trxnId) throws RemoteException, TransactionAbortedException

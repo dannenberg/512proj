@@ -20,7 +20,7 @@ class TransactionManager
 
 	public void addBook(int id, String key, int custId)
 	{
-        System.out.println("TM: adding a book" + key + "," + writes.get(id).size());
+        Trace.("TM: adding a book" + key + "," + writes.get(id).size());
 		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.BOOK, custId));
 	}
 
@@ -50,14 +50,16 @@ class TransactionManager
 
 	public ArrayList<Transaction> getTrxns(int trxnId)
 	{
+		if (!writes.contains(trxnId))
+			return new ArrayList();
 		return writes.get(trxnId);
 	}
 
 	public void start(int trxnId)
-		{
-            if (!writes.containsKey(trxnId))
-                writes.put(trxnId, new ArrayList());
-            System.out.println(trxnId + " is not null " + writes.get(trxnId)); }
+	{
+        if (!writes.containsKey(trxnId))
+            writes.put(trxnId, new ArrayList());
+    }
 
 	public void abort(int trxnId)
 	{
