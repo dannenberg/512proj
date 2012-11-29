@@ -20,7 +20,7 @@ class TransactionManager
 
 	public void addBook(int id, String key, int custId)
 	{
-        Trace.("TM: adding a book" + key + "," + writes.get(id).size());
+        Trace.info("TM: adding a book" + key + "," + writes.get(id).size());
 		writes.get(id).add(0, new Transaction(id, key, Transaction.Action.BOOK, custId));
 	}
 
@@ -50,7 +50,7 @@ class TransactionManager
 
 	public ArrayList<Transaction> getTrxns(int trxnId)
 	{
-		if (!writes.contains(trxnId))
+		if (!writes.containsKey(trxnId))
 			return new ArrayList();
 		return writes.get(trxnId);
 	}
