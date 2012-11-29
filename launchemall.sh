@@ -1,14 +1,22 @@
-#!/usr/bin/bash
-xterm -hold -e "ssh mimi -t 'rmiregistry 9988& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl ResImpl/MiddleWare 9988 8085'"
-xterm -hold -e "ssh willy -t 'rmiregistry 9988& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl ResImpl/MiddleWare 9988 8085 mimi 8085'"
+#!/usr/local/bin/bash
+xterm -hold -e "ssh willy -t 'rmiregistry 9988& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/Middleware 9988 8089'"&
+sleep 10
+xterm -hold -e "ssh skinner -t 'rmiregistry 9988& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/Middleware 9988 8089'"&
+sleep 10
 
-xterm -hold -e "ssh skinner -t 'rmiregistry 9898& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Car 9898 mimi 8085'"
-xterm -hold -e "ssh mimi -t 'rmiregistry 9898& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Car 9898 willy 8085'"
+xterm -hold -e "ssh mimi -t 'rmiregistry 9878& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Car 9878 skinner 8089 willy 8089'"&
+sleep 10
+xterm -hold -e "ssh skinner -t 'rmiregistry 9888& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Car 9888 skinner 8089 willy 8089'"&
+sleep 10
 
-xterm -hold -e "ssh willy -t 'rmiregistry 9899& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Plane 9899 mimi 8085'"
-xterm -hold -e "ssh skinner -t 'rmiregistry 9899& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Plane 9899 willy 8085'"
+xterm -hold -e "ssh willy -t 'rmiregistry 9879& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Plane 9879 skinner 8089 willy 8089'"&
+sleep 10
+xterm -hold -e "ssh mimi -t 'rmiregistry 9889& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Plane 9889 skinner 8089 willy 8089'"&
+sleep 10
 
-xterm -hold -e "ssh mimi -t 'rmiregistry 9897& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Hotel 9897 mimi 8085'"
-xterm -hold -e "ssh willy -t 'rmiregistry 9897& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Hotel 9897 willy 8085'"
+xterm -hold -e "ssh skinner -t 'rmiregistry 9897& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Hotel 9897 skinner 8089 willy 8089'"&
+sleep 10
+xterm -hold -e "ssh willy -t 'rmiregistry 9887& java -Djava.rmi.server.codebase=file:$CLASSPATH -Djava.policy=$CLASSPATH/java.policy ResImpl/ResourceManagerImpl Hotel 9887 skinner 8089 willy 8089'"&
+sleep 10
 
-java Client
+java Client skinner 9988 willy 9988

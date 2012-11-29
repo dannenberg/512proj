@@ -5,6 +5,7 @@ import LockManager.*;
 import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Enumeration;
+import java.rmi.RemoteException;
 
 public class TransactionManagerManager
 {
@@ -12,9 +13,11 @@ public class TransactionManagerManager
     private AngelOfDeath grim;
     private LockManager lm;
     private int nextTrxnId;
+    private Middleware mw;
 
-    public TransactionManagerManager()
+    public TransactionManagerManager(Middleware mw)
     {
+        this.mw = mw;
         transactionTouch = new Hashtable();
         lm = new LockManager();
         grim = new AngelOfDeath(this);
@@ -55,6 +58,14 @@ public class TransactionManagerManager
                 x.printStackTrace();
             }
         }
+        transactionTouch.remove(trxnId);
+        lm.UnlockAll(trxnId);
+    }
+
+    public synchronized void clearTrxn(int trxnId)
+    {
+        if(!transactionTouch.containsKey(trxnId))
+            return;
         transactionTouch.remove(trxnId);
         lm.UnlockAll(trxnId);
     }
@@ -101,7 +112,7 @@ public class TransactionManagerManager
         for (Enumeration e = transactionTouch.keys(); e.hasMoreElements();) {
             trxn = (Integer)e.nextElement();
             if(transactionTouch.get(trxn).getTTL() < System.currentTimeMillis()) {
-                abort(trxn);
+                try {mw.abort(trxn);} catch (RemoteException re) {} // really java?
                 System.out.println("transaction " + trxn + " was culled ");
             }
         }

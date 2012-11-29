@@ -373,14 +373,24 @@ implements ResourceManager
     public synchronized int start() throws RemoteException
     {
         int[] i = {0};
+        int trxnId = -1;
+        boolean die = false;
         for(; i[0] < size(); i[0]++) {
             ResourceManager r = get(i[0]);
             try {
-                r.start();
+                if (trxnId == -1)
+                    trxnId = r.start();
+                else if (trxnId != r.start())
+                {
+                    die = true;
+                    break;
+                }
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return 0;
+        if (die)
+            throw new RemoteException();
+        return trxnId;
     }
 
     public synchronized void commit(int transactionId) throws RemoteException, TransactionAbortedException

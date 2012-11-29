@@ -14,8 +14,6 @@ public class Client
     protected static String message = "blank";
     protected static MWCluster rm = new MWCluster();
     protected static HashSet<Integer> trxns = new HashSet();
-    protected static String server;
-    protected static int port;
 
     protected static Client obj = null;
     protected static boolean silent;
@@ -28,23 +26,17 @@ public class Client
 
     public static void handleArgs(String args[])
     {
-        server = "willy.cs.mcgill.ca";
-        port = 9988;
-        if (args.length == 2)
+        String server;
+        int port;
+        for(int i = 0; i < args.length / 2; i++)
         {
-            port = Integer.parseInt(args[1]); 
-            server = args[0]; 
-        }
-        else if (args.length == 1) 
-            server = args[0]; 
-        else if (args.length != 0)
-        {
-            println ("Usage: java client [rmihost]"); 
-            System.exit(1); 
+            server = args[i * 2];
+            port = Integer.parseInt(args[i * 2 + 1]);
+            connect(server, port);
         }
     }
 
-    public static void connect()
+    public static void connect(String server, int port)
     {
         try 
         {
@@ -85,7 +77,6 @@ public class Client
         silent = false;
 
         handleArgs(args);
-        connect();
 
         println("\n\n\tClient Interface");
         println("Type \"help\" for list of supported commands");

@@ -33,53 +33,11 @@ implements ResourceManager {
         int middlewareport = -1;
         int port = -1;
 
-        if (args.length == 1) {
-            resource = args[0];
-        }
-        else if (args.length == 2) {
-            resource = args[0];
-            port = Integer.parseInt(args[1]);
-        }
-        else if (args.length == 3)
-        {   // server port
-            resource = args[0];
-            middlewareserver = args[1];
-            middlewareport = Integer.parseInt(args[2]);
-        }
-        else if (args.length == 4)
-        {   // server port
-            resource = args[0];
-            port = Integer.parseInt(args[1]);
-            middlewareserver = args[2];
-            middlewareport = Integer.parseInt(args[3]);
-        }
-        else {
-            System.err.println ("Wrong usage");
-            System.out.println("Usage: use it right.");
-            System.exit(1);
-        }
-
-        if(resource.equals("Car")) {
-            if(port == -1)
-                port = 9898;
-        }
-        else if(resource.equals("Plane")) {
-            if(port == -1)
-                port = 9898;
-        }
-        else if(resource.equals("Hotel")) {
-            if(port == -1)
-                port = 9898;
-        }
-        else
-        {
-            System.err.println("Wrong usage");
-            System.out.println("Must be of type Car, Plane, or Hotel.");
-            System.exit(1);
-        }
+        resource = args[0];
+        port = Integer.parseInt(args[1]);
         String name = "Group13ResourceManager" + resource + new Random().nextInt();
 
-        try 
+        try
         {
             // create a new Server object
             ResourceManagerImpl obj = new ResourceManagerImpl();
@@ -97,16 +55,22 @@ implements ResourceManager {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();
         }
-        
-        try {
-            Socket clientSocket = new Socket(middlewareserver, 8085);
-            DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 
-            outToServer.writeBytes(name +','+port+ '\n');
-            clientSocket.close();
-        } catch (IOException e) {
-            System.out.println("disaster struck while sending a message from an rm:");
-            e.printStackTrace();
+        for(int i = 1; i < (args.length + 1) / 2; i++)
+        {
+            middlewareserver = args[i * 2];
+            middlewareport = Integer.parseInt(args[i * 2 + 1]);
+        
+            try {
+                Socket clientSocket = new Socket(middlewareserver, middlewareport);
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+
+                outToServer.writeBytes(name +','+port+ '\n');
+                clientSocket.close();
+            } catch (IOException e) {
+                System.out.println("disaster struck while sending a message from an rm:");
+                e.printStackTrace();
+            }
         }
         /*
         // Create and install a security manager
