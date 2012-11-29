@@ -68,10 +68,11 @@ implements ResourceManager {
                 outToServer.writeBytes(name +','+port+ '\n');
                 clientSocket.close();
             } catch (IOException e) {
-                System.out.println("disaster struck while sending a message from an rm:");
+                System.err.println("disaster struck while sending a message from an rm:");
                 e.printStackTrace();
             }
         }
+        Trace.info("ResourceManager reporting for duty.");
         /*
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
@@ -112,20 +113,20 @@ implements ResourceManager {
     // deletes the entire item
     public boolean deleteItem(int id, String key)
     {
-        Trace.info("RM::deleteItem(" + id + ", " + key + ") called" );
+        Trace.info("  deleteItem(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key );
         // Check if there is such an item in the storage
         if( curObj == null ) {
-            Trace.warn("RM::deleteItem(" + id + ", " + key + ") failed--item doesn't exist" );
+            Trace.warn("  deleteItem(" + id + ", " + key + ") failed--item doesn't exist" );
             return false;
         } else {
             if(curObj.getReserved()==0){
                 removeData(id, curObj.getKey());
-                Trace.info("RM::deleteItem(" + id + ", " + key + ") item deleted" );
+                Trace.info("  deleteItem(" + id + ", " + key + ") item deleted" );
                 return true;
             }
             else{
-                Trace.info("RM::deleteItem(" + id + ", " + key + ") item can't be deleted because some customers reserved it" );
+                Trace.info("  deleteItem(" + id + ", " + key + ") item can't be deleted because some customers reserved it" );
                 return false;
             }
         } // if
@@ -134,25 +135,25 @@ implements ResourceManager {
 
     // query the number of available seats/rooms/cars
     public int queryNum(int id, String key) {
-        Trace.info("RM::queryNum(" + id + ", " + key + ") called" );
+        Trace.info("  queryNum(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0;  
         if( curObj != null ) {
             value = curObj.getCount();
         } // else
-        Trace.info("RM::queryNum(" + id + ", " + key + ") returns count=" + value);
+        Trace.info("  queryNum(" + id + ", " + key + ") returns count=" + value);
         return value;
     }	
 
     // query the price of an item
     public int queryPrice(int id, String key){
-        Trace.info("RM::queryCarsPrice(" + id + ", " + key + ") called" );
+        Trace.info("  queryCarsPrice(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0; 
         if( curObj != null ) {
             value = curObj.getPrice();
         } // else
-        Trace.info("RM::queryCarsPrice(" + id + ", " + key + ") returns cost=$" + value );
+        Trace.info("  queryCarsPrice(" + id + ", " + key + ") returns cost=$" + value );
         return value;		
     }
 
@@ -176,21 +177,21 @@ implements ResourceManager {
 
     // reserve an item
     protected boolean reserveItem(int id, int customerID, String key, String location){
-        Trace.info("RM::reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );		
+        Trace.info("  reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );		
         // Read customer object if it exists (and read lock it)
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );		
         if( cust == null ) {
-            Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
+            Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
             return false;
         } 
 
         // check if the item is available
         ReservableItem item = (ReservableItem)readData(id, key);
         if(item==null){
-            Trace.warn("RM::reserveItem( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
+            Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         }else if(item.getCount()==0){
-            Trace.warn("RM::reserveItem( " + id + ", " + customerID + ", " + key+", " + location+") failed--No more items" );
+            Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key+", " + location+") failed--No more items" );
             return false;
         }else{			
             cust.reserve( key, location, item.getPrice());		
@@ -200,7 +201,7 @@ implements ResourceManager {
             item.setCount(item.getCount() - 1);
             item.setReserved(item.getReserved()+1);
 
-            Trace.info("RM::reserveItem( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
+            Trace.info("  reserveItem( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
             return true;
         }		
     }
@@ -211,7 +212,7 @@ implements ResourceManager {
         throws RemoteException, TransactionAbortedException
         {
             String key = Flight.getKey(flightNum);
-            Trace.info("RM::addFlight(" + id + ", " + flightNum + ", $" + flightPrice + ", " + flightSeats + ") called" );
+            Trace.info("  addFlight(" + id + ", " + flightNum + ", $" + flightPrice + ", " + flightSeats + ") called" );
             Flight curObj = (Flight) readData( id, Flight.getKey(flightNum) );
             if( curObj == null ) {
                 // doesn't exist...add it
@@ -219,7 +220,7 @@ implements ResourceManager {
 
                 Flight newObj = new Flight( flightNum, flightSeats, flightPrice );
                 writeData( id, newObj.getKey(), newObj );
-                Trace.info("RM::addFlight(" + id + ") created new flight " + flightNum + ", seats=" +
+                Trace.info("  addFlight(" + id + ") created new flight " + flightNum + ", seats=" +
                         flightSeats + ", price=$" + flightPrice );
             } else {
                 // add seats to existing flight and update the price...
@@ -229,7 +230,7 @@ implements ResourceManager {
                     curObj.setPrice( flightPrice );
                 } // if
                 writeData( id, curObj.getKey(), curObj );
-                Trace.info("RM::addFlight(" + id + ") modified existing flight " + flightNum + ", seats=" + curObj.getCount() + ", price=$" + flightPrice );
+                Trace.info("  addFlight(" + id + ") modified existing flight " + flightNum + ", seats=" + curObj.getCount() + ", price=$" + flightPrice );
             } // else
             return(true);
         }
@@ -239,6 +240,7 @@ implements ResourceManager {
     public boolean deleteFlight(int id, int flightNum)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  deleteFlight(" + id + ", " + flightNum + ") called" );
             String key = Flight.getKey(flightNum);
             if(deleteItem(id, key))
             {
@@ -258,7 +260,7 @@ implements ResourceManager {
         throws RemoteException, TransactionAbortedException
         {
             String key = Hotel.getKey(location);
-            Trace.info("RM::addRooms(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
+            Trace.info("  addRooms(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
             Hotel curObj = (Hotel) readData( id, key );
             if( curObj == null ) {
                 // doesn't exist...add it
@@ -266,7 +268,7 @@ implements ResourceManager {
 
                 Hotel newObj = new Hotel( location, count, price );
                 writeData( id, newObj.getKey(), newObj );
-                Trace.info("RM::addRooms(" + id + ") created new room location " + location + ", count=" + count + ", price=$" + price );
+                Trace.info("  addRooms(" + id + ") created new room location " + location + ", count=" + count + ", price=$" + price );
             } else {
                 // add count to existing object and update price...
                 tm.addUpdate(id, key, curObj.getCount(), curObj.getPrice());
@@ -275,7 +277,7 @@ implements ResourceManager {
                     curObj.setPrice( price );
                 } // if
                 writeData( id, curObj.getKey(), curObj );
-                Trace.info("RM::addRooms(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
+                Trace.info("  addRooms(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
             } // else
             return(true);
         }
@@ -284,6 +286,7 @@ implements ResourceManager {
     public boolean deleteRooms(int id, String location)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  deleteRooms(" + id + ", " + location + ") called" );
             String key = Hotel.getKey(location);
             if(deleteItem(id, key))
             {
@@ -302,7 +305,7 @@ implements ResourceManager {
         throws RemoteException, TransactionAbortedException
         {
             String key = Car.getKey(location);
-            Trace.info("RM::addCars(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
+            Trace.info("  addCars(" + id + ", " + location + ", " + count + ", $" + price + ") called" );
             Car curObj = (Car) readData( id, key );
             if( curObj == null ) {
                 // car location doesn't exist...add it
@@ -310,7 +313,7 @@ implements ResourceManager {
 
                 Car newObj = new Car( location, count, price );
                 writeData( id, newObj.getKey(), newObj );
-                Trace.info("RM::addCars(" + id + ") created new location " + location + ", count=" + count + ", price=$" + price );
+                Trace.info("  addCars(" + id + ") created new location " + location + ", count=" + count + ", price=$" + price );
             } else {
                 // add count to existing car location and update price...
                 // TODO: this could be problemk
@@ -320,7 +323,7 @@ implements ResourceManager {
                     curObj.setPrice( price );
                 } // if
                 writeData( id, curObj.getKey(), curObj );
-                Trace.info("RM::addCars(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
+                Trace.info("  addCars(" + id + ") modified existing location " + location + ", count=" + curObj.getCount() + ", price=$" + price );
             } // else
             return(true);
         }
@@ -330,6 +333,7 @@ implements ResourceManager {
     public boolean deleteCars(int id, String location)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  deleteCars(" + id + ", " + location + ") called" );
             String key = Car.getKey(location);
             if(deleteItem(id, key))
             {
@@ -354,12 +358,12 @@ implements ResourceManager {
     //	public int queryFlightReservations(int id, int flightNum)
     //		throws RemoteException
     //	{
-    //		Trace.info("RM::queryFlightReservations(" + id + ", #" + flightNum + ") called" );
+    //		Trace.info("  queryFlightReservations(" + id + ", #" + flightNum + ") called" );
     //		RMInteger numReservations = (RMInteger) readData( id, Flight.getNumReservationsKey(flightNum) );
     //		if( numReservations == null ) {
     //			numReservations = new RMInteger(0);
     //		} // if
-    //		Trace.info("RM::queryFlightReservations(" + id + ", #" + flightNum + ") returns " + numReservations );
+    //		Trace.info("  queryFlightReservations(" + id + ", #" + flightNum + ") returns " + numReservations );
     //		return numReservations.getValue();
     //	}
 
@@ -411,10 +415,10 @@ implements ResourceManager {
     public RMHashtable getCustomerReservations(int id, int customerID)
         throws RemoteException
         {
-            Trace.info("RM::getCustomerReservations(" + id + ", " + customerID + ") called" );
+            Trace.info("  getCustomerReservations(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
-                Trace.warn("RM::getCustomerReservations failed(" + id + ", " + customerID + ") failed--customer doesn't exist" );
+                Trace.warn("  getCustomerReservations failed(" + id + ", " + customerID + ") failed--customer doesn't exist" );
                 return null;
             } else {
                 return cust.getReservations();
@@ -425,10 +429,10 @@ implements ResourceManager {
     public String queryCustomerInfo(int id, int customerID)
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
+        Trace.info("  queryCustomerInfo(" + id + ", " + customerID + ") called" );
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
         if( cust == null ) {
-            Trace.warn("RM::queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
+            Trace.warn("  queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
             return "";   // NOTE: don't change this--WC counts on this value indicating a customer does not exist...
         } else {
             String s = "Bill for customer " + customerID + "\n";
@@ -438,7 +442,7 @@ implements ResourceManager {
                 key = (String) e.nextElement();
                 s += queryNum(id, key) + " " + key + " $" + queryPrice(id, key) + "\n";
             }
-            Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
+            Trace.info("  queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
             System.out.println( s );
             return s;
         } // if
@@ -448,16 +452,16 @@ implements ResourceManager {
     public boolean newCustomer(int id, int customerID )
         throws RemoteException, TransactionAbortedException
         {
-            Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
+            Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 tm.addCreate(id, Customer.getKey(customerID));
                 cust = new Customer(customerID);
                 writeData( id, cust.getKey(), cust );
-                Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") created a new customer" );
+                Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") created a new customer" );
                 return true;
             } else {
-                Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") failed--customer already exists");
+                Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") failed--customer already exists");
                 return false;
             }
         }
@@ -467,10 +471,10 @@ implements ResourceManager {
     public boolean deleteCustomer(int id, int customerID)
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
+        Trace.info("  deleteCustomer(" + id + ", " + customerID + ") called" );
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
         if( cust == null ) {
-            Trace.warn("RM::deleteCustomer(" + id + ", " + customerID + ") failed--customer doesn't exist" );
+            Trace.warn("  deleteCustomer(" + id + ", " + customerID + ") failed--customer doesn't exist" );
             return false;
         } else {            
             // Increase the reserved numbers of all reservable items which the customer reserved. 
@@ -479,7 +483,7 @@ implements ResourceManager {
                 String reservedkey = (String) (e.nextElement());
                 tm.addUnbook(id, reservedkey, customerID, queryPrice(id, reservedkey));
                 ReservedItem reserveditem = cust.getReservedItem(reservedkey);
-                Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
+                Trace.info("  deleteCustomer(" + id + ", " + customerID + ") has reserved " + reserveditem.getKey() + " " +  reserveditem.getCount() +  " times"  );
 
                 incrementItem(id, reservedkey, reserveditem.getCount());
             }
@@ -488,7 +492,7 @@ implements ResourceManager {
             tm.addDelete(id, Customer.getKey(customerID), 0, 0);
             removeData(id, cust.getKey());
 
-            Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") succeeded" );
+            Trace.info("  deleteCustomer(" + id + ", " + customerID + ") succeeded" );
             return true;
         } // if
     }
@@ -500,14 +504,14 @@ implements ResourceManager {
         String key = Car.getKey(location);
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
         if( cust == null ) {
-            Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
+            Trace.warn("  reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
             return false;
         }
 
         // MAKE THE CAR SERVER DO THE THINGS
         int num = queryNum(id, key);
         if (num == 0) {
-            Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
+            Trace.warn("  reserveCar( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {
             tm.addBook(id, key, customerID);
@@ -517,7 +521,7 @@ implements ResourceManager {
             if(!reserveItem(id, customerID, key, location))
                 return false;
 
-            Trace.info("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
+            Trace.info("  reserveCar( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
             return true;
         }
     }
@@ -528,17 +532,17 @@ implements ResourceManager {
         throws RemoteException, TransactionAbortedException
     {
         String key = Hotel.getKey(location);
-        Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
+        Trace.info("  reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
         if( cust == null ) {
-            Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
+            Trace.warn("  reserveHotel( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
             return false;
         }
 
         // MAKE THE HOTEL SERVER DO THE THINGS
         int num = queryNum(id, key);
         if (num == 0) {
-            Trace.warn("RM::reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
+            Trace.warn("  reserveHotel( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         } else {
             tm.addBook(id, key, customerID);
@@ -548,7 +552,7 @@ implements ResourceManager {
             if(!reserveItem(id, customerID, key, location))
                 return false;
 
-            Trace.info("RM::reserveHotel( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
+            Trace.info("  reserveHotel( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
             return true;
         }
     }
@@ -558,17 +562,17 @@ implements ResourceManager {
         throws RemoteException, TransactionAbortedException
     {
         String key = Flight.getKey(flightNum);
-        Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
+        Trace.info("  reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
         if( cust == null ) {
-            Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", "+flightNum+")  failed--customer doesn't exist" );
+            Trace.warn("  reservePlane( " + id + ", " + customerID + ", " + key + ", "+flightNum+")  failed--customer doesn't exist" );
             return false;
         }
 
         // MAKE THE PLANE SERVER DO THE THINGS
         int num = queryNum(id, key);
         if (num == 0) {
-            Trace.warn("RM::reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
+            Trace.warn("  reservePlane( " + id + ", " + customerID + ", " + key+", " +flightNum+") failed--item doesn't exist" );
             return false;
         } else {
             tm.addBook(id, key, customerID);
@@ -579,7 +583,7 @@ implements ResourceManager {
             if(!reserveItem(id, customerID, key, ""+flightNum))
                 return false;
 
-            Trace.info("RM::reservePlane( " + id + ", " + customerID + ", " + key + ", " +flightNum+") succeeded" );
+            Trace.info("  reservePlane( " + id + ", " + customerID + ", " + key + ", " +flightNum+") succeeded" );
             return true;
         }
     }

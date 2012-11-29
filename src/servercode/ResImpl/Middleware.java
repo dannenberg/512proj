@@ -38,16 +38,24 @@ implements MiddleWare {
     public static void main(String args[]) {
         // Figure out where server is running
         int port = 9988;
-        String primary_server = null;
         int primary_port = 0;
         int tcp_port = 8085;
 
-        port = Integer.parseInt(args[0]);
-        tcp_port = Integer.parseInt(args[1]);
+        if (args.length >= 2)
+        {
+            port = Integer.parseInt(args[0]);
+            tcp_port = Integer.parseInt(args[1]);
+        }
+        if (args.length >= 3)
+            primary = true;
+        if (args.length < 2 || args.length > 3)
+        {
+            System.out.println("Incorrect usage:");
+            System.out.println("USAGE: java ResImpl/Middleware rmi_port tcp_port [primary]");
+            System.exit(1);
+        }
 
         String name = "Group13Middleware";
-        if (primary_server != null)
-            name += new Random().nextInt();
 
         Middleware obj = null;
 
@@ -74,6 +82,7 @@ implements MiddleWare {
         rmall.add(rmp);
         rmall.add(rmh);
 
+        Trace.info("Middleware ready for action.");
         /*
         // Create and install a security manager
         if (System.getSecurityManager() == null) {
@@ -116,20 +125,20 @@ implements MiddleWare {
     // deletes the entire item
     public boolean deleteItem(int id, String key)
     {
-        Trace.info("RM::deleteItem(" + id + ", " + key + ") called" );
+        Trace.info("  deleteItem(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key );
         // Check if there is such an item in the storage
         if( curObj == null ) {
-            Trace.warn("RM::deleteItem(" + id + ", " + key + ") failed--item doesn't exist" );
+            Trace.warn("  deleteItem(" + id + ", " + key + ") failed--item doesn't exist" );
             return false;
         } else {
             if(curObj.getReserved()==0){
                 removeData(id, curObj.getKey());
-                Trace.info("RM::deleteItem(" + id + ", " + key + ") item deleted" );
+                Trace.info("  deleteItem(" + id + ", " + key + ") item deleted" );
                 return true;
             }
             else{
-                Trace.info("RM::deleteItem(" + id + ", " + key + ") item can't be deleted because some customers reserved it" );
+                Trace.info("  deleteItem(" + id + ", " + key + ") item can't be deleted because some customers reserved it" );
                 return false;
             }
         } // if
@@ -138,13 +147,13 @@ implements MiddleWare {
 
     // query the number of available seats/rooms/cars
     public int queryNum(int id, String key) {
-        Trace.info("RM::queryNum(" + id + ", " + key + ") called" );
+        Trace.info("  queryNum(" + id + ", " + key + ") called" );
         ReservableItem curObj = (ReservableItem) readData( id, key);
         int value = 0;
         if( curObj != null ) {
             value = curObj.getCount();
         } // else
-        Trace.info("RM::queryNum(" + id + ", " + key + ") returns count=" + value);
+        Trace.info("  queryNum(" + id + ", " + key + ") returns count=" + value);
         return value;
     }
 
@@ -170,21 +179,21 @@ implements MiddleWare {
     // reserve an item
     protected boolean reserveItem(int id, int customerID, String key, String location)
     {
-        Trace.info("RM::reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
+        Trace.info("  reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         // Read customer object if it exists (and read lock it)
         Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
         if( cust == null ) {
-            Trace.warn("RM::reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
+            Trace.warn("  reserveCar( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
             return false;
         }
 
         // check if the item is available
         ReservableItem item = (ReservableItem)readData(id, key);
         if(item==null){
-            Trace.warn("RM::reserveItem( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
+            Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key+", " +location+") failed--item doesn't exist" );
             return false;
         }else if(item.getCount()==0){
-            Trace.warn("RM::reserveItem( " + id + ", " + customerID + ", " + key+", " + location+") failed--No more items" );
+            Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key+", " + location+") failed--No more items" );
             return false;
         }else{
             cust.reserve( key, location, item.getPrice());
@@ -194,7 +203,7 @@ implements MiddleWare {
             item.setCount(item.getCount() - 1);
             item.setReserved(item.getReserved()+1);
 
-            Trace.info("RM::reserveItem( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
+            Trace.info("  reserveItem( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
             return true;
         }
     }
@@ -204,6 +213,7 @@ implements MiddleWare {
     public boolean addFlight(int id, int flightNum, int flightSeats, int flightPrice)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  addFlight(" + id + ", " + flightNum + ", " + flightSeats + ", "+ flightPrice + ") called" );
         try{
             tmm.lock(id, Flight.getKey(flightNum), LockManager.WRITE, rmp);
         } catch (DeadlockException d)
@@ -221,6 +231,7 @@ implements MiddleWare {
     public boolean deleteFlight(int id, int flightNum)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  deleteFlight(" + id + ", " + flightNum + ") called" );
         String key = Flight.getKey(flightNum);
         try{
             tmm.lock(id, key, LockManager.WRITE, rmp);
@@ -241,6 +252,7 @@ implements MiddleWare {
     public boolean addRooms(int id, String location, int count, int price)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  addRooms(" + id + ", " + location + ", " + count + ", "+ price + ") called" );
         String key = Hotel.getKey(location);
         try{
             tmm.lock(id, key, LockManager.WRITE, rmh);
@@ -258,6 +270,7 @@ implements MiddleWare {
     public boolean deleteRooms(int id, String location)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  deleteRooms(" + id + ", " + location + ") called" );
         String key = Hotel.getKey(location);
         try{
             tmm.lock(id, key, LockManager.WRITE, rmh);
@@ -276,6 +289,7 @@ implements MiddleWare {
     public boolean addCars(int id, String location, int count, int price)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  addCars(" + id + ", " + location + ", " + count + ", "+ price + ") called" );
         try{
             tmm.lock(id, Car.getKey(location), LockManager.WRITE, rmc);
         } catch (DeadlockException d)
@@ -293,6 +307,7 @@ implements MiddleWare {
     public boolean deleteCars(int id, String location)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  deleteCars(" + id + ", " + location + ") called" );
         String key = Car.getKey(location);
         try{
             tmm.lock(id, key, LockManager.WRITE, rmc);
@@ -312,6 +327,7 @@ implements MiddleWare {
     public int queryFlight(int id, int flightNum)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  queryFlight(" + id + ", " + flightNum + ") called" );
         try{
             tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
         } catch (DeadlockException d)
@@ -326,6 +342,7 @@ implements MiddleWare {
     public int queryFlightPrice(int id, int flightNum )
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  queryFlightPrice(" + id + ", " + flightNum + ") called" );
         try{
             tmm.lock(id, Flight.getKey(flightNum), LockManager.READ, rmp);
         } catch (DeadlockException d)
@@ -341,6 +358,7 @@ implements MiddleWare {
     public int queryRooms(int id, String location)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  queryRooms(" + id + ", " + location + ") called" );
         try{
             tmm.lock(id, Hotel.getKey(location), LockManager.READ, rmh);
         } catch (DeadlockException d)
@@ -356,6 +374,7 @@ implements MiddleWare {
     public int queryRoomsPrice(int id, String location)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  queryRoomsPrice(" + id + ", " + location + ") called" );
         try{
             tmm.lock(id, Hotel.getKey(location), LockManager.READ,rmh);
         } catch (DeadlockException d)
@@ -371,6 +390,7 @@ implements MiddleWare {
     public int queryCars(int id, String location)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  queryCars(" + id + ", " + location + ") called" );
         try{
             tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
         } catch (DeadlockException d)
@@ -386,6 +406,7 @@ implements MiddleWare {
     public int queryCarsPrice(int id, String location)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  queryCarsPrice(" + id + ", " + location + ") called" );
         try{
             tmm.lock(id, Car.getKey(location), LockManager.READ, rmc);
         } catch (DeadlockException d)
@@ -409,7 +430,7 @@ implements MiddleWare {
     public String queryCustomerInfo(int id, int customerID)
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + ") called" );
+        Trace.info("  queryCustomerInfo(" + id + ", " + customerID + ") called" );
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.READ, rmall);
         } catch (DeadlockException d)
@@ -433,7 +454,7 @@ implements MiddleWare {
                 throw new TransactionAbortedException(id, "[queryCustomerInfo] Deadlock (read customer reservation)");
             }
         }
-        Trace.info("RM::queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
+        Trace.info("  queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
         System.out.println( s );
         return rmall.queryCustomerInfo(id, customerID);
     }
@@ -444,7 +465,7 @@ implements MiddleWare {
     public int newCustomer(int id)
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("INFO: RM::newCustomer(" + id + ") called" );
+        Trace.info("INFO:   newCustomer(" + id + ") called" );
         int cid = Integer.parseInt( String.valueOf(id) +
             String.valueOf(Calendar.getInstance().get(Calendar.MILLISECOND)) +
             String.valueOf( Math.round( Math.random() * 100 + 1 )));
@@ -464,7 +485,7 @@ implements MiddleWare {
     public boolean newCustomer(int id, int customerID )
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("INFO: RM::newCustomer(" + id + ", " + customerID + ") called" );
+        Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") called" );
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
@@ -482,7 +503,7 @@ implements MiddleWare {
     public boolean deleteCustomer(int id, int customerID)
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("RM::deleteCustomer(" + id + ", " + customerID + ") called" );
+        Trace.info("  deleteCustomer(" + id + ", " + customerID + ") called" );
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
@@ -518,7 +539,7 @@ implements MiddleWare {
         throws RemoteException, TransactionAbortedException
     {
         String key = Car.getKey(location);
-        Trace.info("RM::reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
+        Trace.info("  reserveCar( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmall);
         } catch (DeadlockException d)
@@ -545,7 +566,7 @@ implements MiddleWare {
         throws RemoteException, TransactionAbortedException
     {
         String key = Hotel.getKey(location);
-        Trace.info("RM::reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
+        Trace.info("  reserveHotel( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmh);
         } catch (DeadlockException d)
@@ -571,7 +592,7 @@ implements MiddleWare {
         throws RemoteException, TransactionAbortedException
     {
         String key = Flight.getKey(flightNum);
-        Trace.info("RM::reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
+        Trace.info("  reservePlane( " + id + ", customer=" + customerID + ", " +key+ ", "+flightNum+" ) called" );
         try{
             tmm.lock(id, Customer.getKey(customerID), LockManager.WRITE, rmp);
         } catch (DeadlockException d)
@@ -595,6 +616,7 @@ implements MiddleWare {
     public boolean itinerary(int id, int customer,Vector flightNumbers,String location,boolean car,boolean room)
         throws RemoteException, TransactionAbortedException
     {
+        Trace.info("  itinerary( " + id + ", customer=" + customerID + ", " +flightNumbers+ ", "+location+", "+car+", "+room+" ) called" );
         ListIterator itr = flightNumbers.listIterator();
         while (itr.hasNext()) {
             reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));
@@ -608,31 +630,45 @@ implements MiddleWare {
     }
 
     public int start() throws RemoteException
-        {return tmm.start();}
+    {
+        Trace.info("  starting a transaction");
+        return tmm.start();
+    }
 
     public void enlist(int trxnId) throws RemoteException
-    {
-        // tm.start(trxnId);
-    }
+        { }
 
     public void abort(int trxnId) throws RemoteException
     {   // TMM's abort
         if(primary)
+        {
+            Trace.info("Aborting trxn " + trxnId);
             tmm.abort(trxnId);
+        }
         else
+        {
+            Trace.info("Not a primary server: skipping abort and clearing the locks on trxn " + trxnId);
             tmm.clearTrxn(trxnId);
+        }
     }
 
     public void commit(int trxnId) throws RemoteException, TransactionAbortedException
     {
         if(primary)
+        {
+            Trace.info("Committing trxn " + trxnId);
             tmm.commit(trxnId);
+        }
         else
+        {
+            Trace.info("Not a primary server: skipping commit and clearing the locks on trxn " + trxnId);
             tmm.clearTrxn(trxnId);
+        }
     }
 
     public boolean shutdown() throws RemoteException
     {
+        Trace.info("Shutting down Middleware");
         tmm.shutdown();
         rmall.shutdown();
         s.start();
@@ -641,6 +677,7 @@ implements MiddleWare {
 
     public void setPrimary() throws RemoteException
     {
+        Trace.info("This Middleware is now primary.");
         primary = true;
     }
 
@@ -652,31 +689,31 @@ implements MiddleWare {
             Registry registry = LocateRegistry.getRegistry(server, port);
             guy = (ResourceManager) registry.lookup(clientName);
         } catch (IOException e) {
-            System.out.println("disaster struck while accepting a message from an rm:");
+            System.err.println("disaster struck while accepting a message from an rm:");
             e.printStackTrace();
             return false;
         } catch (NotBoundException e) {
-            System.out.println("disaster struck while accepting a message from an rm:");
+            System.err.println("disaster struck while accepting a message from an rm:");
             e.printStackTrace();
             return false;
         }
         if (clientName.contains("Car"))
         {
-            System.out.println("Car RM (" + clientName + ", " + port + ", " + server + ") connected to this Middleware");
+            Trace.info("Car RM (" + clientName + ", " + port + ", " + server + ") connected to this Middleware");
             rmc.add(guy);
         }
         else if (clientName.contains("Plane"))
         {
-            System.out.println("Plane RM (" + clientName + ", " + port + ", " + server + ") connected to this Middleware");
+            Trace.info("Plane RM (" + clientName + ", " + port + ", " + server + ") connected to this Middleware");
             rmp.add(guy);
         }
         else if (clientName.contains("Hotel"))
         {
-            System.out.println("Hotel RM (" + clientName + ", " + port + ", " + server + ") connected to this Middleware");
+            Trace.info("Hotel RM (" + clientName + ", " + port + ", " + server + ") connected to this Middleware");
             rmh.add(guy);
         }
         else
-            System.out.println("confusing message: " + clientName);
+            Trace.warn("Ignoring invalid input: " + clientName);
         return true;
     }
 }
@@ -704,7 +741,7 @@ class ResourceManagerAcceptor extends Thread
         try {
             welcomeSocket = new ServerSocket(tcp_port);
         } catch (IOException e) {
-            System.out.println("disaster struck while creating accepting server:");
+            System.err.println("disaster struck while creating accepting server:");
             e.printStackTrace();
         }
 

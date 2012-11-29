@@ -40,7 +40,7 @@ public class TransactionManagerManager
             rm.enlist(t);
         }
         catch (Exception e) {
-            System.out.println("BNOOOOOOO");
+            System.err.println("BNOOOOOOO");
         }
     }
 
@@ -53,8 +53,8 @@ public class TransactionManagerManager
                 rm.abort(trxnId);
             } catch (Exception x)
             {
-                System.out.println("EXCEPTION:");
-                System.out.println(x.getMessage());
+                System.err.println("EXCEPTION:");
+                System.err.println(x.getMessage());
                 x.printStackTrace();
             }
         }
@@ -79,8 +79,8 @@ public class TransactionManagerManager
                 rm.commit(trxnId);
             } catch (Exception x)
             {
-                System.out.println("EXCEPTION:");
-                System.out.println(x.getMessage());
+                System.err.println("EXCEPTION:");
+                System.err.println(x.getMessage());
                 x.printStackTrace();
             }
         }
