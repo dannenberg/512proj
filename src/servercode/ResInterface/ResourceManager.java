@@ -146,7 +146,7 @@ public interface ResourceManager extends Remote
 
     /* transaction stuff */
     public int start() throws RemoteException;
-    public boolean commit(int transactionId) throws RemoteException; //, TransactionAbortedException,  InvalidTransactionException;
+    public void commit(int trxnId) throws RemoteException, TransactionAbortedException;
     public void abort(int transactionId) throws RemoteException; //, InvalidTransactionException;
 
     public void enlist(int trxnId) throws RemoteException;

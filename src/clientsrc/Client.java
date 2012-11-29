@@ -1,5 +1,6 @@
 import java.rmi.*;
 import ResInterface.*;
+import ResImpl.MWCluster;
 import ResImpl.TransactionAbortedException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -11,7 +12,7 @@ import java.io.*;
 public class Client
 {
     protected static String message = "blank";
-    protected static MiddleWare rm = null;
+    protected static MWCluster rm = new MWCluster();
     protected static HashSet<Integer> trxns = new HashSet();
     protected static String server;
     protected static int port;
@@ -49,21 +50,23 @@ public class Client
         {
             // get a reference to the rmiregistry
             Registry registry = LocateRegistry.getRegistry(server, port);
+            MiddleWare mw = null;
             // get the proxy and the remote reference by rmiregistry lookup
-            rm = (MiddleWare) registry.lookup("Group13Middleware");
-            if(rm!=null)
+            mw = (MiddleWare) registry.lookup("Group13Middleware");
+            if(mw!=null)
             {
                 println("Successful");
                 println("Connected to Middleware");
+                rm.add(mw);
             }
             else
             {
                 println("Unsuccessful middleware");
             }
             // make call on remote method
-        } 
+        }
         catch (Exception e) 
-        {   
+        {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
         }
@@ -708,7 +711,7 @@ public class Client
                 }
                 println("commiting transaction " + arguments.elementAt(1));
                 try {
-                    rm.clientCommit(Id);
+                    rm.commit(Id);
                     trxns.remove(Id);
                 }
                 catch(TransactionAbortedException t) {
@@ -730,7 +733,7 @@ public class Client
                 }
                 println("aborting transaction " + arguments.elementAt(1));
                 try {
-                    rm.clientAbort(Id);
+                    rm.abort(Id);
                     trxns.remove(Id);
                 }
                 catch(Exception e){

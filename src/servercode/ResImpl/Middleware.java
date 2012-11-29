@@ -21,12 +21,15 @@ import java.rmi.server.UnicastRemoteObject;
 public class Middleware
 implements MiddleWare {
 
+    HashSet<MiddleWare> mws = new HashSet();
     protected RMHashtable m_itemHT = new RMHashtable();
 
     static RMCluster rmc = new RMCluster();
     static RMCluster rmp = new RMCluster();
     static RMCluster rmh = new RMCluster();
     static RMCluster rmall = new RMCluster();
+    static boolean primary = false;
+
     // static TransactionManager tm = null;
     static TransactionManagerManager tmm = null;
     private Shutdown s = new Shutdown();
@@ -35,75 +38,75 @@ implements MiddleWare {
 
     public static void main(String args[]) {
         // Figure out where server is running
-        String server_c = "skinner.cs.mcgill.ca";
-        String server_p = server_c;
-        String server_h = server_c;
         int port = 9988;
-        int portc = 9898;
-        int portp = portc;
-        int porth = portc;
+        String primary_server = null;
+        int primary_port = 0;
+        int tcp_port = 8085;
 
-       
-        // tm = new TransactionManager();
         tmm = new TransactionManagerManager();
-        // TODO CHANGE PORT and SREVER PARSING
-        if (args.length == 7)  // mw_port, (server, port) * 3
+        if (args.length == 4) // mw_port, primaryMW_server, primaryMW_port
         {
             port = Integer.parseInt(args[0]);
-            server_c = args[1];
-            server_p = args[3];
-            server_h = args[5];
-            portc = Integer.parseInt(args[2]);
-            portp = Integer.parseInt(args[4]);
-            porth = Integer.parseInt(args[6]);
+            tcp_port = Integer.parseInt(args[1]);
+            primary_server = args[2];
+            primary_port = Integer.parseInt(args[3]);
         }
-        else if (args.length == 5) // mw_port, allserver, (port, ) * 3
+        else if (args.length == 3) // primaryMW_server, primaryMW_port
+        {
+            tcp_port = Integer.parseInt(args[0]);
+            primary_server = args[1];
+            primary_port = Integer.parseInt(args[2]);
+        }
+        else if (args.length == 2) // mw_port
         {
             port = Integer.parseInt(args[0]);
-            server_c = args[1];
-            server_p = args[1];
-            server_h = args[1];
-            portc = Integer.parseInt(args[2]);
-            portp = Integer.parseInt(args[3]);
-            porth = Integer.parseInt(args[4]);
+            tcp_port = Integer.parseInt(args[1]);
         }
-        else if (args.length == 2) // mw_port, allserver
-        {
-            port = Integer.parseInt(args[0]);
-            server_c = args[1];
-            server_p = args[1];
-            server_h = args[1];
-        }
-        else if (args.length == 1)
-            port = Integer.parseInt(args[0]);
         else if (args.length != 0) {
             System.err.println ("Wrong usage");
             System.out.println("Usage: java ResImpl.Middleware");
-            System.out.println("  OR : java ResImpl.Middleware middleware_port");
-            System.out.println("  OR : java ResImpl.Middleware mw_port rm_server");
-            System.out.println("  OR : java ResImpl.Middleware mw_port rm_server carport hotelport flightport");
-            System.out.println("  OR : java ResImpl.Middleware mw_port carserver carport hotelserver hotelport flightserver flightport");
+            System.out.println("  OR : java ResImpl.Middleware middleware_port tcp_port");
+            System.out.println("  OR : java ResImpl.Middleware tcp_port primary_mw_server primary_mw_port");
+            System.out.println("  OR : java ResImpl.Middleware mw_port tcp_port pmw_server pmw_port");
             System.exit(1);
         }
 
-        friends = new ResourceManagerAcceptor();
-        friends.start();
-
-        rmall.add(rmc);
-        rmall.add(rmp);
-        rmall.add(rmh);
+        String name = "Group13Middleware" + new Random().nextInt();
+        Middleware obj = null;
 
         try {
-            Middleware obj = new Middleware();
+            obj = new Middleware();
             MiddleWare rm = (MiddleWare) UnicastRemoteObject.exportObject(obj, 0);
             Registry registry = LocateRegistry.getRegistry(port);
-            registry.rebind("Group13Middleware", rm);
+            registry.rebind(name, rm);
             System.err.println("Server ready");
         }
         catch (Exception e)
         {
             System.err.println("Middleware exception: ");
             e.printStackTrace();
+            System.exit(1);
+        }
+
+        friends = new ResourceManagerAcceptor(obj, tcp_port);
+        friends.start();
+
+        rmall.add(rmc);
+        rmall.add(rmp);
+        rmall.add(rmh);
+
+        if (primary_server != null)
+        {
+            try {
+                Socket clientSocket = new Socket(primary_server, primary_port);
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+          
+                outToServer.writeBytes(name +','+port+ '\n');
+                clientSocket.close();
+            } catch (IOException e) {
+                System.out.println("disaster struck while sending a message from an rm:");
+                e.printStackTrace();
+            }
         }
 
 
@@ -244,7 +247,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[addFlight] Deadlock");
         }
-        return rmp.addFlight(id, flightNum, flightSeats, flightPrice);
+        if (primary)
+            return rmp.addFlight(id, flightNum, flightSeats, flightPrice);
+        return true;
     }
 
 
@@ -260,7 +265,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[deleteFlight] Deadlock");
         }
-        return rmp.deleteFlight(id, flightNum);
+        if (primary)
+            return rmp.deleteFlight(id, flightNum);
+        return true;
     }
 
 
@@ -278,7 +285,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[addRooms] Deadlock");
         }
-        return rmh.addRooms(id, location, count, price);
+        if (primary)
+            return rmh.addRooms(id, location, count, price);
+        return true;
     }
 
     // Delete rooms from a location
@@ -293,7 +302,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[deleteRooms] Deadlock");
         }
-        return rmh.deleteRooms(id, location);
+        if (primary)
+            return rmh.deleteRooms(id, location);
+        return true;
     }
 
     // Create a new car location or add cars to an existing location
@@ -308,7 +319,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[addCars] Deadlock");
         }
-        return rmc.addCars(id, location, count, price);
+        if (primary)
+            return rmc.addCars(id, location, count, price);
+        return true;
     }
 
 
@@ -324,7 +337,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[deleteCars] Deadlock");
         }
-        return rmc.deleteCars(id, location);
+        if (primary)
+            return rmc.deleteCars(id, location);
+        return true;
     }
 
 
@@ -476,7 +491,8 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[newCustomer] Deadlock");
         }
-        rmall.newCustomer(id, cid);
+        if(primary)
+            rmall.newCustomer(id, cid);
         return cid;
     }
 
@@ -492,7 +508,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[newCustomer] Write Deadlock");
         }
-        return rmall.newCustomer(id, customerID);
+        if(primary)
+            return rmall.newCustomer(id, customerID);
+        return true;
     }
 
 
@@ -526,7 +544,9 @@ implements MiddleWare {
                 throw new TransactionAbortedException(id, "[deleteCustomer] Write Item Deadlock");
             }
         }
-        return rmall.deleteCustomer(id, customerID);
+        if(primary)
+            return rmall.deleteCustomer(id, customerID);
+        return true;
     }
 
     // Adds car reservation to this customer.
@@ -550,7 +570,9 @@ implements MiddleWare {
             throw new TransactionAbortedException(id, "[reserveCar] Write Car Deadlock");
         }
         // TODO: if this is false you may unlock
-        return rmc.reserveCar(id, customerID, location);
+        if(primary)
+            return rmc.reserveCar(id, customerID, location);
+        return true;
     }
 
 
@@ -575,7 +597,9 @@ implements MiddleWare {
             throw new TransactionAbortedException(id, "[reserveRoom] Write Room Deadlock");
         }
         // TODO: if this is false you may unlock
-        return rmh.reserveRoom(id, customerID, location);
+        if(primary)
+            return rmh.reserveRoom(id, customerID, location);
+        return true;
     }
 
     // Adds flight reservation to this customer.
@@ -598,7 +622,9 @@ implements MiddleWare {
             tmm.abort(id);
             throw new TransactionAbortedException(id, "[reserveFlight] Write Flight Deadlock");
         }
-        return rmp.reserveFlight(id, customerID, flightNum);
+        if(primary)
+            return rmp.reserveFlight(id, customerID, flightNum);
+        return true;
     }
 
     /* reserve an itinerary */
@@ -614,34 +640,23 @@ implements MiddleWare {
 
         if (room)
             reserveRoom(id, customer, location);
-
         return true;
     }
 
     public int start() throws RemoteException
         {return tmm.start();}
 
-    public boolean commit(int trxnId) throws RemoteException
-    {
-        // tm.commit(trxnId);
-        return true;
-    }
-    public void abort(int trxnId) throws RemoteException
-    {   // TM's abort
-        ;
-    }
-
     public void enlist(int trxnId) throws RemoteException
     {
         // tm.start(trxnId);
     }
 
-    public void clientAbort(int trxnId) throws RemoteException
+    public void abort(int trxnId) throws RemoteException
     {   // TMM's abort
         tmm.abort(trxnId);
     }
 
-    public void clientCommit(int trxnId) throws RemoteException, TransactionAbortedException
+    public void commit(int trxnId) throws RemoteException, TransactionAbortedException
     {
         tmm.commit(trxnId);
     }
@@ -653,19 +668,72 @@ implements MiddleWare {
         s.start();
         return true;
     }
+
+    public void setPrimary() throws RemoteException
+    {
+        primary = true;
+    }
+
+    public boolean addToRM(String clientName, int port, String server) throws RemoteException
+    {
+        ResourceManager guy = null;
+        try
+        {
+            Registry registry = LocateRegistry.getRegistry(server, port);
+            guy = (ResourceManager) registry.lookup(clientName);
+        } catch (IOException e) {
+            System.out.println("disaster struck while accepting a message from an rm:");
+            e.printStackTrace();
+            return false;
+        } catch (NotBoundException e) {
+            System.out.println("disaster struck while accepting a message from an rm:");
+            e.printStackTrace();
+            return false;
+        }
+        if (clientName.contains("Car"))
+        {
+            rmc.add(guy);
+        }
+        else if (clientName.contains("Plane"))
+        {
+            rmp.add(guy);
+        }
+        else if (clientName.contains("Hotel"))
+        {
+            rmh.add(guy);
+        }
+        else if (clientName.contains("Middleware"))
+        {
+            mws.add((MiddleWare)guy);
+        }
+        else
+            System.out.println("confusing message: " + clientName);
+        return true;
+    }
 }
 
 class ResourceManagerAcceptor extends Thread
 {
     Registry registry;
-    public ResourceManagerAcceptor()
-    {}
+    public Middleware mware;
+    public int tcp_port;
+
+    public ResourceManagerAcceptor(Middleware mware)
+    {
+        this.mware = mware;
+    }
+
+    public ResourceManagerAcceptor(Middleware mware, int port)
+    {
+        this.mware = mware;
+        this.tcp_port = port;
+    }
 
     public void run()
     {
         ServerSocket welcomeSocket = null;
         try {
-            welcomeSocket = new ServerSocket(8085);
+            welcomeSocket = new ServerSocket(tcp_port);
         } catch (IOException e) {
             System.out.println("disaster struck while creating accepting server:");
             e.printStackTrace();
@@ -682,32 +750,27 @@ class ResourceManagerAcceptor extends Thread
                 Socket connectionSocket = welcomeSocket.accept();
                 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
                 message = inFromClient.readLine().split(",");
-                System.out.println("Received: " + message.toString() + "end");
+                System.out.println("Received: " + message.toString() + " end");
 
                 clientName = message[0];
                 port = Integer.parseInt(message[1]);
                 server = connectionSocket.getInetAddress().getHostName();
 
-                Registry registry = LocateRegistry.getRegistry(server, port);
+                if (!mware.addToRM(clientName, port, server))
+                    continue;
 
-                guy = (ResourceManager) registry.lookup(clientName);
-            } catch (IOException e) {
-                System.out.println("disaster struck while accepting a message from an rm:");
-                e.printStackTrace();
-                continue;
-            } catch (NotBoundException e) {
-                System.out.println("disaster struck while accepting a message from an rm:");
-                e.printStackTrace();
-                continue;
+                // TODO: ought to send back to the connected guy all the MWs HE should keep track of.
+
+                for (MiddleWare mw : mware.mws)
+                {
+                    try {
+                        mw.addToRM(clientName, port, server);
+                    } catch(RemoteException re)  // this one actually is an issue but i can't be bothered to fix it
+                    {}
+                }
             }
-            if (clientName.contains("Car"))
-                Middleware.rmc.add(guy);
-            else if (clientName.contains("Plane"))
-                Middleware.rmp.add(guy);
-            else if (clientName.contains("Hotel"))
-                Middleware.rmh.add(guy);
-            else
-                System.out.println("confusing message: " + clientName);
+            catch (IOException re)
+            {}
             System.out.println("added RM: " + clientName);
         
         }

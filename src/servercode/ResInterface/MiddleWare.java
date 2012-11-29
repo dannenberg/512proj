@@ -24,10 +24,9 @@ import java.util.*;
 
 public interface MiddleWare extends ResourceManager 
 {
-    public void clientAbort(int transactionId) throws RemoteException;
-    public void clientCommit(int transactionId)
-        throws RemoteException, TransactionAbortedException;
-    public boolean itinerary(int id,int customer,Vector flightNumbers,String location,boolean Car,boolean Room)
+    public boolean itinerary(int id, int customer, Vector flightNumbers, String location, boolean car, boolean room)
         throws RemoteException, TransactionAbortedException;
     public int newCustomer(int id) throws RemoteException, TransactionAbortedException;
+    public void setPrimary() throws RemoteException;
+    public boolean addToRM(String clientName, int port, String server) throws RemoteException;
 }

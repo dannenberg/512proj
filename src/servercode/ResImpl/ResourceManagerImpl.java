@@ -29,8 +29,10 @@ implements ResourceManager {
         String server = "localhost";
         String middlewareserver = "willy";
         String resource = null;
-        // TODO CHANGE PORT and SREVER PARSING
+
+        int middlewareport = -1;
         int port = -1;
+
         if (args.length == 1) {
             resource = args[0];
         }
@@ -38,9 +40,22 @@ implements ResourceManager {
             resource = args[0];
             port = Integer.parseInt(args[1]);
         }
+        else if (args.length == 3)
+        {   // server port
+            resource = args[0];
+            middlewareserver = args[1];
+            middlewareport = Integer.parseInt(args[2]);
+        }
+        else if (args.length == 4)
+        {   // server port
+            resource = args[0];
+            port = Integer.parseInt(args[1]);
+            middlewareserver = args[2];
+            middlewareport = Integer.parseInt(args[3]);
+        }
         else {
             System.err.println ("Wrong usage");
-            System.out.println("Usage: java ResImpl.ResourceManagerImpl type [port]");
+            System.out.println("Usage: use it right.");
             System.exit(1);
         }
 
@@ -86,7 +101,7 @@ implements ResourceManager {
         try {
             Socket clientSocket = new Socket(middlewareserver, 8085);
             DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-      
+
             outToServer.writeBytes(name +','+port+ '\n');
             clientSocket.close();
         } catch (IOException e) {
@@ -610,10 +625,9 @@ implements ResourceManager {
         return 0;
     }
 
-    public boolean commit(int trxnId) throws RemoteException
+    public void commit(int trxnId) throws RemoteException, TransactionAbortedException
     {
         tm.commit(trxnId);
-        return true;
     }
 
     public void abort(int trxnId) throws RemoteException
