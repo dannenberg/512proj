@@ -70,7 +70,6 @@ class TestClient extends Client
                 if (cmdcnt%3 == 0) {
                     totalRunTime += time - lasttime;
                     lasttime = time;
-                    System.out.println(totalRunTime + " for " + cmdcnt/3 + "iterations");
                 }
                 try{
                     matcher = regex.matcher(command);
@@ -94,5 +93,6 @@ class TestClient extends Client
             }
             tIds.clear();
         }
+        System.out.println("transactions: " + cmdcnt);
     }
 }
