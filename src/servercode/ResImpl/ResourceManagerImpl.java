@@ -154,7 +154,7 @@ implements ResourceManager {
             value = curObj.getPrice();
         } // else
         Trace.info("  queryCarsPrice(" + id + ", " + key + ") returns cost=$" + value );
-        return value;		
+        return value;
     }
 
     public void decrementItem(int id, String key) {
@@ -173,8 +173,6 @@ implements ResourceManager {
         curObj.setReserved(curObj.getReserved() - change);
     }   
 
-
-
     // reserve an item
     protected boolean reserveItem(int id, int customerID, String key, String location){
         Trace.info("  reserveItem( " + id + ", customer=" + customerID + ", " +key+ ", "+location+" ) called" );		
@@ -183,7 +181,7 @@ implements ResourceManager {
         if( cust == null ) {
             Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key + ", "+location+")  failed--customer doesn't exist" );
             return false;
-        } 
+        }
 
         // check if the item is available
         ReservableItem item = (ReservableItem)readData(id, key);
@@ -193,8 +191,8 @@ implements ResourceManager {
         }else if(item.getCount()==0){
             Trace.warn("  reserveItem( " + id + ", " + customerID + ", " + key+", " + location+") failed--No more items" );
             return false;
-        }else{			
-            cust.reserve( key, location, item.getPrice());		
+        }else{
+            cust.reserve( key, location, item.getPrice());
             writeData( id, cust.getKey(), cust );
 
             // decrease the number of available items in the storage
@@ -351,6 +349,7 @@ implements ResourceManager {
     public int queryFlight(int id, int flightNum)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  queryFlight(" + id + ", " + flightNum + ") called" );
             return queryNum(id, Flight.getKey(flightNum));
         }
 
@@ -372,6 +371,7 @@ implements ResourceManager {
     public int queryFlightPrice(int id, int flightNum )
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  queryFlightPrice(" + id + ", " + flightNum + ") called" );
             return queryPrice(id, Flight.getKey(flightNum));
         }
 
@@ -380,6 +380,7 @@ implements ResourceManager {
     public int queryRooms(int id, String location)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  queryRooms(" + id + ", " + location + ") called" );
             return queryNum(id, Hotel.getKey(location));
         }
 
@@ -390,6 +391,7 @@ implements ResourceManager {
     public int queryRoomsPrice(int id, String location)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  queryRoomsPrice(" + id + ", " + location + ") called" );
             return queryPrice(id, Hotel.getKey(location));
         }
 
@@ -398,6 +400,7 @@ implements ResourceManager {
     public int queryCars(int id, String location)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  queryCars(" + id + ", " + location + ") called" );
             return queryNum(id, Car.getKey(location));
         }
 
@@ -406,6 +409,7 @@ implements ResourceManager {
     public int queryCarsPrice(int id, String location)
         throws RemoteException, TransactionAbortedException
         {
+            Trace.info("  queryCarsPrice(" + id + ", " + location + ") called" );
             return queryPrice(id, Car.getKey(location));
         }
 
@@ -452,16 +456,16 @@ implements ResourceManager {
     public boolean newCustomer(int id, int customerID )
         throws RemoteException, TransactionAbortedException
         {
-            Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") called" );
+            Trace.info("  newCustomer(" + id + ", " + customerID + ") called" );
             Customer cust = (Customer) readData( id, Customer.getKey(customerID) );
             if( cust == null ) {
                 tm.addCreate(id, Customer.getKey(customerID));
                 cust = new Customer(customerID);
                 writeData( id, cust.getKey(), cust );
-                Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") created a new customer" );
+                Trace.info("  newCustomer(" + id + ", " + customerID + ") created a new customer" );
                 return true;
             } else {
-                Trace.info("INFO:   newCustomer(" + id + ", " + customerID + ") failed--customer already exists");
+                Trace.info("  newCustomer(" + id + ", " + customerID + ") failed--customer already exists");
                 return false;
             }
         }
@@ -595,11 +599,13 @@ implements ResourceManager {
 
     public void commit(int trxnId) throws RemoteException, TransactionAbortedException
     {
+        Trace.info("Committing trxn " + trxnId);
         tm.commit(trxnId);
     }
 
     public void abort(int trxnId) throws RemoteException
     {   // TM's abort
+        Trace.info("Aborting trxn " + trxnId);
         String location = null;
         ReservableItem curObj = null;
         for(Transaction t : tm.getTrxns(trxnId))
@@ -608,16 +614,20 @@ implements ResourceManager {
             switch(t.action)
             {   // undo em
                 case BOOK:    // Done
+                    Trace.info("- Aborting booking of " + t.id + ", " + t.key);
                     newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
                     ((Customer)newObj).unserve(t.key);
                 case UNBOOK:  // DONE
+                    Trace.info("- Aboring unbooking of " + t.id + ", " + t.key);
                     newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
                     ((Customer)newObj).reserve(t.key, t.key.substring(t.key.indexOf("-") + 1), t.price);
                     break;
                 case CREATE:    // DONE
+                    Trace.info("- Aborting creation of " + t.id + ", " + t.key);
                     deleteItem(t.id, t.key);
                     break;
                 case DELETE:    // recreate the item
+                    Trace.info("- Aborting deletion of " + t.id + ", " + t.key);
                     location = t.key.substring(t.key.indexOf("-") + 1);
                     if(t.key.startsWith("car-"))
                     {
@@ -641,11 +651,13 @@ implements ResourceManager {
                     }
                     break;
                 case STOCK:    // DONE
+                    Trace.info("- Aborting change in stock of " + t.id + ", " + t.key);
                     curObj = (ReservableItem) readData(t.id, t.key);
                     curObj.setCount(curObj.getCount() - t.amount());
                     curObj.setReserved(curObj.getReserved() - t.amount());
                     break;
                 case UPDATE:
+                    Trace.info("- Aborting update of " + t.id + ", " + t.key);
                     curObj = (ReservableItem) readData(t.id, t.key);
                     curObj.setCount(t.amount());
                     curObj.setReserved(t.price);
@@ -656,10 +668,14 @@ implements ResourceManager {
     }
 
     public void enlist(int trxnId) throws RemoteException
-        {tm.start(trxnId);}
+    {
+        Trace.info("Enlisting to trxn " + trxnId);
+        tm.start(trxnId);
+    }
 
     public boolean shutdown() throws RemoteException
     {
+        Trace.info("Shutting down the ResourceManager");
         s.start();
         return true;
     }

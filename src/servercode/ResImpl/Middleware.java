@@ -616,7 +616,7 @@ implements MiddleWare {
     public boolean itinerary(int id, int customer,Vector flightNumbers,String location,boolean car,boolean room)
         throws RemoteException, TransactionAbortedException
     {
-        Trace.info("  itinerary( " + id + ", customer=" + customerID + ", " +flightNumbers+ ", "+location+", "+car+", "+room+" ) called" );
+        Trace.info("  itinerary( " + id + ", customer=" + customer + ", " +flightNumbers+ ", "+location+", "+car+", "+room+" ) called" );
         ListIterator itr = flightNumbers.listIterator();
         while (itr.hasNext()) {
             reserveFlight(id, customer, Integer.parseInt(String.valueOf(itr.next())));

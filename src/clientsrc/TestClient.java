@@ -10,8 +10,8 @@ class TestClient extends Client
     private static String file;
     public static void handleArgs(String args[])
     {
-        server = "willy.cs.mcgill.ca";
-        port = 9988;
+        String server = "willy.cs.mcgill.ca";
+        int port = 9988;
         if (args.length == 3)
         {
             port = Integer.parseInt(args[2]);
@@ -32,6 +32,7 @@ class TestClient extends Client
             System.out.println ("Usage: java client [testfile] [rmihost] [port]");
             System.exit(1); 
         }
+        connect(server, port);
     }
 
     public static void main(String args[])
@@ -44,7 +45,6 @@ class TestClient extends Client
         String cmd = null;
         silent = true;
         handleArgs(args);
-        connect();
         long time = System.currentTimeMillis();
         long startTime = time + 1000 * 10;
         long endTime = startTime + 1000 * 60;

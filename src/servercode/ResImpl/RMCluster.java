@@ -164,12 +164,12 @@ implements ResourceManager
                 if (toR == -1)
                     toR = r.queryFlight(id, flightNumber);
                 else if (toR != r.queryFlight(id, flightNumber))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for flight");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;  /* TODO: should throw NoRMsLeftException */
+        return toR;
     }
 
     public synchronized int queryCars(int id, String location)
@@ -183,30 +183,31 @@ implements ResourceManager
                 if (toR == -1)
                     toR = r.queryCars(id, location);
                 else if (toR != r.queryCars(id, location))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for cars");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;
+        return toR;
     }
 
     public synchronized int queryRooms(int id, String location)
     throws RemoteException, TransactionAbortedException
     {
         int[] i = {0};
+        int toR = -1;
         for(; i[0] < size(); i[0]++) {
             ResourceManager r = get(i[0]);
             try {
                 if (toR == -1)
                     toR = r.queryRooms(id, location);
                 else if (toR != r.queryRooms(id, location))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for rooms");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;
+        return toR;
     }
 
     public synchronized String queryCustomerInfo(int id,int customer)
@@ -220,12 +221,12 @@ implements ResourceManager
                 if (toR == null)
                     toR = r.queryCustomerInfo(id, customer);
                 else if (r.queryCustomerInfo(id, customer).equals(toR))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for customer info");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return "";
+        return toR;
     }
 
     public synchronized int queryFlightPrice(int id, int flightNumber)
@@ -261,25 +262,26 @@ implements ResourceManager
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;
+        return toR;
     }
 
     public synchronized RMHashtable getCustomerReservations(int id, int customerID)
     throws RemoteException
     {
         int[] i = {0};
+        RMHashtable toR = null;
         for(; i[0] < size(); i[0]++) {
             ResourceManager r = get(i[0]);
             try {
-                if (toR == -1)
+                if (toR == null)
                     toR = r.getCustomerReservations(id, customerID);
-                else if (toR != r.getCustomerReservations(id, customerID))
-                    Trace.info("Mismatched information for SOMEONE");
+                else if (toR.equals(r.getCustomerReservations(id, customerID)))
+                    Trace.info("Mismatched information for customer reservations");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return null;
+        return toR;
     }
 
     /* return the num */
@@ -287,18 +289,19 @@ implements ResourceManager
     throws RemoteException
     {
         int[] i = {0};
+        int toR = -1;
         for(; i[0] < size(); i[0]++) {
             ResourceManager r = get(i[0]);
             try {
                 if (toR == -1)
                     toR = r.queryNum(id, location);
                 else if (toR != r.queryNum(id, location))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for number");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;
+        return toR;
     }
 
     /* return the price  */
@@ -306,18 +309,19 @@ implements ResourceManager
     throws RemoteException
     {
         int[] i = {0};
+        int toR = -1;
         for(; i[0] < size(); i[0]++) {
             ResourceManager r = get(i[0]);
             try {
                 if (toR == -1)
                     toR = r.queryPrice(id, location);
                 else if (toR != r.queryPrice(id, location))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for price");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;
+        return toR;
     }
 
     /* return the price of a room at a location */
@@ -325,18 +329,19 @@ implements ResourceManager
     throws RemoteException, TransactionAbortedException
     {
         int[] i = {0};
+        int toR = -1;
         for(; i[0] < size(); i[0]++) {
             ResourceManager r = get(i[0]);
             try {
                 if (toR == -1)
                     toR = r.queryRoomsPrice(id, location);
                 else if (toR != r.queryRoomsPrice(id, location))
-                    Trace.info("Mismatched information for SOMEONE");
+                    Trace.info("Mismatched information for room price");
 
             } catch(RemoteException re)
                 {onError(i);}
         }
-        return -1;
+        return toR;
     }
 
     /* Reserve a seat on this flight*/
