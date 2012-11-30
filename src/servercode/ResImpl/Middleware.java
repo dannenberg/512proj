@@ -456,7 +456,11 @@ implements MiddleWare {
         }
         Trace.info("  queryCustomerInfo(" + id + ", " + customerID + "), bill follows..." );
         System.out.println( s );
-        return rmall.queryCustomerInfo(id, customerID);
+        String s = "Bill for customer " + customerID + "\n";
+        s += rmc.queryCustomerInfo(id, customerID);
+        s += rmp.queryCustomerInfo(id, customerID);
+        s += rmh.queryCustomerInfo(id, customerID);
+        return s;
     }
 
     // customer functions

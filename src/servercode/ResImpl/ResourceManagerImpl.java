@@ -439,7 +439,7 @@ implements ResourceManager {
             Trace.warn("  queryCustomerInfo(" + id + ", " + customerID + ") failed--customer doesn't exist" );
             return "";   // NOTE: don't change this--WC counts on this value indicating a customer does not exist...
         } else {
-            String s = "Bill for customer " + customerID + "\n";
+            String s = "";
             String key = null;
             RMHashtable m_Reservations = cust.getReservations();
             for (Enumeration e = m_Reservations.keys(); e.hasMoreElements(); ) {
