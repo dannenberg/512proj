@@ -220,7 +220,7 @@ implements ResourceManager
             try {
                 if (toR == null)
                     toR = r.queryCustomerInfo(id, customer);
-                else if (r.queryCustomerInfo(id, customer).equals(toR))
+                else if (!r.queryCustomerInfo(id, customer).equals(toR))
                     Trace.info("Mismatched information for customer info");
 
             } catch(RemoteException re)

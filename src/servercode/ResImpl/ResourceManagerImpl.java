@@ -196,8 +196,9 @@ implements ResourceManager {
             writeData( id, cust.getKey(), cust );
 
             // decrease the number of available items in the storage
-            item.setCount(item.getCount() - 1);
-            item.setReserved(item.getReserved()+1);
+            decrementItem(id, key);
+            //item.setCount(item.getCount() - 1);
+            //item.setReserved(item.getReserved()+1);
 
             Trace.info("  reserveItem( " + id + ", " + customerID + ", " + key + ", " +location+") succeeded" );
             return true;
@@ -617,6 +618,7 @@ implements ResourceManager {
                     Trace.info("- Aborting booking of " + t.id + ", " + t.key);
                     newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
                     ((Customer)newObj).unserve(t.key);
+                    break;
                 case UNBOOK:  // DONE
                     Trace.info("- Aboring unbooking of " + t.id + ", " + t.key);
                     newObj = (Customer) readData( t.id, Customer.getKey(t.custId()) );
